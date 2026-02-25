@@ -1,5 +1,6 @@
 import { query } from '../config/database';
 import { sendPushNotification } from './pushService';
+import { initServerClient } from 'vibe-message';
 
 // Internal app ID for admin panel notifications
 // This will be created during initialization
@@ -8,7 +9,7 @@ const INTERNAL_APP_NAME = 'Admin Panel Notifications';
 /**
  * Get or create the internal app for admin panel notifications
  */
-export const getOrCreateInternalApp = async (): Promise<{ id: number; public_app_id: string }> => {
+export const getOrCreateInternalApp = async (): Promise<{ id: number; public_app_id: string; secret_key?: string }> => {
   // Check if internal app exists
   const existingApp = await query(
     'SELECT id, public_app_id, public_key FROM apps WHERE name = $1 AND description = $2',
@@ -51,7 +52,10 @@ export const getOrCreateInternalApp = async (): Promise<{ id: number; public_app
     ]
   );
 
-  return newApp.rows[0];
+  return {
+    ...newApp.rows[0],
+    secret_key: secretKey // Include the secret key for the SDK
+  };
 };
 
 /**
@@ -73,16 +77,21 @@ export const notifySuperAdmins = async (title: string, body: string, data?: any)
 
     const externalUserIds = superAdmins.rows.map((admin) => admin.email);
 
-    await sendPushNotification(
-      internalApp.id,
-      {
+    const vibe = initServerClient({
+      baseUrl: 'http://localhost:3000/api',
+      appId: internalApp.public_app_id,
+      secretKey: internalApp.secret_key || process.env.ADMIN_SECRET_KEY || ''
+    });
+
+    await vibe.notification({
+      notificationData: {
         title,
         body,
         icon: '/admin-icon.png',
         data,
       },
-      externalUserIds
-    );
+      externalUsers: externalUserIds
+    });
   } catch (error) {
     console.error('Failed to notify super admins:', error);
     // Don't throw - internal notifications shouldn't break the main flow
@@ -114,16 +123,21 @@ export const notifyUser = async (
 
     const userEmail = userResult.rows[0].email;
 
-    await sendPushNotification(
-      internalApp.id,
-      {
+    const vibe = initServerClient({
+      baseUrl: 'http://localhost:3000/api',
+      appId: internalApp.public_app_id,
+      secretKey: internalApp.secret_key || process.env.ADMIN_SECRET_KEY || ''
+    });
+
+    await vibe.notification({
+      notificationData: {
         title,
         body,
         icon: '/admin-icon.png',
         data,
       },
-      [userEmail]
-    );
+      externalUsers: [userEmail]
+    });
   } catch (error) {
     console.error(`Failed to notify user ${userId}:`, error);
     // Don't throw - internal notifications shouldn't break the main flow

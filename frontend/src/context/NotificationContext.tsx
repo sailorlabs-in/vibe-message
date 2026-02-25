@@ -149,6 +149,8 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
 
     if (appId && publicKey) {
       try {
+        // --- COMMENTED OUT CURRENT CODE FOR TESTING ---
+        /*
         const client = initNotificationClient({
           baseUrl: API_BASE_URL,
           appId: appId,
@@ -157,6 +159,21 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
 
         // Store client in ref for later use (unregister)
         clientRef.current = client;
+        */
+
+        // --- 📝 EXTERNAL SDK USAGE EXAMPLE ---
+        // If you were integrating this SDK in a separate 3rd-party React frontend,
+        // you would completely omit the `baseUrl`. The SDK defaults to production automatically:
+        
+        // import { initNotificationClient } from "vibe-message";
+        const client = initNotificationClient({
+          baseUrl: API_BASE_URL,
+          appId: appId, // Real keys passed here for testing
+          publicKey: publicKey
+        });
+        clientRef.current = client;
+        
+        // ------------------------------------
 
         // Register callbacks
         client.onMessage((payload: any) => {

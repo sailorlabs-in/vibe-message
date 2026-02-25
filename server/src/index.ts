@@ -103,3 +103,22 @@ process.on('SIGINT', async () => {
   await pool.end();
   process.exit(0);
 });
+
+// --- 📝 EXTERNAL SDK USAGE EXAMPLE (BACKEND) ---
+// If you are integrating this from a separate 3rd-party Node.js backend to send notifications,
+// you would use the `initServerClient` like this (omitting baseUrl):
+
+import { initServerClient } from 'vibe-message';
+
+const vibe = initServerClient({
+  appId: process.env.ADMIN_APP_ID || '',
+  secretKey: process.env.ADMIN_SECRET_KEY || ''
+});
+
+// Example: Triggering a push notification to a specific user
+vibe.notification({
+  notificationData: { title: 'Alert!', body: 'Your process completed.' },
+  externalUsers: ['user-123']
+}).catch(err => console.log("[Dev Test] Expected crash (Requires real keys):", err.message));
+
+// --------------------------------------------
