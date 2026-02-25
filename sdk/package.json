@@ -10,7 +10,7 @@
     "bin"
   ],
   "bin": {
-    "vibe-message": "./bin/vibe-message.js"
+    "vibe-message": "bin/vibe-message.js"
   },
   "scripts": {
     "build": "rollup -c",
@@ -28,7 +28,7 @@
   "author": "umangsailor",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TuathaDeLugh/vibe-message"
+    "url": "git+https://github.com/TuathaDeLugh/vibe-message.git"
   },
   "bugs": {
     "url": "https://github.com/TuathaDeLugh/vibe-message/issues"
