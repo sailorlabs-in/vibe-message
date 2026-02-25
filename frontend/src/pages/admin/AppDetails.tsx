@@ -85,17 +85,20 @@ export const AppDetails: React.FC = () => {
   if (loading && !app) return <div className="p-8">Loading...</div>;
   if (!app) return <div className="p-8">App not found</div>;
 
-  const integrationCode = `// 1. Include the SDK
-import { initNotificationClient } from 'fcm-clone-sdk';
+  const integrationCode = `// 1. Initialize Service Worker (Run in terminal)
+// npx vibe-message init
 
-// 2. Initialize with publicKey
+// 2. Include the SDK
+import { initNotificationClient } from 'vibe-message';
+
+// 3. Initialize with publicKey
 const client = initNotificationClient({
   baseUrl: 'https://your-server.com/api',
   appId: '${app.public_app_id}',
   publicKey: '${app.public_key}'
 });
 
-// 3. Register callbacks
+// 4. Register callbacks
 client.onMessage((payload) => {
   console.log('Foreground:', payload);
 });
@@ -108,10 +111,9 @@ client.onSilentMessage((data) => {
   console.log('Silent:', data);
 });
 
-// 4. Register device
+// 5. Register device
 await client.registerDevice({
-  externalUserId: 'user-123',
-  serviceWorkerPath: '/push-sw.js'
+  externalUserId: 'user-123'
 });`;
 
   const backendCode = `// Send push notification from your backend

@@ -1,13 +1,17 @@
 {
   "name": "vibe-message",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Lightweight JavaScript SDK for web push notifications",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "bin"
   ],
+  "bin": {
+    "vibe-message": "./bin/vibe-message.js"
+  },
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w"
@@ -21,15 +25,15 @@
     "vapid",
     "browser-notifications"
   ],
-  "author": "Vibe Message",
+  "author": "umangsailor",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/vibe-message"
+    "url": "https://github.com/TuathaDeLugh/vibe-message"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/vibe-message/issues"
+    "url": "https://github.com/TuathaDeLugh/vibe-message/issues"
   },
-  "homepage": "https://github.com/yourusername/vibe-message#readme",
+  "homepage": "https://github.com/TuathaDeLugh/vibe-message#readme",
   "license": "MIT",
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.1.5",

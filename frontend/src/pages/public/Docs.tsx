@@ -1,723 +1,311 @@
 import React, { useState } from "react";
 
 export const Docs: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"basic" | "react" | "nextjs">(
-    "basic"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "quickstart" | "backend" | "react" | "nextjs"
+  >("overview");
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold mb-8">Documentation</h1>
+    <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="text-center mb-16">
+        <h1 className="text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">
+          Vibe Message <span className="text-primary-600">Docs</span>
+        </h1>
+        <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+          The modern, lightweight, and incredibly powerful push notification 
+          platform for the web. Drop-in Firebase Cloud Messaging alternative.
+        </p>
+      </div>
 
-      {/* Tab Navigation */}
-      <div className="flex gap-4 mb-8 border-b border-gray-200">
+      <div className="flex flex-wrap justify-center gap-2 mb-12 border-b border-gray-200 pb-2">
         <button
-          onClick={() => setActiveTab("basic")}
-          className={`px-6 py-3 font-semibold transition-colors ${
-            activeTab === "basic"
-              ? "text-primary-600 border-b-2 border-primary-600"
-              : "text-gray-600 hover:text-gray-900"
+          onClick={() => setActiveTab("overview")}
+          className={`px-6 py-3 font-semibold rounded-t-lg transition-all duration-200 ${
+            activeTab === "overview"
+              ? "bg-primary-50 text-primary-700 border-b-2 border-primary-600 shadow-sm"
+              : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
           }`}
         >
-          Basic Setup
+          ✨ Platform Overview
+        </button>
+        <button
+          onClick={() => setActiveTab("quickstart")}
+          className={`px-6 py-3 font-semibold rounded-t-lg transition-all duration-200 ${
+            activeTab === "quickstart"
+              ? "bg-primary-50 text-primary-700 border-b-2 border-primary-600 shadow-sm"
+              : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+          }`}
+        >
+          🔑 Quick Start
+        </button>
+        <button
+          onClick={() => setActiveTab("backend")}
+          className={`px-6 py-3 font-semibold rounded-t-lg transition-all duration-200 ${
+            activeTab === "backend"
+              ? "bg-primary-50 text-primary-700 border-b-2 border-primary-600 shadow-sm"
+              : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+          }`}
+        >
+          ⚙️ Backend Integration
         </button>
         <button
           onClick={() => setActiveTab("react")}
-          className={`px-6 py-3 font-semibold transition-colors ${
+          className={`px-6 py-3 font-semibold rounded-t-lg transition-all duration-200 ${
             activeTab === "react"
-              ? "text-primary-600 border-b-2 border-primary-600"
-              : "text-gray-600 hover:text-gray-900"
+              ? "bg-primary-50 text-primary-700 border-b-2 border-primary-600 shadow-sm"
+              : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
           }`}
         >
-          React Integration
+          ⚛️ React Frontend
         </button>
         <button
           onClick={() => setActiveTab("nextjs")}
-          className={`px-6 py-3 font-semibold transition-colors ${
+          className={`px-6 py-3 font-semibold rounded-t-lg transition-all duration-200 ${
             activeTab === "nextjs"
-              ? "text-primary-600 border-b-2 border-primary-600"
-              : "text-gray-600 hover:text-gray-900"
+              ? "bg-primary-50 text-primary-700 border-b-2 border-primary-600 shadow-sm"
+              : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
           }`}
         >
-          Next.js Integration
+          ▲ Next.js Frontend
         </button>
       </div>
 
-      {/* Basic Setup Tab */}
-      {activeTab === "basic" && (
-        <div>
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold mb-4">Getting Started</h2>
-            <div className="space-y-4 text-gray-700">
-              <p>
-                Follow these steps to integrate push notifications into your web
-                application:
-              </p>
-
-              <div className="card">
-                <h3 className="font-semibold text-lg mb-2">
-                  1. Create an Account
-                </h3>
-                <p>
-                  Sign up on our platform and wait for super admin approval.
-                </p>
-              </div>
-
-              <div className="card">
-                <h3 className="font-semibold text-lg mb-2">2. Create an App</h3>
-                <p>
-                  Once approved, create an app to receive your{" "}
-                  <code className="bg-gray-100 px-2 py-1 rounded">appId</code>,{" "}
-                  <code className="bg-gray-100 px-2 py-1 rounded">
-                    publicKey
-                  </code>
-                  , and{" "}
-                  <code className="bg-gray-100 px-2 py-1 rounded">
-                    secretKey
-                  </code>
-                  .
-                </p>
-              </div>
-
-              <div className="card">
-                <h3 className="font-semibold text-lg mb-2">
-                  3. Setup Service Worker
-                </h3>
-                <p>
-                  Create a service worker file (
-                  <code className="bg-gray-100 px-2 py-1 rounded">
-                    push-sw.js
-                  </code>
-                  ) in your public directory:
-                </p>
-                <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm mt-2">
-                  {`self.addEventListener('push', event => {
-  const data = event.data?.json() || {};
-  
-  if (data.silent) {
-    // Handle silent notification
-    console.log('Silent push received:', data);
-    return;
-  }
-  
-  const { title, body, icon, image, click_action } = data;
-  
-  event.waitUntil(
-    self.registration.showNotification(title || 'Notification', {
-      body,
-      icon,
-      image,
-      data: { click_action }
-    })
-  );
-});
-
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  const url = event.notification.data?.click_action || '/';
-  
-  event.waitUntil(
-    clients.matchAll({ type: 'window' }).then(clientList => {
-      for (const client of clientList) {
-        if (client.url === url && 'focus' in client) {
-          return client.focus();
-        }
-      }
-      if (clients.openWindow) {
-        return clients.openWindow(url);
-      }
-    })
-  );
-});`}
-                </pre>
-              </div>
-
-              <div className="card">
-                <h3 className="font-semibold text-lg mb-2">4. Install SDK</h3>
-                <p>
-                  Install the SDK in your project (use local build for now):
-                </p>
-                <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm mt-2">
-                  {`# Copy the SDK from your project
-cp -r path/to/sdk/dist your-project/lib/sdk`}
-                </pre>
-              </div>
-
-              <div className="card">
-                <h3 className="font-semibold text-lg mb-2">
-                  5. Initialize SDK
-                </h3>
-                <p>In your application code:</p>
-                <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm mt-2">
-                  {`import { initNotificationClient } from './lib/sdk';
-
-const client = initNotificationClient({
-  baseUrl: 'http://localhost:3000/api',
-  appId: 'your-app-id',
-  publicKey: 'your-public-key'
-});
-
-// Register device when user logs in
-await client.registerDevice({
-  externalUserId: 'user-123',
-  serviceWorkerPath: '/push-sw.js'
-});`}
-                </pre>
-              </div>
-
-              <div className="card">
-                <h3 className="font-semibold text-lg mb-2">
-                  6. Send Notifications from Backend
-                </h3>
-                <p>Call the push API from your server:</p>
-                <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm mt-2">
-                  {`const response = await fetch('http://localhost:3000/api/push/send', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    appId: 'your-app-id',
-    secretKey: 'your-secret-key',
-    notification: {
-      title: 'Hello!',
-      body: 'This is a test notification',
-      icon: '/icon.png',
-      image: '/banner.jpg',
-      click_action: 'https://your-app.com/page',
-      silent: false
-    },
-    targets: {
-      externalUserIds: ['user-123'] // or { all: true }
-    }
-  })
-});
-
-const result = await response.json();
-console.log(result);`}
-                </pre>
-              </div>
-            </div>
-          </section>
-
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold mb-4">API Reference</h2>
-
-            <div className="card mb-4">
-              <h3 className="font-semibold text-lg mb-2">
-                POST /api/push/send
-              </h3>
-              <p className="text-sm text-gray-600 mb-3">
-                Send a push notification to devices
-              </p>
-              <div className="text-sm">
-                <p className="font-medium mb-1">Request Body:</p>
-                <ul className="list-disc list-inside space-y-1 text-gray-700">
-                  <li>
-                    <code className="bg-gray-100 px-1">appId</code> (string) -
-                    Your app ID
-                  </li>
-                  <li>
-                    <code className="bg-gray-100 px-1">secretKey</code> (string)
-                    - Your secret key
-                  </li>
-                  <li>
-                    <code className="bg-gray-100 px-1">notification</code>{" "}
-                    (object) - Notification payload
-                  </li>
-                  <li>
-                    <code className="bg-gray-100 px-1">targets</code> (object,
-                    optional) - Target users
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="card">
-              <h3 className="font-semibold text-lg mb-2">
-                Notification Object
-              </h3>
-              <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
-                <li>
-                  <code className="bg-gray-100 px-1">title</code> (string,
-                  required) - Notification title
-                </li>
-                <li>
-                  <code className="bg-gray-100 px-1">body</code> (string,
-                  optional) - Notification body
-                </li>
-                <li>
-                  <code className="bg-gray-100 px-1">icon</code> (string,
-                  optional) - Icon URL
-                </li>
-                <li>
-                  <code className="bg-gray-100 px-1">image</code> (string,
-                  optional) - Image URL
-                </li>
-                <li>
-                  <code className="bg-gray-100 px-1">click_action</code>{" "}
-                  (string, optional) - URL to open on click
-                </li>
-                <li>
-                  <code className="bg-gray-100 px-1">silent</code> (boolean,
-                  optional) - Silent notification (no UI)
-                </li>
-                <li>
-                  <code className="bg-gray-100 px-1">data</code> (object,
-                  optional) - Custom data payload
-                </li>
-              </ul>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">Best Practices</h2>
-            <div className="space-y-3 text-gray-700">
-              <div className="card">
-                <h3 className="font-semibold mb-2">🔒 Security</h3>
-                <p>
-                  Never expose your{" "}
-                  <code className="bg-gray-100 px-1">secretKey</code> in
-                  client-side code. Only use it on your backend server.
-                </p>
-              </div>
-              <div className="card">
-                <h3 className="font-semibold mb-2">📱 User Experience</h3>
-                <p>
-                  Always request notification permission at an appropriate time,
-                  not immediately on page load.
-                </p>
-              </div>
-              <div className="card">
-                <h3 className="font-semibold mb-2">⚡ Performance</h3>
-                <p>
-                  Use silent notifications for background data sync to avoid
-                  overwhelming users with UI notifications.
-                </p>
-              </div>
-            </div>
-          </section>
-        </div>
-      )}
-
-      {/* React Integration Tab */}
-      {activeTab === "react" && (
-        <div>
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold mb-4">
-              React Integration Guide
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12">
+        {activeTab === "overview" && (
+          <div className="animate-fade-in">
+            <h2 className="text-3xl font-bold mb-8 text-gray-900">
+              Why Vibe Message?
             </h2>
-            <p className="text-gray-700 mb-6">
-              Complete guide for integrating notifications in React applications
-              (Vite, CRA, etc.)
+            <p className="text-lg text-gray-600 mb-10 leading-relaxed max-w-4xl">
+              Vibe Message is built for modern web applications that need reliable, 
+              customizable, and fast push notifications without the heavy baggage of legacy SDKs.
             </p>
 
-            <div className="card mb-6">
-              <h3 className="font-semibold text-lg mb-3">
-                1. Create Notification Context
-              </h3>
-              <p className="text-sm text-gray-600 mb-3">
-                Create{" "}
-                <code className="bg-gray-100 px-1">
-                  src/context/NotificationContext.tsx
-                </code>
-                :
-              </p>
-              <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
-                {`import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
-import { initNotificationClient } from '../lib/sdk';
-import toast from 'react-hot-toast';
-
-const STORAGE_KEY = 'notification-registered';
-
-interface NotificationContextType {
-  isRegistered: boolean;
-  permissionStatus: NotificationPermission;
-  requestPermission: () => Promise<void>;
-  unregisterNotifications: () => Promise<void>;
-}
-
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
-
-export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [permissionStatus, setPermissionStatus] = useState<NotificationPermission>('default');
-  const clientRef = useRef<any>(null);
-
-  useEffect(() => {
-    // Load registration state
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'true') setIsRegistered(true);
-    
-    // Check permission
-    if ('Notification' in window) {
-      setPermissionStatus(Notification.permission);
-    }
-  }, []);
-
-  const initializeNotifications = async (userId: string) => {
-    const client = initNotificationClient({
-      baseUrl: 'http://localhost:3000/api',
-      appId: 'your-app-id',
-      publicKey: 'your-public-key'
-    });
-
-    clientRef.current = client;
-
-    // Register callbacks
-    client.onMessage((payload: any) => {
-      toast.success(\`\${payload.title}: \${payload.body}\`);
-    });
-
-    // Register device
-    await client.registerDevice({
-      externalUserId: userId,
-      serviceWorkerPath: '/push-sw.js'
-    });
-
-    setIsRegistered(true);
-    localStorage.setItem(STORAGE_KEY, 'true');
-  };
-
-  const requestPermission = async () => {
-    const permission = await Notification.requestPermission();
-    setPermissionStatus(permission);
-    
-    if (permission === 'granted') {
-      await initializeNotifications('user-id');
-    }
-  };
-
-  const unregisterNotifications = async () => {
-    if (clientRef.current) {
-      await clientRef.current.unregisterDevice('user-id');
-      setIsRegistered(false);
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  };
-
-  return (
-    <NotificationContext.Provider value={{ isRegistered, permissionStatus, requestPermission, unregisterNotifications }}>
-      {children}
-    </NotificationContext.Provider>
-  );
-};
-
-export const useNotifications = () => {
-  const context = useContext(NotificationContext);
-  if (!context) throw new Error('useNotifications must be used within NotificationProvider');
-  return context;
-};`}
-              </pre>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+              <FeatureCard
+                icon="⚡"
+                title="Ultra Lightweight"
+                description="Zero bloated dependencies. Our SDK is a fraction of the size of traditional platforms, ensuring your web app stays blazing fast."
+              />
+              <FeatureCard
+                icon="🔐"
+                title="VAPID Security"
+                description="Built on web standards. Uses encrypted payload delivery ensuring your notifications are secure from server to screen."
+              />
+              <FeatureCard
+                icon="🔄"
+                title="Smart Delivery"
+                description="Automatically detects if your users are using the app. Show in-app toasts when active, and OS-level push notifications when away."
+              />
+              <FeatureCard
+                icon="👥"
+                title="Multi-tenant Ready"
+                description="Managing multiple apps? Vibe Message isolates credentials, users, and notifications giving you total platform control."
+              />
+              <FeatureCard
+                icon="🎨"
+                title="Highly Customizable"
+                description="You own the UI. Use our CLI to generate your Service Worker, then customize exactly how your notifications look and feel."
+              />
+              <FeatureCard
+                icon="📊"
+                title="Silent Data Sync"
+                description="Send invisible data payloads to your app to trigger background data refreshes, perfect for chat apps and live dashboards."
+              />
             </div>
 
-            <div className="card mb-6">
-              <h3 className="font-semibold text-lg mb-3">2. Wrap Your App</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                In <code className="bg-gray-100 px-1">src/App.tsx</code>:
-              </p>
-              <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
-                {`import { NotificationProvider } from './context/NotificationContext';
-import { Toaster } from 'react-hot-toast';
-
-function App() {
-  return (
-    <NotificationProvider>
-      <Toaster position="top-right" />
-      {/* Your app components */}
-    </NotificationProvider>
-  );
-}`}
-              </pre>
+            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-xl p-8 text-white relative overflow-hidden shadow-xl">
+              <div className="relative z-10">
+                <h3 className="text-2xl font-bold mb-4">Ready to build?</h3>
+                <p className="text-gray-300 mb-6 max-w-2xl text-lg">
+                  Join the platform, grab your API keys, and start sending messages in under 5 minutes.
+                </p>
+                <div className="flex flex-wrap gap-4">
+                  <button 
+                    onClick={() => setActiveTab("quickstart")}
+                    className="px-6 py-3 bg-primary-600 hover:bg-primary-500 rounded-lg font-semibold transition-colors shadow-lg"
+                  >
+                    View Setup Guide ➔
+                  </button>
+                </div>
+              </div>
             </div>
-
-            <div className="card mb-6">
-              <h3 className="font-semibold text-lg mb-3">
-                3. Use in Components
-              </h3>
-              <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
-                {`import { useNotifications } from '../context/NotificationContext';
-
-function Dashboard() {
-  const { isRegistered, permissionStatus, requestPermission } = useNotifications();
-
-  return (
-    <div>
-      {permissionStatus === 'default' && (
-        <button onClick={requestPermission}>
-          Enable Notifications
-        </button>
-      )}
-      {isRegistered && <p>✅ Notifications enabled!</p>}
-    </div>
-  );
-}`}
-              </pre>
-            </div>
-
-            <div className="card">
-              <h3 className="font-semibold text-lg mb-3">
-                4. Unregister on Logout
-              </h3>
-              <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
-                {`const { unregisterNotifications } = useNotifications();
-
-const handleLogout = async () => {
-  await unregisterNotifications();
-  // Proceed with logout
-};`}
-              </pre>
-            </div>
-          </section>
-        </div>
-      )}
-
-      {/* Next.js Integration Tab */}
-      {activeTab === "nextjs" && (
-        <div>
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold mb-4">
-              Next.js Integration Guide
-            </h2>
-            <p className="text-gray-700 mb-6">
-              Complete guide for integrating notifications in Next.js App Router
-              applications
-            </p>
-
-            <div className="card mb-6">
-              <h3 className="font-semibold text-lg mb-3">
-                1. Setup Service Worker
-              </h3>
-              <p className="text-sm text-gray-600 mb-3">
-                Create{" "}
-                <code className="bg-gray-100 px-1">public/push-sw.js</code>{" "}
-                (same as basic setup)
-              </p>
-            </div>
-
-            <div className="card mb-6">
-              <h3 className="font-semibold text-lg mb-3">
-                2. Create Client Component
-              </h3>
-              <p className="text-sm text-gray-600 mb-3">
-                Create{" "}
-                <code className="bg-gray-100 px-1">
-                  app/components/NotificationManager.tsx
-                </code>
-                :
-              </p>
-              <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
-                {`"use client";
-
-import { useState, useEffect, useRef } from 'react';
-import { initNotificationClient } from 'vibe-message';
-import toast from 'react-hot-toast';
-
-const STORAGE_KEY = 'notification-config';
-
-export default function NotificationManager() {
-  const [appId, setAppId] = useState('');
-  const [publicKey, setPublicKey] = useState('');
-  const [userId, setUserId] = useState('');
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [permissionStatus, setPermissionStatus] = useState<NotificationPermission>('default');
-  const clientRef = useRef<any>(null);
-
-  useEffect(() => {
-    // Load config from localStorage
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const config = JSON.parse(stored);
-      setAppId(config.appId || '');
-      setPublicKey(config.publicKey || '');
-      setUserId(config.userId || '');
-    }
-
-    // Check permission status
-    if ('Notification' in window) {
-      setPermissionStatus(Notification.permission);
-    }
-  }, []);
-
-  const saveConfig = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ appId, publicKey, userId }));
-  };
-
-  const registerDevice = async () => {
-    try {
-      const client = initNotificationClient({
-        baseUrl: window.location.origin + '/api',
-        appId,
-        publicKey
-      });
-
-      clientRef.current = client;
-
-      // Register callbacks
-      client.onMessage((payload: any) => {
-        toast.custom((t) => (
-          <div className="bg-white shadow-lg rounded-lg p-4">
-            <p className="font-medium">{payload.title}</p>
-            <p className="text-sm text-gray-600">{payload.body}</p>
           </div>
-        ));
-      });
+        )}
 
-      // Request permission
-      const permission = await Notification.requestPermission();
-      setPermissionStatus(permission);
+        {activeTab === "quickstart" && (
+          <div className="animate-fade-in">
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">
+              How It Works
+            </h2>
+            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              To use Vibe Message, you need two pieces: a <strong>Frontend</strong> application (to receive messages) and a <strong>Backend</strong> service (to send messages securely).
+            </p>
+            <div className="space-y-8">
+              <StepCard
+                number={1}
+                title="Create your Application"
+                description={
+                  <>
+                    First, you must create an App in the Vibe Message dashboard. You will receive an{" "}
+                    <code className="bg-gray-100 text-pink-600 px-2 py-1 rounded text-sm font-mono">appId</code>, a {" "}
+                    <code className="bg-gray-100 text-pink-600 px-2 py-1 rounded text-sm font-mono">publicKey</code> (used on the frontend), and a highly sensitive {" "}
+                    <code className="bg-gray-100 text-pink-600 px-2 py-1 rounded text-sm font-mono">secretKey</code> (used strictly on your backend).
+                  </>
+                }
+              />
+              <StepCard
+                number={2}
+                title="Integrate your Frontend (Client)"
+                description={
+                  <>
+                    Your React or Next.js frontend uses the <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">publicKey</code> to authenticate with Vibe Message and registers the user's browser device to receive push notifications. Check out the <strong>React</strong> or <strong>Next.js</strong> tabs for specific client-side setup guides.
+                  </>
+                }
+              />
+              <StepCard
+                number={3}
+                title="Integrate your Backend (Server)"
+                description={
+                  <>
+                    When an event occurs in your system (like a new chat message or alert), your backend uses the <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">secretKey</code> to securely request Vibe Message to deliver a push notification to that specific user. Check out the <strong>Backend Integration</strong> tab to learn how.
+                  </>
+                }
+              />
+            </div>
+          </div>
+        )}
 
-      if (permission !== 'granted') {
-        toast.error('Notification permission denied');
-        return;
-      }
+        {activeTab === "backend" && (
+          <div className="animate-fade-in">
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">
+              Backend Integration (Sending)
+            </h2>
+            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+              Your backend server is responsible for triggering notifications. You should <strong>never</strong> expose your <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono">secretKey</code> to your frontend code.
+            </p>
+            <div className="space-y-8">
+              <StepCard
+                number={1}
+                title="Send a Notification via API"
+                description="Make a standard authenticated HTTP POST request to our delivery API from your Node.js, Python, or Go server. Example using native JS Fetch:"
+                code={"const response = await fetch('https://api.yourserver.com/api/push/send', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({\n    appId: 'your-app-id',\n    secretKey: 'your-secret-key',\n    notification: {\n      title: 'New Content!',\n      body: 'Someone liked your post.',\n      icon: 'https://yoursite.com/icon.png',\n      click_action: 'https://yoursite.com/dashboard',\n    },\n    targets: {\n      externalUserIds: ['user-123'] // ID of the user you want to notify\n    }\n  })\n});\n\nconst result = await response.json();\nconsole.log(result);"}
+              />
+              <StepCard
+                number={2}
+                title="Send a Silent Data Payload"
+                description="Need to trigger an invisible background refresh on the client? Send a silent payload without a title/body, and intercept it in the Service Worker."
+                code={"const response = await fetch('https://api.yourserver.com/api/push/send', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({\n    appId: 'your-app-id',\n    secretKey: 'your-secret-key',\n    notification: {\n      // No Title or Body means it's silent!\n      data: {\n        type: 'REFRESH_CHAT',\n        chatId: 'chat-456'\n      }\n    },\n    targets: {\n      externalUserIds: ['user-123']\n    }\n  })\n});"}
+              />
+            </div>
+          </div>
+        )}
 
-      // Register device
-      await client.registerDevice({
-        externalUserId: userId,
-        serviceWorkerPath: '/push-sw.js'
-      });
+        {activeTab === "react" && (
+          <div className="animate-fade-in">
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">
+              React Frontend (Receiving)
+            </h2>
+            <p className="text-lg text-gray-600 mb-8">
+              The recommended pattern for SPAs like Create React App or Vite to start receiving messages sent by your backend.
+            </p>
 
-      setIsRegistered(true);
-      saveConfig();
-      toast.success('Notifications enabled!');
-    } catch (error: any) {
-      toast.error(\`Failed: \${error.message}\`);
-    }
-  };
+            <div className="space-y-8">
+              <StepCard
+                number={1}
+                title="Install SDK & Generate Worker"
+                description="Install the package, and drop the Service Worker file into your public folder using the CLI."
+                code={"npm install vibe-message\n\nnpx vibe-message init"}
+              />
 
-  const unregisterDevice = async () => {
-    if (clientRef.current) {
-      await clientRef.current.unregisterDevice(userId);
-      setIsRegistered(false);
-      toast.success('Notifications disabled');
-    }
-  };
+              <StepCard
+                number={2}
+                title="Create a Context Provider"
+                description="Create a global React context to manage notification state and permissions."
+                code={"import React, { createContext, useContext, useState, useRef } from 'react';\nimport { initNotificationClient } from 'vibe-message';\nimport toast from 'react-hot-toast';\n\nconst NotificationContext = createContext<any>(null);\n\nexport const NotificationProvider = ({ children }: any) => {\n  const [isRegistered, setIsRegistered] = useState(false);\n  const clientRef = useRef<any>(null);\n\n  const init = async (userId: string) => {\n    const client = initNotificationClient({\n      baseUrl: 'https://api.yoursite.com/api',\n      appId: 'your-app-id',\n      publicKey: 'your-public-key'\n    });\n    clientRef.current = client;\n\n    client.onMessage((payload: any) => {\n      // Show modern in-app toast for foreground users\n      toast.success(payload.title + \": \" + payload.body);\n    });\n\n    // Register the client using the logged-in user's DB ID\n    await client.registerDevice({ externalUserId: userId });\n    setIsRegistered(true);\n  };\n\n  return (\n    <NotificationContext.Provider value={{ isRegistered, init }}>\n      {children}\n    </NotificationContext.Provider>\n  );\n};"}
+              />
+              
+              <StepCard
+                number={3}
+                title="Use Anywhere"
+                description="Now you can request permissions and initialize the SDK from any component (e.g. after login)!"
+                code={"function LoginButton() {\n  const { init } = useContext(NotificationContext);\n\n  const handleLogin = async () => {\n    // 1. Perform login via your backend\n    const user = await API.login();\n    \n    // 2. Request browser permission\n    await Notification.requestPermission();\n    \n    // 3. Connect the browser to Vibe Message\n    await init(user.id);\n  };\n\n  return <button onClick={handleLogin}>Log In</button>;\n}"}
+              />
+            </div>
+          </div>
+        )}
 
-  return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Notification Demo</h1>
+        {activeTab === "nextjs" && (
+          <div className="animate-fade-in">
+            <h2 className="text-3xl font-bold mb-4 text-gray-900">
+              Next.js Frontend (Receiving)
+            </h2>
+            <p className="text-lg text-gray-600 mb-8">
+              Integration guide optimized for Next.js 13+ Server and Client components.
+            </p>
 
-      <div className="space-y-4 mb-6">
-        <div>
-          <label className="block text-sm font-medium mb-2">App ID</label>
-          <input
-            type="text"
-            value={appId}
-            onChange={(e) => setAppId(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-            placeholder="your-app-id"
-          />
-        </div>
+            <div className="space-y-8">
+              <StepCard
+                number={1}
+                title="Install SDK & Generate Worker"
+                description="Install the package from npm, and generate the push-sw.js file into your Next.js public directory."
+                code={"npm install vibe-message\n\nnpx vibe-message init"}
+              />
 
-        <div>
-          <label className="block text-sm font-medium mb-2">Public Key</label>
-          <input
-            type="text"
-            value={publicKey}
-            onChange={(e) => setPublicKey(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-            placeholder="your-public-key"
-          />
-        </div>
+              <StepCard
+                number={2}
+                title="Create a Client Component"
+                description="Because the SDK uses browser APIs, ensure the wrapper component uses the 'use client' directive."
+                code={"\"use client\";\nimport { useEffect, useRef } from 'react';\nimport { initNotificationClient } from 'vibe-message';\n\nexport default function PushNotifications() {\n  const isInitialized = useRef(false);\n\n  useEffect(() => {\n    if (isInitialized.current) return;\n    \n    const setup = async () => {\n      // Verify browser permission before registering\n      if (Notification.permission !== 'granted') return;\n\n      const client = initNotificationClient({\n        baseUrl: 'https://api.yoursite.com/api',\n        appId: 'your-app-id',\n        publicKey: 'your-public-key'\n      });\n\n      client.onMessage((payload) => alert(\"Received: \" + payload.title));\n\n      // Register with the logged-in user's ID\n      await client.registerDevice({ externalUserId: 'user-123' });\n      isInitialized.current = true;\n    };\n\n    setup();\n  }, []);\n\n  return null; // Empty wrapper\n}"}
+              />
 
-        <div>
-          <label className="block text-sm font-medium mb-2">User ID</label>
-          <input
-            type="text"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg"
-            placeholder="user-123"
-          />
-        </div>
-      </div>
-
-      <div className="flex gap-4">
-        {!isRegistered ? (
-          <button
-            onClick={registerDevice}
-            disabled={!appId || !publicKey || !userId}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
-          >
-            Register Device
-          </button>
-        ) : (
-          <button
-            onClick={unregisterDevice}
-            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700"
-          >
-            Unregister Device
-          </button>
+              <StepCard
+                number={3}
+                title="Mount inside Layout"
+                description="Mount your client component somewhere global, like your root Layout or a specific Dashboard layout wrapper."
+                code={"import PushNotifications from './components/PushNotifications';\n\nexport default function RootLayout({ children }) {\n  return (\n    <html lang=\"en\">\n      <body>\n        <PushNotifications />\n        {children}\n      </body>\n    </html>\n  );\n}"}
+              />
+            </div>
+          </div>
         )}
       </div>
-
-      <div className="mt-6 p-4 bg-gray-100 rounded-lg">
-        <p className="text-sm">
-          <strong>Status:</strong> {isRegistered ? '✅ Registered' : '❌ Not Registered'}
-        </p>
-        <p className="text-sm">
-          <strong>Permission:</strong> {permissionStatus}
-        </p>
-      </div>
-    </div>
-  );
-}`}
-              </pre>
-            </div>
-
-            <div className="card mb-6">
-              <h3 className="font-semibold text-lg mb-3">3. Use in Page</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                In <code className="bg-gray-100 px-1">app/page.tsx</code>:
-              </p>
-              <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm">
-                {`import NotificationManager from './components/NotificationManager';
-import { Toaster } from 'react-hot-toast';
-
-export default function Home() {
-  return (
-    <>
-      <Toaster position="top-right" />
-      <NotificationManager />
-    </>
-  );
-}`}
-              </pre>
-            </div>
-
-            <div className="card">
-              <h3 className="font-semibold text-lg mb-3">4. Important Notes</h3>
-              <ul className="list-disc list-inside space-y-2 text-sm text-gray-700">
-                <li>
-                  Always use{" "}
-                  <code className="bg-gray-100 px-1">"use client"</code>{" "}
-                  directive for components using browser APIs
-                </li>
-                <li>
-                  Service worker must be in{" "}
-                  <code className="bg-gray-100 px-1">public/</code> directory
-                </li>
-                <li>
-                  Use{" "}
-                  <code className="bg-gray-100 px-1">
-                    window.location.origin
-                  </code>{" "}
-                  for baseUrl to work in both dev and production
-                </li>
-                <li>
-                  Store configuration in localStorage to persist across page
-                  refreshes
-                </li>
-                <li>
-                  Handle SSR by checking{" "}
-                  <code className="bg-gray-100 px-1">
-                    typeof window !== 'undefined'
-                  </code>
-                </li>
-              </ul>
-            </div>
-          </section>
-        </div>
-      )}
     </div>
   );
 };
+
+// UI Components
+const FeatureCard = ({ icon, title, description }: { icon: string; title: string; description: string }) => (
+  <div className="p-6 rounded-xl border border-gray-100 hover:border-primary-200 hover:shadow-lg transition-all duration-300 bg-gray-50 hover:bg-white group cursor-default">
+    <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{icon}</div>
+    <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
+    <p className="text-gray-600 leading-relaxed text-sm">{description}</p>
+  </div>
+);
+
+const StepCard = ({ number, title, description, code }: { number: number; title: string; description: React.ReactNode; code?: string }) => (
+  <div className="flex gap-6 relative">
+    <div className="flex-shrink-0 z-10">
+      <div className="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-lg shadow-sm">
+        {number}
+      </div>
+    </div>
+    <div className="flex-grow pb-8 border-l-2 border-gray-100 pl-8 -ml-[44px]">
+      <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
+      <p className="text-gray-600 mb-4">{description}</p>
+      {code && (
+        <div className="rounded-xl overflow-hidden shadow-sm border border-gray-800 mt-4">
+          <div className="flex items-center px-4 py-2 bg-gray-800 border-b border-gray-700">
+             <div className="flex space-x-2">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+             </div>
+          </div>
+          <pre className="bg-gray-900 text-gray-100 p-5 overflow-x-auto text-sm leading-relaxed font-mono whitespace-pre-wrap break-all">
+            {code}
+          </pre>
+        </div>
+      )}
+    </div>
+  </div>
+);
