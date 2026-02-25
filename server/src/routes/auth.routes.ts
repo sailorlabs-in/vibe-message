@@ -12,7 +12,7 @@ const auth = authMiddleware;
  * /auth/signup:
  *   post:
  *     summary: Register a new user
- *     tags: [Authentication]
+ *     tags: [Internal App APIs]
  *     requestBody:
  *       required: true
  *       content:
@@ -57,7 +57,7 @@ router.post('/signup', authLimiter, async (req: Request, res: Response, next: Ne
  * /auth/login:
  *   post:
  *     summary: Login user
- *     tags: [Authentication]
+ *     tags: [Internal App APIs]
  *     requestBody:
  *       required: true
  *       content:
@@ -98,7 +98,7 @@ router.post('/login', authLimiter, async (req: Request, res: Response, next: Nex
  * /auth/me:
  *   get:
  *     summary: Get current user profile
- *     tags: [Authentication]
+ *     tags: [Internal App APIs]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -125,7 +125,7 @@ router.get('/me', auth, async (req: Request, res: Response, next: NextFunction) 
  * /auth/profile:
  *   patch:
  *     summary: Update user profile
- *     tags: [Authentication]
+ *     tags: [Internal App APIs]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -166,7 +166,7 @@ router.patch('/profile', auth, async (req: Request, res: Response, next: NextFun
  * /auth/account:
  *   delete:
  *     summary: Delete user account
- *     tags: [Authentication]
+ *     tags: [Internal App APIs]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -193,7 +193,7 @@ router.delete('/account', auth, async (req: Request, res: Response, next: NextFu
  * /auth/change-password:
  *   patch:
  *     summary: Change user password
- *     tags: [Authentication]
+ *     tags: [Internal App APIs]
  *     security:
  *       - bearerAuth: []
  *     requestBody:

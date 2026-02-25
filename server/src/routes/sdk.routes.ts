@@ -21,7 +21,7 @@ router.get('/vapid-public-key', (_req: Request, res: Response) => {
  * /sdk/register-device:
  *   post:
  *     summary: Register a device for push notifications
- *     tags: [SDK]
+ *     tags: [External Notifications APIs]
  *     requestBody:
  *       required: true
  *       content:

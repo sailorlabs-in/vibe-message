@@ -28,6 +28,16 @@ const options = {
         bearerAuth: [],
       },
     ],
+    tags: [
+      {
+        name: 'Internal App APIs',
+        description: 'Endpoints used by the Vibe Message Dashboard (Authentication, App Management, Admin features)',
+      },
+      {
+        name: 'External Notifications APIs',
+        description: 'Endpoints used by third-party backend and frontend services to register devices and trigger notifications',
+      },
+    ],
   },
   apis: ['./src/routes/*.ts'], // Path to the API docs
 };

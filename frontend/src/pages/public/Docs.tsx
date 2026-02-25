@@ -187,15 +187,15 @@ export const Docs: React.FC = () => {
             <div className="space-y-8">
               <StepCard
                 number={1}
-                title="Send a Notification via API"
-                description="Make a standard authenticated HTTP POST request to our delivery API from your Node.js, Python, or Go server. Example using native JS Fetch:"
-                code={"const response = await fetch('https://api.yourserver.com/api/push/send', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({\n    appId: 'your-app-id',\n    secretKey: 'your-secret-key',\n    notification: {\n      title: 'New Content!',\n      body: 'Someone liked your post.',\n      icon: 'https://yoursite.com/icon.png',\n      click_action: 'https://yoursite.com/dashboard',\n    },\n    targets: {\n      externalUserIds: ['user-123'] // ID of the user you want to notify\n    }\n  })\n});\n\nconst result = await response.json();\nconsole.log(result);"}
+                title="Send a Notification via SDK"
+                description="Use the Vibe Message SDK in your Node.js server to quickly initialize and dispatch notifications securely."
+                code={"import { initServerClient } from 'vibe-message';\n\nconst vibe = initServerClient({\n  appId: 'your-app-id',\n  secretKey: 'your-secret-key'\n});\n\nconst result = await vibe.notification({\n  notificationData: {\n    title: 'New Content!',\n    body: 'Someone liked your post.',\n    icon: 'https://yoursite.com/icon.png',\n    click_action: 'https://yoursite.com/dashboard',\n  },\n  externalUsers: ['user-123'] // ID of the user you want to notify\n});\n\nconsole.log(result);"}
               />
               <StepCard
                 number={2}
                 title="Send a Silent Data Payload"
-                description="Need to trigger an invisible background refresh on the client? Send a silent payload without a title/body, and intercept it in the Service Worker."
-                code={"const response = await fetch('https://api.yourserver.com/api/push/send', {\n  method: 'POST',\n  headers: { 'Content-Type': 'application/json' },\n  body: JSON.stringify({\n    appId: 'your-app-id',\n    secretKey: 'your-secret-key',\n    notification: {\n      // No Title or Body means it's silent!\n      data: {\n        type: 'REFRESH_CHAT',\n        chatId: 'chat-456'\n      }\n    },\n    targets: {\n      externalUserIds: ['user-123']\n    }\n  })\n});"}
+                description="Need to trigger an invisible background refresh on the client? Send a silent payload without a title/body using the silentNotification method."
+                code={"import { initServerClient } from 'vibe-message';\n\nconst vibe = initServerClient({\n  appId: 'your-app-id',\n  secretKey: 'your-secret-key'\n});\n\nawait vibe.silentNotification({\n  data: {\n    type: 'REFRESH_CHAT',\n    chatId: 'chat-456'\n  },\n  externalUsers: ['user-123']\n});"}
               />
             </div>
           </div>
@@ -222,7 +222,7 @@ export const Docs: React.FC = () => {
                 number={2}
                 title="Create a Context Provider"
                 description="Create a global React context to manage notification state and permissions."
-                code={"import React, { createContext, useContext, useState, useRef } from 'react';\nimport { initNotificationClient } from 'vibe-message';\nimport toast from 'react-hot-toast';\n\nconst NotificationContext = createContext<any>(null);\n\nexport const NotificationProvider = ({ children }: any) => {\n  const [isRegistered, setIsRegistered] = useState(false);\n  const clientRef = useRef<any>(null);\n\n  const init = async (userId: string) => {\n    const client = initNotificationClient({\n      baseUrl: 'https://api.yoursite.com/api',\n      appId: 'your-app-id',\n      publicKey: 'your-public-key'\n    });\n    clientRef.current = client;\n\n    client.onMessage((payload: any) => {\n      // Show modern in-app toast for foreground users\n      toast.success(payload.title + \": \" + payload.body);\n    });\n\n    // Register the client using the logged-in user's DB ID\n    await client.registerDevice({ externalUserId: userId });\n    setIsRegistered(true);\n  };\n\n  return (\n    <NotificationContext.Provider value={{ isRegistered, init }}>\n      {children}\n    </NotificationContext.Provider>\n  );\n};"}
+                code={"import React, { createContext, useContext, useState, useRef } from 'react';\nimport { initNotificationClient } from 'vibe-message';\nimport toast from 'react-hot-toast';\n\nconst NotificationContext = createContext<any>(null);\n\nexport const NotificationProvider = ({ children }: any) => {\n  const [isRegistered, setIsRegistered] = useState(false);\n  const clientRef = useRef<any>(null);\n\n  const init = async (userId: string) => {\n    const client = initNotificationClient({\n      appId: 'your-app-id',\n      publicKey: 'your-public-key'\n    });\n    clientRef.current = client;\n\n    client.onMessage((payload: any) => {\n      // Show modern in-app toast for foreground users\n      toast.success(payload.title + \": \" + payload.body);\n    });\n\n    // Register the client using the logged-in user's DB ID\n    await client.registerDevice({ externalUserId: userId });\n    setIsRegistered(true);\n  };\n\n  return (\n    <NotificationContext.Provider value={{ isRegistered, init }}>\n      {children}\n    </NotificationContext.Provider>\n  );\n};"}
               />
               
               <StepCard
@@ -256,7 +256,7 @@ export const Docs: React.FC = () => {
                 number={2}
                 title="Create a Client Component"
                 description="Because the SDK uses browser APIs, ensure the wrapper component uses the 'use client' directive."
-                code={"\"use client\";\nimport { useEffect, useRef } from 'react';\nimport { initNotificationClient } from 'vibe-message';\n\nexport default function PushNotifications() {\n  const isInitialized = useRef(false);\n\n  useEffect(() => {\n    if (isInitialized.current) return;\n    \n    const setup = async () => {\n      // Verify browser permission before registering\n      if (Notification.permission !== 'granted') return;\n\n      const client = initNotificationClient({\n        baseUrl: 'https://api.yoursite.com/api',\n        appId: 'your-app-id',\n        publicKey: 'your-public-key'\n      });\n\n      client.onMessage((payload) => alert(\"Received: \" + payload.title));\n\n      // Register with the logged-in user's ID\n      await client.registerDevice({ externalUserId: 'user-123' });\n      isInitialized.current = true;\n    };\n\n    setup();\n  }, []);\n\n  return null; // Empty wrapper\n}"}
+                code={"\"use client\";\nimport { useEffect, useRef } from 'react';\nimport { initNotificationClient } from 'vibe-message';\n\nexport default function PushNotifications() {\n  const isInitialized = useRef(false);\n\n  useEffect(() => {\n    if (isInitialized.current) return;\n    \n    const setup = async () => {\n      // Verify browser permission before registering\n      if (Notification.permission !== 'granted') return;\n\n      const client = initNotificationClient({\n        appId: 'your-app-id',\n        publicKey: 'your-public-key'\n      });\n\n      client.onMessage((payload) => alert(\"Received: \" + payload.title));\n\n      // Register with the logged-in user's ID\n      await client.registerDevice({ externalUserId: 'user-123' });\n      isInitialized.current = true;\n    };\n\n    setup();\n  }, []);\n\n  return null; // Empty wrapper\n}"}
               />
 
               <StepCard

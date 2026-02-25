@@ -3,8 +3,8 @@
 /**
  * @swagger
  * tags:
- *   name: Apps
- *   description: Application management endpoints
+ *   name: Internal App APIs
+ *   description: Internal endpoints for application management
  */
 
 /**
@@ -12,7 +12,7 @@
  * /apps:
  *   get:
  *     summary: Get user's apps
- *     tags: [Apps]
+ *     tags: [Internal App APIs]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -20,7 +20,7 @@
  *         description: List of user's apps
  *   post:
  *     summary: Create a new app
- *     tags: [Apps]
+ *     tags: [Internal App APIs]
  *     security:
  *       - bearerAuth: []
  *     requestBody:
@@ -46,7 +46,7 @@
  * /apps/{id}:
  *   get:
  *     summary: Get app by ID
- *     tags: [Apps]
+ *     tags: [Internal App APIs]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -60,7 +60,7 @@
  *         description: App details
  *   patch:
  *     summary: Update app
- *     tags: [Apps]
+ *     tags: [Internal App APIs]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -84,7 +84,7 @@
  *         description: App updated successfully
  *   delete:
  *     summary: Delete app
- *     tags: [Apps]
+ *     tags: [Internal App APIs]
  *     security:
  *       - bearerAuth: []
  *     parameters:
@@ -103,7 +103,7 @@
  * /apps/{id}/rotate-secret:
  *   post:
  *     summary: Rotate app secret key
- *     tags: [Apps]
+ *     tags: [Internal App APIs]
  *     security:
  *       - bearerAuth: []
  *     parameters:

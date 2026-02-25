@@ -32,7 +32,7 @@ export type MessageCallback = (payload: NotificationPayload) => void;
 export type SilentMessageCallback = (data: Record<string, any>) => void;
 
 export interface InitOptions {
-  baseUrl: string;
+  baseUrl?: string;
   appId: string;
   publicKey: string;
 }
