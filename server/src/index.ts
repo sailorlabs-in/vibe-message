@@ -49,13 +49,12 @@ app.get('/health', (req, res) => {
 app.use('/', apiLimiter);
 
 // Routes
-// Routes
-app.use('/auth', authRoutes);
-app.use('/admin', adminRoutes);
-app.use('/apps', appsRoutes);
-app.use('/sdk', sdkRoutes);
-app.use('/push', pushRoutes);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+app.use('/api/auth', authRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/apps', appsRoutes);
+app.use('/api/sdk', sdkRoutes);
+app.use('/api/push', pushRoutes);
+app.use('/api', swaggerUi.serve, swaggerUi.setup(specs));
 
 // 404 handler
 app.use((req, res) => {

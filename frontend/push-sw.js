@@ -40,11 +40,11 @@ self.addEventListener("push", (event) => {
 
   event.waitUntil(
     self.clients.matchAll({ type: "window" }).then((clients) => {
-      const focusedClient = clients.find((client) => client.focused);
+      const focusedClient = clients.find((client) => client.visibilityState === "visible" || client.focused);
 
       if (focusedClient) {
         focusedClient.postMessage({
-          type: "FOREGROUND_PUSH",
+          type: "FOREGROUND_MESSAGE",
           payload: {
             title,
             body: options.body,

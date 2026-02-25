@@ -30,18 +30,23 @@ export const getOrCreateInternalApp = async (): Promise<{ id: number; public_app
   }
 
   const { generateAppId, generateSecretKey } = require('../utils/crypto');
-  const publicAppId = generateAppId();
-  const secretKey = generateSecretKey();
+  const publicAppId = process.env.ADMIN_APP_ID || generateAppId();
+  const secretKey = process.env.ADMIN_SECRET_KEY || generateSecretKey();
+  
+  // Use VAPID public key as the public_key for the internal app to ensure compatibility 
+  const { getVapidPublicKey } = require('../utils/webPush');
+  const publicKey = process.env.ADMIN_PUBLIC_KEY || getVapidPublicKey();
 
   const newApp = await query(
-    `INSERT INTO apps (user_id, name, description, public_app_id, secret_key, is_active)
-     VALUES ($1, $2, $3, $4, $5, true)
+    `INSERT INTO apps (user_id, name, description, public_app_id, public_key, secret_key, is_active)
+     VALUES ($1, $2, $3, $4, $5, $6, true)
      RETURNING id, public_app_id, public_key`,
     [
       superAdmin.rows[0].id,
       INTERNAL_APP_NAME,
       'Internal app for admin panel notifications',
       publicAppId,
+      publicKey,
       secretKey,
     ]
   );

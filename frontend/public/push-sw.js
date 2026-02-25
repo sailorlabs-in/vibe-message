@@ -30,7 +30,7 @@ self.addEventListener("push", (event) => {
     self.clients
       .matchAll({ includeUncontrolled: true, type: "window" })
       .then((clients) => {
-        const focusedClient = clients.find((client) => client.focused);
+        const focusedClient = clients.find((client) => client.visibilityState === "visible" || client.focused);
 
         if (focusedClient) {
           // App is visible - send message to foreground
@@ -39,7 +39,12 @@ self.addEventListener("push", (event) => {
           );
           focusedClient.postMessage({
             type: "FOREGROUND_MESSAGE",
-            payload: data,
+            payload: {
+              title: data.title || "Notification",
+              body: data.body || "",
+              icon: data.icon || "/icon.png",
+              data: data.data || {},
+            }
           });
         } else {
           // App is not visible - show push notification
