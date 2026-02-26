@@ -1,66 +1,68 @@
-import express, { Application } from 'express';
-import cors from 'cors';
-import { config } from './config/env';
-import { pool } from './config/database';
-import { initializeSuperAdmin } from './services/authService';
-import { errorHandler } from './middleware/errorHandler';
-import { apiLimiter } from './middleware/rateLimiter';
+import express, { Application } from "express";
+import cors from "cors";
+import { config } from "./config/env";
+import { pool } from "./config/database";
+import { initializeSuperAdmin } from "./services/authService";
+import { errorHandler } from "./middleware/errorHandler";
+import { apiLimiter } from "./middleware/rateLimiter";
 
 // Import routes
-import authRoutes from './routes/auth.routes';
-import adminRoutes from './routes/admin.routes';
-import appsRoutes from './routes/apps.routes';
-import sdkRoutes from './routes/sdk.routes';
-import pushRoutes from './routes/push.routes';
-import swaggerUi from 'swagger-ui-express';
-import { specs } from './config/swagger';
+import authRoutes from "./routes/auth.routes";
+import adminRoutes from "./routes/admin.routes";
+import appsRoutes from "./routes/apps.routes";
+import sdkRoutes from "./routes/sdk.routes";
+import pushRoutes from "./routes/push.routes";
+import swaggerUi from "swagger-ui-express";
+import { specs } from "./config/swagger";
 
 const app: Application = express();
 
 // Middleware
-app.use(cors({
-  origin: (origin, callback) => {
-    if (config.server.nodeEnv === 'development') {
-      return callback(null, true);
-    }
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (config.server.nodeEnv === "development") {
+        return callback(null, true);
+      }
 
-    if (!origin || config.cors.allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      console.error(`Blocked by CORS: ${origin}`);
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-}));
+      if (!origin || config.cors.allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.error(`Blocked by CORS: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Health check
-app.get('/health', (req, res) => {
+app.get("/health", (req, res) => {
   res.json({
     success: true,
-    message: 'Server is running',
+    message: "Server is running",
     timestamp: new Date().toISOString(),
   });
 });
 
 // Apply rate limiting to API routes
-app.use('/', apiLimiter);
+app.use("/", apiLimiter);
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/apps', appsRoutes);
-app.use('/api/sdk', sdkRoutes);
-app.use('/api/push', pushRoutes);
-app.use('/api', swaggerUi.serve, swaggerUi.setup(specs));
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/apps", appsRoutes);
+app.use("/api/sdk", sdkRoutes);
+app.use("/api/push", pushRoutes);
+app.use("/api", swaggerUi.serve, swaggerUi.setup(specs));
 
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Route not found',
+    message: "Route not found",
   });
 });
 
@@ -71,8 +73,8 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     // Test database connection
-    await pool.query('SELECT NOW()');
-    console.log('✅ Database connection successful');
+    await pool.query("SELECT NOW()");
+    console.log("✅ Database connection successful");
 
     // Initialize super admin
     await initializeSuperAdmin();
@@ -81,10 +83,12 @@ const startServer = async () => {
     app.listen(config.server.port, () => {
       console.log(`🚀 Server running on port ${config.server.port}`);
       console.log(`📝 Environment: ${config.server.nodeEnv}`);
-      console.log(`🌐 CORS enabled for: ${config.cors.allowedOrigins.join(', ')}`);
+      console.log(
+        `🌐 CORS enabled for: ${config.cors.allowedOrigins.join(", ")}`,
+      );
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error("❌ Failed to start server:", error);
     process.exit(1);
   }
 };
@@ -92,14 +96,14 @@ const startServer = async () => {
 startServer();
 
 // Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, shutting down gracefully...');
+process.on("SIGTERM", async () => {
+  console.log("SIGTERM received, shutting down gracefully...");
   await pool.end();
   process.exit(0);
 });
 
-process.on('SIGINT', async () => {
-  console.log('SIGINT received, shutting down gracefully...');
+process.on("SIGINT", async () => {
+  console.log("SIGINT received, shutting down gracefully...");
   await pool.end();
   process.exit(0);
 });
@@ -108,17 +112,22 @@ process.on('SIGINT', async () => {
 // If you are integrating this from a separate 3rd-party Node.js backend to send notifications,
 // you would use the `initServerClient` like this (omitting baseUrl):
 
-import { initServerClient } from 'vibe-message';
+import { initServerClient } from "vibe-message";
 
 const vibe = initServerClient({
-  appId: process.env.ADMIN_APP_ID || '',
-  secretKey: process.env.ADMIN_SECRET_KEY || ''
+  baseUrl: process.env.NOTIFICATION_URL || "",
+  appId: process.env.ADMIN_APP_ID || "",
+  secretKey: process.env.ADMIN_SECRET_KEY || "",
 });
 
 // Example: Triggering a push notification to a specific user
-vibe.notification({
-  notificationData: { title: 'Alert!', body: 'Your process completed.' },
-  externalUsers: ['user-123']
-}).catch(err => console.log("[Dev Test] Expected crash (Requires real keys):", err.message));
+vibe
+  .notification({
+    notificationData: { title: "Alert!", body: "Your process completed." },
+    externalUsers: ["user-123"],
+  })
+  .catch((err) =>
+    console.log("[Dev Test] Expected crash (Requires real keys):", err.message),
+  );
 
 // --------------------------------------------

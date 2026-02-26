@@ -29,7 +29,7 @@
         "pg": "^8.11.3",
         "swagger-jsdoc": "^6.2.8",
         "swagger-ui-express": "^5.0.1",
-        "vibe-message": "file:../sdk",
+        "vibe-message": "1.0.1",
         "web-push": "^3.6.6"
     },
     "devDependencies": {
