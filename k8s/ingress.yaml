@@ -3,33 +3,22 @@ kind: Ingress
 metadata:
   name: message-app-ingress
   namespace: message-app
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-    nginx.ingress.kubernetes.io/use-regex: "true"
 spec:
   ingressClassName: nginx
   rules:
     - http:
         paths:
-          # Backend API - /api/* -> backend service
-          - path: /api(/|$)(.*)
-            pathType: ImplementationSpecific
-            backend:
-              service:
-                name: backend
-                port:
-                  number: 3300
-          # Demo app - /demo-app/* -> demo service
-          - path: /demo-app(/|$)(.*)
-            pathType: ImplementationSpecific
+          # Demo app
+          - path: /demo-app
+            pathType: Prefix
             backend:
               service:
                 name: demo
                 port:
                   number: 3000
-          # Frontend - / -> frontend service (must be last)
-          - path: /()(.*)
-            pathType: ImplementationSpecific
+          # Frontend
+          - path: /
+            pathType: Prefix
             backend:
               service:
                 name: frontend

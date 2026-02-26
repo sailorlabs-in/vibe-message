@@ -94,6 +94,7 @@ kubectl apply -f k8s/demo-service.yaml
 kubectl apply -f k8s/demo-deployment.yaml
 
 kubectl apply -f k8s/ingress.yaml
+kubectl apply -f k8s/ingress-api.yaml
 
 echo "✅ Deployment requested successfully!"
 echo "Run 'kubectl get pods -n message-app -w' to monitor the startup."
