@@ -20,7 +20,7 @@ export class NotificationClient {
   private silentMessageCallback: SilentMessageCallback | null = null;
 
   constructor(options: InitOptions) {
-    this.baseUrl = options.baseUrl || "https://message-api.umangsailor.com/api";
+    this.baseUrl = options.baseUrl || "https://vibemessage.umangsailor.com/api";
     this.appId = options.appId;
     this.publicKey = options.publicKey;
 

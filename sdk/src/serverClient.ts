@@ -18,7 +18,7 @@ export class NotificationServerClient {
   private secretKey: string;
 
   constructor(options: ServerInitOptions) {
-    this.baseUrl = options.baseUrl || "https://message-api.umangsailor.com/api";
+    this.baseUrl = options.baseUrl || "https://vibemessage.umangsailor.com/api";
     this.appId = options.appId;
     this.secretKey = options.secretKey;
   }
