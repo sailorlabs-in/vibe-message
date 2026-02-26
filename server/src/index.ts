@@ -17,6 +17,9 @@ import { specs } from "./config/swagger";
 
 const app: Application = express();
 
+// Trust proxy for rate limiting behind Nginx Ingress
+app.set("trust proxy", 1);
+
 // Middleware
 app.use(
   cors({
@@ -51,12 +54,21 @@ app.get("/health", (req, res) => {
 app.use("/", apiLimiter);
 
 // Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/apps", appsRoutes);
-app.use("/api/sdk", sdkRoutes);
-app.use("/api/push", pushRoutes);
-app.use("/api", swaggerUi.serve, swaggerUi.setup(specs));
+const isProduction = config.server.nodeEnv.toLowerCase() === "production";
+const apiPrefix = isProduction ? "" : "/api";
+
+console.log(`\n🔍 DEBUG ROUTING:`);
+console.log(`- RAW NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`- Parsed NODE_ENV: ${config.server.nodeEnv}`);
+console.log(`- isProduction Check: ${isProduction}`);
+console.log(`- Assigned API Prefix: "${apiPrefix}"\n`);
+
+app.use(`${apiPrefix}/auth`, authRoutes);
+app.use(`${apiPrefix}/admin`, adminRoutes);
+app.use(`${apiPrefix}/apps`, appsRoutes);
+app.use(`${apiPrefix}/sdk`, sdkRoutes);
+app.use(`${apiPrefix}/push`, pushRoutes);
+app.use(apiPrefix === "" ? "/" : apiPrefix, swaggerUi.serve, swaggerUi.setup(specs));
 
 // 404 handler
 app.use((req, res) => {

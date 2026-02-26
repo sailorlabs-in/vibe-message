@@ -26,7 +26,7 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy service worker to root
-COPY --from=builder /app/push-sw.js /usr/share/nginx/html/
+COPY --from=builder /app/public/push-sw.js /usr/share/nginx/html/
 
 # Create nginx configuration
 RUN echo 'server { \

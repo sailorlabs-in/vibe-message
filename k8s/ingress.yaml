@@ -18,9 +18,9 @@ spec:
               service:
                 name: backend
                 port:
-                  number: 5000
-          # Demo app - /demo/* -> demo service
-          - path: /demo(/|$)(.*)
+                  number: 3300
+          # Demo app - /demo-app/* -> demo service
+          - path: /demo-app(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
               service:
