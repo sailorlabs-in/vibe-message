@@ -1,6 +1,6 @@
 {
   "name": "vibe-message",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Lightweight JavaScript SDK for web push notifications",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
