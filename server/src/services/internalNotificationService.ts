@@ -16,7 +16,7 @@ export const getOrCreateInternalApp = async (): Promise<{
 }> => {
   // Check if internal app exists
   const existingApp = await query(
-    "SELECT id, public_app_id, public_key FROM apps WHERE name = $1 AND description = $2",
+    "SELECT id, public_app_id, public_key, secret_key FROM apps WHERE name = $1 AND description = $2",
     [INTERNAL_APP_NAME, "Internal app for admin panel notifications"],
   );
 

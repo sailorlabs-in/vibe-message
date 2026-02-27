@@ -135,7 +135,7 @@ export class NotificationClient {
 
     // Register service worker
     const swPath = options.serviceWorkerPath || '/push-sw.js';
-    const registration = await navigator.serviceWorker.register(swPath);
+    const registration = await navigator.serviceWorker.register(swPath, { scope: '/' });
 
     // Wait for service worker to be ready
     await navigator.serviceWorker.ready;
