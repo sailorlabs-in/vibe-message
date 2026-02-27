@@ -10,8 +10,12 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
+        url: '/api',
         description: 'Development server',
+      },
+      {
+        url: '/',
+        description: 'Production server',
       },
     ],
     components: {

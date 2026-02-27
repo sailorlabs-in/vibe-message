@@ -20,24 +20,33 @@ const app: Application = express();
 // Trust proxy for rate limiting behind Nginx Ingress
 app.set("trust proxy", 1);
 
-// Middleware
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (config.server.nodeEnv === "development") {
-        return callback(null, true);
-      }
+const isProduction = config.server.nodeEnv.toLowerCase() === "production";
+const apiPrefix = isProduction ? "" : "/api";
 
-      if (!origin || config.cors.allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.error(`Blocked by CORS: ${origin}`);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  }),
-);
+// Middleware
+const restrictedCors = cors({
+  origin: (origin, callback) => {
+    if (config.server.nodeEnv === "development") {
+      return callback(null, true);
+    }
+
+    if (!origin || config.cors.allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.error(`Blocked by CORS: ${origin}`);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+});
+
+app.use((req, res, next) => {
+  if (req.path.startsWith(`${apiPrefix}/push`) || req.path.startsWith(`${apiPrefix}/sdk`)) {
+    return cors()(req, res, next);
+  }
+  return restrictedCors(req, res, next);
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -54,8 +63,6 @@ app.get("/health", (req, res) => {
 app.use("/", apiLimiter);
 
 // Routes
-const isProduction = config.server.nodeEnv.toLowerCase() === "production";
-const apiPrefix = isProduction ? "" : "/api";
 
 console.log(`\n🔍 DEBUG ROUTING:`);
 console.log(`- RAW NODE_ENV: ${process.env.NODE_ENV}`);
@@ -68,7 +75,21 @@ app.use(`${apiPrefix}/admin`, adminRoutes);
 app.use(`${apiPrefix}/apps`, appsRoutes);
 app.use(`${apiPrefix}/sdk`, sdkRoutes);
 app.use(`${apiPrefix}/push`, pushRoutes);
-app.use(apiPrefix === "" ? "/" : apiPrefix, swaggerUi.serve, swaggerUi.setup(specs));
+
+const swaggerPath = apiPrefix === "" ? "/" : apiPrefix;
+app.use(swaggerPath, (req, res, next) => {
+  if (req.path === '/' || req.path === '/index.html' || req.path.includes('swagger')) {
+    const b64auth = (req.headers.authorization || '').split(' ')[1] || '';
+    const [login, password] = Buffer.from(b64auth, 'base64').toString().split(':');
+
+    if (login === 'umangsailor' && password === 'Umang6Sailor') {
+      return next();
+    }
+    res.set('WWW-Authenticate', 'Basic realm="401"');
+    return res.status(401).send('Authentication required.');
+  }
+  return next();
+}, swaggerUi.serve, swaggerUi.setup(specs));
 
 // 404 handler
 app.use((req, res) => {
