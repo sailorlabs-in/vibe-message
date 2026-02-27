@@ -20,7 +20,7 @@ spec:
           image: local/server:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 5000
+            - containerPort: 3300
               name: http
           env:
             - name: PORT
@@ -93,12 +93,12 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 5000
+              port: http
             initialDelaySeconds: 15
             periodSeconds: 10
           readinessProbe:
             httpGet:
               path: /health
-              port: 5000
+              port: http
             initialDelaySeconds: 10
             periodSeconds: 5

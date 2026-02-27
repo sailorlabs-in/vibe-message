@@ -41,23 +41,24 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold">Welcome Back</h2>
-          <p className="text-gray-600 mt-2">Sign in to your account</p>
+    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-theme-bg-primary transition-colors duration-300 py-12 px-4">
+      <div className="max-w-md w-full relative">
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-theme-primary-500/20 dark:bg-theme-primary-500/10 blur-[80px] rounded-full pointer-events-none" />
+        <div className="text-center mb-8 relative z-10">
+          <h2 className="text-3xl font-extrabold text-theme-text-primary">Welcome Back</h2>
+          <p className="text-theme-text-secondary mt-2">Sign in to your account</p>
         </div>
 
-        <div className="card">
-          <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="card relative z-10">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-50 text-red-600 p-3 rounded-lg">
+              <div className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 p-3 rounded-lg border border-red-200 dark:border-red-800/30">
                 {error}
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium mb-2">Email</label>
+              <label className="block text-sm font-medium mb-2 text-theme-text-primary">Email</label>
               <input
                 type="email"
                 value={email}
@@ -68,7 +69,7 @@ export const Login: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Password</label>
+              <label className="block text-sm font-medium mb-2 text-theme-text-primary">Password</label>
               <input
                 type="password"
                 value={password}
@@ -81,16 +82,16 @@ export const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full"
+              className="btn-primary w-full py-3"
             >
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
-          <div className="mt-4 text-center">
-            <p className="text-gray-600">
+          <div className="mt-6 text-center">
+            <p className="text-theme-text-secondary">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-primary-600 hover:underline">
+              <Link to="/signup" className="text-theme-primary-600 font-semibold hover:underline">
                 Sign up
               </Link>
             </p>

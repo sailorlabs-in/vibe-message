@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { api } from '../../services/api';
+import ApiRequest from '../../services/ApiRequest';
 import { User, AuthResponse } from '../../types';
 
 interface AuthState {
@@ -23,8 +23,8 @@ export const loginUser = createAsyncThunk<
   { rejectValue: string }
 >('auth/login', async ({ email, password }, { rejectWithValue }) => {
   try {
-    const response = await api.post('/auth/login', { email, password });
-    const { token, user } = response.data.data;
+    const response = await ApiRequest('/auth/login', 'post', { email, password }, false);
+    const { token, user } = response.data;
     localStorage.setItem('token', token);
     return { token, user };
   } catch (error: any) {
@@ -38,8 +38,8 @@ export const signupUser = createAsyncThunk<
   { rejectValue: string }
 >('auth/signup', async ({ name, email, password }, { rejectWithValue }) => {
   try {
-    const response = await api.post('/auth/signup', { name, email, password });
-    const { token, user } = response.data.data;
+    const response = await ApiRequest('/auth/signup', 'post', { name, email, password }, false);
+    const { token, user } = response.data;
     localStorage.setItem('token', token);
     return { token, user };
   } catch (error: any) {
@@ -53,8 +53,8 @@ export const getCurrentUser = createAsyncThunk<
   { rejectValue: string }
 >('auth/getCurrentUser', async (_, { rejectWithValue }) => {
   try {
-    const response = await api.get('/auth/me');
-    return response.data.data;
+    const response = await ApiRequest('/auth/me', 'get');
+    return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to fetch user');
   }
@@ -66,8 +66,8 @@ export const updateUserProfile = createAsyncThunk<
   { rejectValue: string }
 >('auth/updateProfile', async (data, { rejectWithValue }) => {
   try {
-    const response = await api.patch('/auth/profile', data);
-    return response.data.data;
+    const response = await ApiRequest('/auth/profile', 'patch', data);
+    return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to update profile');
   }
@@ -79,7 +79,7 @@ export const changeUserPassword = createAsyncThunk<
   { rejectValue: string }
 >('auth/changePassword', async ({ oldPassword, newPassword }, { rejectWithValue }) => {
   try {
-    await api.patch('/auth/change-password', { oldPassword, newPassword });
+    await ApiRequest('/auth/change-password', 'patch', { oldPassword, newPassword });
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to change password');
   }
@@ -91,7 +91,7 @@ export const deleteUserAccount = createAsyncThunk<
   { rejectValue: string }
 >('auth/deleteAccount', async (_, { rejectWithValue }) => {
   try {
-    await api.delete('/auth/account');
+    await ApiRequest('/auth/account', 'delete');
     localStorage.removeItem('token');
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to delete account');

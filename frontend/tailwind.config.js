@@ -4,23 +4,33 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class', // Enable class-based dark mode
   theme: {
     extend: {
       colors: {
-        primary: {
-          DEFAULT: '#0ea5e9',
-          dark: '#0369a1',
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          200: '#bae6fd',
-          300: '#7dd3fc',
-          400: '#38bdf8',
-          500: '#0ea5e9',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-        },
+        'theme-bg-primary': 'var(--bg-primary)',
+        'theme-bg-secondary': 'var(--bg-secondary)',
+        'theme-bg-muted': 'var(--bg-muted)',
+        
+        'theme-primary-100': 'var(--primary-100)',
+        'theme-primary-400': 'var(--primary-400)',
+        'theme-primary-500': 'var(--primary-500)',
+        'theme-primary-600': 'var(--primary-600)',
+        
+        'theme-accent-100': 'var(--accent-100)',
+        'theme-accent-400': 'var(--accent-400)',
+        'theme-accent-500': 'var(--accent-500)',
+        
+        'theme-text-primary': 'var(--text-primary)',
+        'theme-text-secondary': 'var(--text-secondary)',
+        'theme-text-muted': 'var(--text-muted)',
+        
+        'theme-border': 'var(--border-color)',
+        
+        'theme-success': 'var(--state-success)',
+        'theme-warning': 'var(--state-warning)',
+        'theme-error': 'var(--state-error)',
+        'theme-info': 'var(--state-info)',
       },
     },
   },
