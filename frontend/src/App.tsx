@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import { NotificationProvider } from "./context/NotificationContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { Header } from "./components/layout/Header";
 import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 
@@ -20,11 +21,13 @@ import { Pending } from "./pages/admin/Pending";
 
 // Super admin pages
 import { Users } from "./pages/super/Users";
+import { ScrollToTop } from "./components/common/ScrollToTop";
 
 const AppContent: React.FC = () => {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50">
+      <ScrollToTop />
+      <div className="min-h-screen bg-theme-bg-primary transition-colors duration-300 pt-24">
         <Header />
         <Routes>
           {/* Public routes */}
@@ -99,11 +102,13 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <NotificationProvider>
-        <AppContent />
-      </NotificationProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <NotificationProvider>
+          <AppContent />
+        </NotificationProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 
