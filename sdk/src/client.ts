@@ -20,7 +20,7 @@ export class NotificationClient {
   private silentMessageCallback: SilentMessageCallback | null = null;
 
   constructor(options: InitOptions) {
-    this.baseUrl = options.baseUrl;
+    this.baseUrl = options.baseUrl || "https://vibemessage.umangsailor.com/api";
     this.appId = options.appId;
     this.publicKey = options.publicKey;
 
@@ -135,7 +135,7 @@ export class NotificationClient {
 
     // Register service worker
     const swPath = options.serviceWorkerPath || '/push-sw.js';
-    const registration = await navigator.serviceWorker.register(swPath);
+    const registration = await navigator.serviceWorker.register(swPath, { scope: '/' });
 
     // Wait for service worker to be ready
     await navigator.serviceWorker.ready;
@@ -144,10 +144,29 @@ export class NotificationClient {
     const vapidPublicKey = await this.getVapidPublicKey();
 
     // Subscribe to push notifications
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey),
-    });
+    let subscription: globalThis.PushSubscription;
+    try {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey),
+      });
+    } catch (error: any) {
+      // If there's an existing subscription with a different key, unsubscribe and retry
+      if (error.name === 'InvalidStateError' || error.message.includes('different application server key')) {
+        const existingSubscription = await registration.pushManager.getSubscription();
+        if (existingSubscription) {
+          await existingSubscription.unsubscribe();
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey),
+          });
+        } else {
+          throw error;
+        }
+      } else {
+        throw error;
+      }
+    }
 
     // Convert subscription to plain object
     const subscriptionObject: PushSubscription = {

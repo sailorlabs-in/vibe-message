@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18-alpine AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
@@ -26,20 +26,22 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Copy service worker to root
-COPY --from=builder /app/push-sw.js /usr/share/nginx/html/
+COPY --from=builder /app/public/push-sw.js /usr/share/nginx/html/
 
 # Create nginx configuration
 RUN echo 'server { \
     listen 80; \
     server_name localhost; \
+    include /etc/nginx/mime.types; \
     root /usr/share/nginx/html; \
     index index.html; \
     location / { \
         try_files $uri $uri/ /index.html; \
     } \
     location /push-sw.js { \
+        default_type application/javascript; \
         add_header Service-Worker-Allowed /; \
-        add_header Cache-Control "no-cache"; \
+        add_header Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0"; \
     } \
 }' > /etc/nginx/conf.d/default.conf
 

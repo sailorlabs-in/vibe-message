@@ -24,7 +24,7 @@ router.use(requireRole('SUPER_ADMIN'));
  * /admin/notifications:
  *   get:
  *     summary: Get admin notifications
- *     tags: [Admin]
+ *     tags: [Internal App APIs]
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -48,7 +48,7 @@ router.get('/notifications', async (req, res) => {
  * /admin/users:
  *   get:
  *     summary: Get all users (Super Admin only)
- *     tags: [Admin]
+ *     tags: [Internal App APIs]
  *     security:
  *       - bearerAuth: []
  *     parameters:

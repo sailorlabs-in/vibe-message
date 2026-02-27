@@ -243,6 +243,7 @@ export default function Home() {
           : "✅ Device registered successfully!"
       );
     } catch (error: any) {
+      console.log('🚀 ~ registerDevice ~ error:', error);
       addLog(`❌ Registration failed: ${error.message}`);
       console.error(error);
     }

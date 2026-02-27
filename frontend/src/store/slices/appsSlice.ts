@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { api } from '../../services/api';
+import ApiRequest from '../../services/ApiRequest';
 import { App, AppWithStats } from '../../types';
 
 interface AppsState {
@@ -23,8 +23,8 @@ export const fetchApps = createAsyncThunk<
   { rejectValue: string }
 >('apps/fetchApps', async (_, { rejectWithValue }) => {
   try {
-    const response = await api.get('/apps');
-    return response.data.data;
+    const response = await ApiRequest('/apps', 'get');
+    return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to fetch apps');
   }
@@ -36,8 +36,8 @@ export const fetchAppById = createAsyncThunk<
   { rejectValue: string }
 >('apps/fetchAppById', async (id, { rejectWithValue }) => {
   try {
-    const response = await api.get(`/apps/${id}`);
-    return response.data.data;
+    const response = await ApiRequest(`/apps/${id}`, 'get');
+    return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to fetch app');
   }
@@ -49,8 +49,8 @@ export const createNewApp = createAsyncThunk<
   { rejectValue: string }
 >('apps/createApp', async (data, { rejectWithValue }) => {
   try {
-    const response = await api.post('/apps', data);
-    return response.data.data;
+    const response = await ApiRequest('/apps', 'post', data);
+    return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to create app');
   }
@@ -62,8 +62,8 @@ export const updateExistingApp = createAsyncThunk<
   { rejectValue: string }
 >('apps/updateApp', async ({ id, data }, { rejectWithValue }) => {
   try {
-    const response = await api.patch(`/apps/${id}`, data);
-    return response.data.data;
+    const response = await ApiRequest(`/apps/${id}`, 'patch', data);
+    return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to update app');
   }
@@ -75,8 +75,8 @@ export const rotateSecret = createAsyncThunk<
   { rejectValue: string }
 >('apps/rotateSecret', async (id, { rejectWithValue }) => {
   try {
-    const response = await api.post(`/apps/${id}/rotate-secret`);
-    return response.data.data;
+    const response = await ApiRequest(`/apps/${id}/rotate-secret`, 'post');
+    return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to rotate secret');
   }
@@ -88,7 +88,7 @@ export const removeApp = createAsyncThunk<
   { rejectValue: string }
 >('apps/deleteApp', async (id, { rejectWithValue }) => {
   try {
-    await api.delete(`/apps/${id}`);
+    await ApiRequest(`/apps/${id}`, 'delete');
     return id;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to delete app');

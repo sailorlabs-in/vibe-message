@@ -20,7 +20,7 @@ spec:
           image: local/server:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 5000
+            - containerPort: 3300
               name: http
           env:
             - name: PORT
@@ -63,6 +63,26 @@ spec:
                 secretKeyRef:
                   name: backend-secret
                   key: VAPID_SUBJECT
+            - name: SUPER_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: SUPER_ADMIN_EMAIL
+            - name: SUPER_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: SUPER_ADMIN_PASSWORD
+            - name: SUPER_ADMIN_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: SUPER_ADMIN_NAME
+            - name: ALLOWED_ORIGINS
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: ALLOWED_ORIGINS
           resources:
             requests:
               memory: "128Mi"
@@ -72,13 +92,13 @@ spec:
               cpu: "200m"
           livenessProbe:
             httpGet:
-              path: /api/health
-              port: 5000
+              path: /health
+              port: http
             initialDelaySeconds: 15
             periodSeconds: 10
           readinessProbe:
             httpGet:
-              path: /api/health
-              port: 5000
+              path: /health
+              port: http
             initialDelaySeconds: 10
             periodSeconds: 5

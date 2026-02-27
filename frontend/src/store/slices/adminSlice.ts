@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { api } from '../../services/api';
+import ApiRequest from '../../services/ApiRequest';
 import { User, UserStatus } from '../../types';
 
 interface AdminState {
@@ -22,8 +22,8 @@ export const fetchAllUsers = createAsyncThunk<
 >('admin/fetchAllUsers', async (status, { rejectWithValue }) => {
   try {
     const params = status ? { status } : {};
-    const response = await api.get('/admin/users', { params });
-    return response.data.data;
+    const response = await ApiRequest('/admin/users', 'get', params);
+    return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to fetch users');
   }
@@ -35,8 +35,8 @@ export const updateStatus = createAsyncThunk<
   { rejectValue: string }
 >('admin/updateStatus', async ({ userId, status }, { rejectWithValue }) => {
   try {
-    const response = await api.patch(`/admin/users/${userId}/status`, { status });
-    return response.data.data;
+    const response = await ApiRequest(`/admin/users/${userId}/status`, 'patch', { status });
+    return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to update status');
   }
@@ -48,8 +48,8 @@ export const updateAppLimit = createAsyncThunk<
   { rejectValue: string }
 >('admin/updateAppLimit', async ({ userId, appLimit }, { rejectWithValue }) => {
   try {
-    const response = await api.patch(`/admin/users/${userId}/app-limit`, { appLimit });
-    return response.data.data;
+    const response = await ApiRequest(`/admin/users/${userId}/app-limit`, 'patch', { appLimit });
+    return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to update app limit');
   }
@@ -61,7 +61,7 @@ export const sendWarning = createAsyncThunk<
   { rejectValue: string }
 >('admin/sendWarning', async ({ userId, message }, { rejectWithValue }) => {
   try {
-    await api.post(`/admin/users/${userId}/warn`, { message });
+    await ApiRequest(`/admin/users/${userId}/warn`, 'post', { message });
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to send warning');
   }
@@ -73,8 +73,8 @@ export const removeUser = createAsyncThunk<
   { rejectValue: string }
 >('admin/removeUser', async (userId, { rejectWithValue }) => {
   try {
-    const response = await api.delete(`/admin/users/${userId}`);
-    return { userId, deletedAppsCount: response.data.data.deletedAppsCount };
+    const response = await ApiRequest(`/admin/users/${userId}`, 'delete');
+    return { userId, deletedAppsCount: response.data?.deletedAppsCount || 0 };
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to delete user');
   }

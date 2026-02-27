@@ -121,46 +121,25 @@ The SDK needs to be built and linked locally so the frontend can use it.
 
 1. Open a new terminal and navigate to the frontend directory:
 
+   ```bash
+   cd frontend
    ```
-   Ensure `VITE_API_URL=http://localhost:3000/api`.
 
+2. Initialize the Service Worker (if not already present):
+
+   ```bash
+   npx vibe-message init
    ```
+   *(This auto-generates the `public/push-sw.js` necessary for push notifications)*
 
-2. Start the Frontend:
+3. Set up Environment Variables:
+   Create a `.env.local` file and ensure `VITE_API_URL=http://localhost:3000/api`.
+
+4. Start the Frontend:
    ```bash
    npm run dev
    ```
    Frontend will run on `http://localhost:5173`.
-
----
-
-## 📖 Usage Guide
-
-### 1. Initial Login (Super Admin)
-
-The system creates a default Super Admin account on the first run.
-
-- **Email**: `admin@vibe-message.com` (or check `.env`)
-- **Password**: `SuperAdmin@123` (or check `.env`)
-
-### 2. Creating a New User
-
-1. Go to `http://localhost:5173/signup`.
-2. Create a new account.
-3. **Important**: New accounts are `PENDING` by default.
-4. Log in as Super Admin (`admin@fcmclone.com`).
-5. Go to **Users** section and click **Approve** on the new user.
-
-### 3. Creating an App
-
-1. Log in with the approved user account.
-2. Go to **Apps** -> **Create New App**.
-3. Enter app details.
-   serviceWorkerPath: '/push-sw.js'
-   });
-   ```
-
-   ```
 
 ---
 

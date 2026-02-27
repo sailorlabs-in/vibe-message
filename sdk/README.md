@@ -10,38 +10,15 @@ npm install vibe-message
 
 ## Usage
 
-### 1. Create a Service Worker
+### 1. Initialize Service Worker
 
-Create a file `public/push-sw.js`:
+Run the following command in your project directory (e.g., in your React/Vite/Next.js frontend):
 
-```javascript
-self.addEventListener('push', (event) => {
-  const data = event.data ? event.data.json() : {};
-  
-  if (data.silent) {
-    // Handle silent notification
-    return;
-  }
-  
-  const title = data.title || 'Notification';
-  const options = {
-    body: data.body,
-    icon: data.icon,
-    image: data.image,
-    data: { click_action: data.click_action }
-  };
-  
-  event.waitUntil(
-    self.registration.showNotification(title, options)
-  );
-});
-
-self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
-  const url = event.notification.data?.click_action || '/';
-  event.waitUntil(clients.openWindow(url));
-});
+```bash
+npx vibe-message init
 ```
+
+This will automatically detect your public directory and generate the required `push-sw.js` file necessary for handling background notifications.
 
 ### 2. Initialize SDK
 

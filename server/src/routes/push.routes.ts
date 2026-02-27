@@ -11,7 +11,7 @@ const router = Router();
  * /push/send:
  *   post:
  *     summary: Send push notification
- *     tags: [Push Notifications]
+ *     tags: [External Notifications APIs]
  *     requestBody:
  *       required: true
  *       content:

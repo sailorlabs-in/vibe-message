@@ -10,8 +10,12 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000/api',
+        url: '/api',
         description: 'Development server',
+      },
+      {
+        url: '/',
+        description: 'Production server',
       },
     ],
     components: {
@@ -26,6 +30,16 @@ const options = {
     security: [
       {
         bearerAuth: [],
+      },
+    ],
+    tags: [
+      {
+        name: 'Internal App APIs',
+        description: 'Endpoints used by the Vibe Message Dashboard (Authentication, App Management, Admin features)',
+      },
+      {
+        name: 'External Notifications APIs',
+        description: 'Endpoints used by third-party backend and frontend services to register devices and trigger notifications',
       },
     ],
   },
