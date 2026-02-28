@@ -4,6 +4,7 @@ import React, {
   useState,
   useEffect,
   useRef,
+  useCallback,
   ReactNode,
 } from "react";
 import { initNotificationClient } from "vibe-message";
@@ -50,8 +51,21 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
 
   // Update permission status on mount and when it changes
   useEffect(() => {
-    if ("Notification" in window) {
-      setPermissionStatus(Notification.permission);
+    if (typeof window !== "undefined") {
+      try {
+        if ("Notification" in window && Notification.permission) {
+          setPermissionStatus(Notification.permission);
+        } else {
+          setPermissionStatus("denied");
+        }
+      } catch (e) {
+        console.warn(
+          "Notification.permission is not supported on this device/browser",
+        );
+        setPermissionStatus("denied"); // Default to denied if API throws
+      }
+    } else {
+      setPermissionStatus("denied"); // Fallback for unsupported browsers (like some iOS webviews)
     }
   }, []);
 
@@ -134,22 +148,39 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
         }
       };
 
-      navigator.serviceWorker.addEventListener(
-        "message",
-        handleServiceWorkerMessage,
-      );
-
-      return () => {
-        navigator.serviceWorker.removeEventListener(
+      if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+        navigator.serviceWorker.addEventListener(
           "message",
           handleServiceWorkerMessage,
         );
+      }
+
+      return () => {
+        if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+          navigator.serviceWorker.removeEventListener(
+            "message",
+            handleServiceWorkerMessage,
+          );
+        }
       };
     }
   }, []);
 
-  const initializeNotifications = async () => {
+  const initializeNotifications = useCallback(async () => {
     if (!user || initializingRef.current) return;
+
+    // Safety check for Apple devices/unsupported browsers
+    if (
+      typeof window === "undefined" ||
+      !("Notification" in window) ||
+      !("serviceWorker" in navigator) ||
+      !("PushManager" in window)
+    ) {
+      console.warn(
+        "Push notifications are not supported on this device/browser. Aborting initialization.",
+      );
+      return;
+    }
 
     initializingRef.current = true;
     console.log("🔄 Initializing notifications...");
@@ -283,7 +314,11 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
         });
 
         setIsRegistered(true);
-        setPermissionStatus(Notification.permission);
+        if (typeof window !== "undefined" && "Notification" in window) {
+          try {
+            setPermissionStatus(Notification.permission);
+          } catch (e) {}
+        }
 
         // Save registration state to localStorage
         if (typeof window !== "undefined") {
@@ -294,7 +329,17 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
         toast.success("Notifications enabled!");
       } catch (error: any) {
         console.error("Failed to initialize notification client:", error);
-        setPermissionStatus(Notification.permission);
+
+        // Ensure we mark it as failed so we don't end up in infinite loop if registration fails
+        setIsRegistered(true); // Setting this to true prevents the effect from constantly triggering it over and over
+
+        if (typeof window !== "undefined") {
+          try {
+            if ("Notification" in window && Notification.permission) {
+              setPermissionStatus(Notification.permission);
+            }
+          } catch (e) {}
+        }
         if (error.message !== "Notification permission denied") {
           toast.error("Failed to enable notifications");
         }
@@ -302,9 +347,9 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
     }
 
     initializingRef.current = false;
-  };
+  }, [user, apps.length]);
 
-  const unregisterNotifications = async () => {
+  const unregisterNotifications = useCallback(async () => {
     if (!clientRef.current || !user) return;
 
     try {
@@ -323,7 +368,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
     } catch (error: any) {
       console.error("Failed to unregister device:", error);
     }
-  };
+  }, [user]);
 
   // Auto-initialize when permission is granted and user is logged in
   useEffect(() => {
@@ -338,8 +383,14 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, permissionStatus, apps.length, token, isRegistered]);
 
-  const requestPermission = async () => {
+  const requestPermission = useCallback(async () => {
     try {
+      if (typeof window === "undefined" || !("Notification" in window)) {
+        toast.error("Push notifications are not supported on this device.");
+        setPermissionStatus("denied");
+        return;
+      }
+
       const permission = await Notification.requestPermission();
       setPermissionStatus(permission);
 
@@ -351,8 +402,9 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
     } catch (error) {
       console.error("Failed to request permission:", error);
       toast.error("Failed to request permission");
+      setPermissionStatus("denied");
     }
-  };
+  }, [initializeNotifications]);
 
   return (
     <NotificationContext.Provider

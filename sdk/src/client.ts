@@ -20,7 +20,7 @@ export class NotificationClient {
   private silentMessageCallback: SilentMessageCallback | null = null;
 
   constructor(options: InitOptions) {
-    this.baseUrl = options.baseUrl || "https://vibemessage.umangsailor.com/api";
+    this.baseUrl = options.baseUrl || "https://vibemessage.sailorlabs.in/api";
     this.appId = options.appId;
     this.publicKey = options.publicKey;
 
@@ -127,8 +127,13 @@ export class NotificationClient {
       throw new Error('Push notifications are not supported in this browser');
     }
 
+    // Check for Notification support before requesting permission
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      throw new Error("Push notifications are not supported in this browser");
+    }
+
     // Request notification permission
-    const permission = await Notification.requestPermission();
+    const permission = await window.Notification.requestPermission();
     if (permission !== 'granted') {
       throw new Error('Notification permission denied');
     }

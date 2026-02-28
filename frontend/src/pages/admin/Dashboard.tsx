@@ -47,9 +47,9 @@ export const Dashboard: React.FC = () => {
     <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-theme-bg-primary transition-colors duration-300 px-4 py-8">
       {/* Animated Background Mesh */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none opacity-40 dark:opacity-20">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-theme-primary-500 opacity-20 rounded-full blur-[100px] animate-blob"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[50%] h-[50%] bg-theme-accent-500 opacity-20 rounded-full blur-[100px] animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] bg-theme-primary-400 opacity-10 rounded-full blur-[100px] animate-blob animation-delay-4000"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-primary-500 to-transparent opacity-20 rounded-full animate-blob"></div>
+        <div className="absolute top-[20%] right-[-10%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-accent-500 to-transparent opacity-20 rounded-full animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-primary-400 to-transparent opacity-10 rounded-full animate-blob animation-delay-4000"></div>
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
@@ -86,8 +86,8 @@ export const Dashboard: React.FC = () => {
 
         {/* Stats Grid */}
         <div className="grid md:grid-cols-3 gap-6 mb-10">
-          <div className="backdrop-blur-2xl bg-theme-bg-secondary/80 border border-theme-border rounded-[2rem] shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 transform hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group">
-            <div className="absolute -right-6 -top-6 w-32 h-32 bg-theme-primary-500/10 rounded-full blur-2xl group-hover:bg-theme-primary-500/20 transition-colors"></div>
+          <div className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 transform hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group">
+            <div className="absolute -right-6 -top-6 w-32 h-32 bg-theme-primary-500 opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity"></div>
             <div className="relative z-10">
               <div className="w-12 h-12 rounded-2xl bg-theme-primary-500/10 text-theme-primary-500 flex items-center justify-center mb-6">
                 <svg
@@ -113,8 +113,8 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="backdrop-blur-2xl bg-theme-bg-secondary/80 border border-theme-border rounded-[2rem] shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 transform hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group">
-            <div className="absolute -right-6 -top-6 w-32 h-32 bg-theme-success/10 rounded-full blur-2xl group-hover:bg-theme-success/20 transition-colors"></div>
+          <div className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 transform hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group">
+            <div className="absolute -right-6 -top-6 w-32 h-32 bg-theme-success opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity"></div>
             <div className="relative z-10">
               <div className="w-12 h-12 rounded-2xl bg-theme-success/10 text-theme-success flex items-center justify-center mb-6">
                 <svg
@@ -140,25 +140,41 @@ export const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          <div className="backdrop-blur-2xl bg-theme-primary-500/5 dark:bg-theme-primary-500/10 border border-theme-primary-500/20 rounded-[2rem] shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 transform hover:scale-[1.02] transition-transform duration-300 flex flex-col justify-center">
-            <h3 className="text-theme-text-primary font-bold text-xl mb-3">
-              Quick Actions
-            </h3>
-            <p className="text-theme-text-secondary text-sm mb-6">
-              Need to update settings or check app metrics?
-            </p>
-            <Link
-              to="/apps"
-              className="w-full px-6 py-3 bg-theme-bg-secondary text-theme-text-primary hover:bg-theme-bg-muted border border-theme-border rounded-xl font-bold transition-colors text-center shadow-sm"
-            >
-              Manage Apps
-            </Link>
+          <div className="backdrop-blur-2xl bg-theme-primary-500/5 dark:bg-theme-primary-500/10 border border-theme-primary-500/30 rounded-[2rem] shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 transform hover:scale-[1.02] transition-transform duration-300 flex flex-col justify-center relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-theme-primary-500/0 via-theme-primary-500/5 to-theme-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative z-10">
+              <h3 className="text-theme-text-primary font-bold text-xl mb-3">
+                Quick Actions
+              </h3>
+              <p className="text-theme-text-secondary text-sm mb-6">
+                Need to update settings or check app metrics?
+              </p>
+              <Link
+                to="/apps"
+                className="w-full px-6 py-3 bg-theme-bg-secondary hover:bg-theme-primary-50 text-theme-text-primary dark:hover:bg-theme-bg-muted border border-theme-border rounded-xl font-bold transition-colors shadow-sm flex items-center justify-center gap-2 group-hover:border-theme-primary-500/50"
+              >
+                Manage Apps
+                <svg
+                  className="w-4 h-4 text-theme-primary-500 transform group-hover:translate-x-1 transition-transform"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                  />
+                </svg>
+              </Link>
+            </div>
           </div>
         </div>
 
         {/* Recent Apps List */}
-        <div className="backdrop-blur-2xl bg-theme-bg-secondary/80 border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden">
-          <div className="p-8 border-b border-theme-border/50 flex justify-between items-center bg-theme-bg-primary/30">
+        <div className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden">
+          <div className="p-8 border-b border-theme-border flex justify-between items-center bg-theme-bg-primary/50">
             <h2 className="text-2xl font-bold text-theme-text-primary">
               Recent Apps
             </h2>
@@ -188,7 +204,7 @@ export const Dashboard: React.FC = () => {
           <div className="p-4 sm:p-8">
             {apps.length === 0 ? (
               <div className="text-center py-16 px-4">
-                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-theme-bg-muted/50 flex items-center justify-center">
+                <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-theme-bg-muted flex items-center justify-center">
                   <svg
                     className="w-12 h-12 text-theme-text-muted"
                     fill="none"
@@ -223,7 +239,7 @@ export const Dashboard: React.FC = () => {
                   <Link
                     key={app.id}
                     to={`/apps/${app.id}`}
-                    className="group flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-theme-bg-primary/50 hover:bg-theme-bg-primary border border-theme-border rounded-2xl hover:border-theme-primary-500/50 hover:shadow-lg dark:hover:shadow-[0_4px_20px_0_rgba(0,0,0,0.2)] transition-all cursor-pointer"
+                    className="group flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-theme-bg-primary hover:bg-theme-bg-muted/50 dark:hover:bg-theme-bg-muted border border-theme-border rounded-2xl hover:border-theme-primary-500/50 hover:shadow-lg dark:hover:shadow-[0_4px_20px_0_rgba(0,0,0,0.2)] transition-all cursor-pointer"
                   >
                     <div className="flex items-start gap-4">
                       <div
@@ -260,7 +276,7 @@ export const Dashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="mt-4 sm:mt-0 sm:ml-4 flex items-center justify-between sm:justify-end w-full sm:w-auto gap-6 sm:shrink-0 text-right border-t sm:border-t-0 border-theme-border/50 pt-4 sm:pt-0">
+                    <div className="mt-4 sm:mt-0 sm:ml-4 flex items-center justify-between sm:justify-end w-full sm:w-auto gap-6 sm:shrink-0 text-right border-t sm:border-t-0 border-theme-border pt-4 sm:pt-0">
                       <div className="text-left sm:text-right">
                         <p className="text-xs font-medium text-theme-text-muted uppercase tracking-wider mb-1">
                           Created

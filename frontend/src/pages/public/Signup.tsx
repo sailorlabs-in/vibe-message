@@ -44,9 +44,9 @@ export const Signup: React.FC = () => {
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center relative overflow-hidden bg-theme-bg-primary transition-colors duration-300 py-12 px-4">
       {/* Animated Background Mesh */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-50 dark:opacity-30">
-        <div className="absolute top-[10%] right-[10%] w-[50%] h-[50%] bg-theme-primary-500 opacity-30 rounded-full blur-[100px] animate-blob"></div>
-        <div className="absolute bottom-[10%] left-[10%] w-[50%] h-[50%] bg-theme-accent-500 opacity-30 rounded-full blur-[100px] animate-blob animation-delay-2000"></div>
-        <div className="absolute top-[40%] left-[40%] w-[50%] h-[50%] bg-theme-primary-400 opacity-20 rounded-full blur-[100px] animate-blob animation-delay-4000"></div>
+        <div className="absolute top-[10%] right-[10%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-primary-500 to-transparent opacity-30 rounded-full animate-blob"></div>
+        <div className="absolute bottom-[10%] left-[10%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-accent-500 to-transparent opacity-30 rounded-full animate-blob animation-delay-2000"></div>
+        <div className="absolute top-[40%] left-[40%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-primary-400 to-transparent opacity-20 rounded-full animate-blob animation-delay-4000"></div>
       </div>
 
       <div className="max-w-md w-full relative z-10">

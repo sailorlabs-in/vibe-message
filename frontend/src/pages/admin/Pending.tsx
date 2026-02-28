@@ -5,8 +5,8 @@ export const Pending: React.FC = () => {
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center relative overflow-hidden bg-theme-bg-primary transition-colors duration-300 px-4">
       {/* Animated Background Mesh */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-40 dark:opacity-20">
-        <div className="absolute top-[10%] right-[10%] w-[40%] h-[40%] bg-theme-warning opacity-40 rounded-full blur-[100px] animate-blob"></div>
-        <div className="absolute bottom-[10%] left-[10%] w-[40%] h-[40%] bg-theme-info opacity-40 rounded-full blur-[100px] animate-blob animation-delay-2000"></div>
+        <div className="absolute top-[10%] right-[10%] w-[40%] h-[40%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-warning to-transparent opacity-40 rounded-full animate-blob"></div>
+        <div className="absolute bottom-[10%] left-[10%] w-[40%] h-[40%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-info to-transparent opacity-40 rounded-full animate-blob animation-delay-2000"></div>
       </div>
 
       <div className="max-w-lg w-full relative z-10">
