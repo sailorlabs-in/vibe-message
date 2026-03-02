@@ -238,7 +238,7 @@ export const Dashboard: React.FC = () => {
                 {apps.slice(0, 5).map((app) => (
                   <Link
                     key={app.id}
-                    to={`/apps/${app.id}`}
+                    to={`/apps/${app.public_app_id}`}
                     className="group flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-theme-bg-primary hover:bg-theme-bg-muted/50 dark:hover:bg-theme-bg-muted border border-theme-border rounded-2xl hover:border-theme-primary-500/50 hover:shadow-lg dark:hover:shadow-[0_4px_20px_0_rgba(0,0,0,0.2)] transition-all cursor-pointer"
                   >
                     <div className="flex items-start gap-4">
