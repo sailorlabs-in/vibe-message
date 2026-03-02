@@ -32,7 +32,7 @@ export const fetchApps = createAsyncThunk<
 
 export const fetchAppById = createAsyncThunk<
   AppWithStats,
-  number,
+  string,
   { rejectValue: string }
 >('apps/fetchAppById', async (id, { rejectWithValue }) => {
   try {
@@ -58,7 +58,7 @@ export const createNewApp = createAsyncThunk<
 
 export const updateExistingApp = createAsyncThunk<
   App,
-  { id: number; data: { name?: string; description?: string } },
+  { id: string; data: { name?: string; description?: string; is_active?: boolean } },
   { rejectValue: string }
 >('apps/updateApp', async ({ id, data }, { rejectWithValue }) => {
   try {
@@ -71,7 +71,7 @@ export const updateExistingApp = createAsyncThunk<
 
 export const rotateSecret = createAsyncThunk<
   App,
-  number,
+  string,
   { rejectValue: string }
 >('apps/rotateSecret', async (id, { rejectWithValue }) => {
   try {
@@ -83,8 +83,8 @@ export const rotateSecret = createAsyncThunk<
 });
 
 export const removeApp = createAsyncThunk<
-  number,
-  number,
+  string,
+  string,
   { rejectValue: string }
 >('apps/deleteApp', async (id, { rejectWithValue }) => {
   try {
@@ -161,11 +161,11 @@ const appsSlice = createSlice({
       })
       .addCase(updateExistingApp.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.apps.findIndex(app => app.id === action.payload.id);
+        const index = state.apps.findIndex(app => app.public_app_id === action.payload.public_app_id);
         if (index !== -1) {
           state.apps[index] = action.payload;
         }
-        if (state.selectedApp && state.selectedApp.id === action.payload.id) {
+        if (state.selectedApp && state.selectedApp.public_app_id === action.payload.public_app_id) {
           state.selectedApp = { ...state.selectedApp, ...action.payload };
         }
       })
@@ -182,11 +182,11 @@ const appsSlice = createSlice({
       })
       .addCase(rotateSecret.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.apps.findIndex(app => app.id === action.payload.id);
+        const index = state.apps.findIndex(app => app.public_app_id === action.payload.public_app_id);
         if (index !== -1) {
           state.apps[index] = action.payload;
         }
-        if (state.selectedApp && state.selectedApp.id === action.payload.id) {
+        if (state.selectedApp && state.selectedApp.public_app_id === action.payload.public_app_id) {
           state.selectedApp = { ...state.selectedApp, ...action.payload };
         }
       })
@@ -203,8 +203,8 @@ const appsSlice = createSlice({
       })
       .addCase(removeApp.fulfilled, (state, action) => {
         state.loading = false;
-        state.apps = state.apps.filter(app => app.id !== action.payload);
-        if (state.selectedApp && state.selectedApp.id === action.payload) {
+        state.apps = state.apps.filter(app => app.public_app_id !== action.payload);
+        if (state.selectedApp && state.selectedApp.public_app_id === action.payload) {
           state.selectedApp = null;
         }
       })

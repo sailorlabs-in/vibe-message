@@ -85,7 +85,7 @@ export const validateCreateApp = (data: any): CreateAppRequest => {
 };
 
 export const validateUpdateApp = (data: any): UpdateAppRequest => {
-  const { name, description } = data;
+  const { name, description, is_active } = data;
   const updates: UpdateAppRequest = {};
 
   if (name !== undefined) {
@@ -97,6 +97,13 @@ export const validateUpdateApp = (data: any): UpdateAppRequest => {
 
   if (description !== undefined) {
     updates.description = description ? String(description).trim() : undefined;
+  }
+
+  if (is_active !== undefined) {
+    if (typeof is_active !== 'boolean') {
+      throw new ValidationError('is_active must be a boolean');
+    }
+    updates.is_active = is_active;
   }
 
   if (Object.keys(updates).length === 0) {

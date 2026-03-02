@@ -24,7 +24,7 @@ export const AppDetails: React.FC = () => {
 
  useEffect(() => {
  if (id) {
- dispatch(fetchAppById(parseInt(id)));
+ dispatch(fetchAppById(id));
  }
  return () => {
  dispatch(clearSelectedApp());
@@ -44,7 +44,7 @@ export const AppDetails: React.FC = () => {
  );
  if (!confirmed || !id) return;
 
- const result = await dispatch(rotateSecret(parseInt(id)));
+ const result = await dispatch(rotateSecret(id));
  if (rotateSecret.fulfilled.match(result)) {
  toast.success("Secret key rotated successfully");
  } else {
@@ -56,7 +56,7 @@ export const AppDetails: React.FC = () => {
  if (!id) return;
  const result = await dispatch(
  updateExistingApp({
- id: parseInt(id),
+ id: id,
  data: {
  name: editName,
  description: editDescription || undefined,
@@ -71,9 +71,26 @@ export const AppDetails: React.FC = () => {
  }
  };
 
+ const handleToggleActive = async () => {
+ if (!id || !app) return;
+ const result = await dispatch(
+ updateExistingApp({
+ id: id,
+ data: {
+ is_active: !app.is_active,
+ },
+ })
+ );
+ if (updateExistingApp.fulfilled.match(result)) {
+ toast.success(app.is_active ? "App disabled successfully" : "App enabled successfully");
+ } else {
+ toast.error("Failed to update app status");
+ }
+ };
+
  const handleDelete = async () => {
  if (!id) return;
- const result = await dispatch(removeApp(parseInt(id)));
+ const result = await dispatch(removeApp(id));
  if (removeApp.fulfilled.match(result)) {
  toast.success("App deleted successfully");
  navigate("/apps");
@@ -85,7 +102,7 @@ export const AppDetails: React.FC = () => {
  if (loading && !app) return <div className="p-8 text-theme-text-primary">Loading...</div>;
  if (!app) return <div className="p-8 text-theme-text-primary">App not found</div>;
 
- const integrationCode = `// 1. Initialize Service Worker (Run in terminal)
+  const integrationCode = `// 1. Initialize Service Worker (Run in terminal)
 // npx vibe-message init
 
 // 2. Include the SDK
@@ -93,45 +110,38 @@ import { initNotificationClient } from 'vibe-message';
 
 // 3. Initialize with publicKey
 const client = initNotificationClient({
- baseUrl: 'https://your-server.com/api',
- appId: '${app.public_app_id}',
- publicKey: '${app.public_key}'
+  appId: '${app.public_app_id}',
+  publicKey: '${app.public_key}'
 });
 
 // 4. Register callbacks
 client.onMessage((payload) => {
- console.log('Foreground:', payload);
-});
-
-client.onBackgroundMessage((payload) => {
- console.log('Clicked:', payload);
-});
-
-client.onSilentMessage((data) => {
- console.log('Silent:', data);
+  console.log('Received payload:', payload);
 });
 
 // 5. Register device
 await client.registerDevice({
- externalUserId: 'user-123'
+  externalUserId: 'user-123'
 });`;
 
- const backendCode = `// Send push notification from your backend
-const response = await fetch('https://your-server.com/api/push/send', {
- method: 'POST',
- headers: { 'Content-Type': 'application/json' },
- body: JSON.stringify({
- appId: '${app.public_app_id}',
- secretKey: '${app.secret_key}',
- notification: {
- title: 'Hello!',
- body: 'This is a push notification',
- icon: '/icon.png'
- },
- targets: {
- externalUserIds: ['user-123']
- }
- })
+  const backendCode = `// 1. Install SDK in backend
+// npm install vibe-message
+
+// 2. Send push notification from your backend
+import { initServerClient } from 'vibe-message';
+
+const vibe = initServerClient({
+  appId: '${app.public_app_id}',
+  secretKey: '${app.secret_key}'
+});
+
+const result = await vibe.notification({
+  notificationData: {
+    title: 'Hello!',
+    body: 'This is a push notification',
+    icon: 'https://yoursite.com/icon.png'
+  },
+  externalUsers: ['user-123']
 });`;
 
  return (
@@ -239,9 +249,18 @@ const response = await fetch('https://your-server.com/api/push/send', {
  </div>
  <div className="card">
  <h3 className="text-theme-text-secondary text-sm font-medium mb-2">Status</h3>
+ <div className="flex items-center justify-between">
  <p className="text-xl font-semibold text-theme-text-primary">
  {app.is_active ?"✅ Active" :"❌ Inactive"}
  </p>
+ <button
+ onClick={handleToggleActive}
+ disabled={loading}
+ className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${app.is_active ? "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50" : "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"} disabled:opacity-50`}
+ >
+ {app.is_active ? "Disable" : "Enable"}
+ </button>
+ </div>
  </div>
  </div>
 
@@ -256,7 +275,7 @@ const response = await fetch('https://your-server.com/api/push/send', {
  <input
  value={app.public_app_id}
  readOnly
- className="input flex-1 font-mono text-sm bg-gray-50"
+ className="input flex-1 font-mono text-sm bg-gray-50 dark:bg-theme-bg-secondary dark:text-theme-text-primary dark:border-theme-border"
  />
  <CopyButton text={app.public_app_id} />
  </div>
@@ -266,7 +285,7 @@ const response = await fetch('https://your-server.com/api/push/send', {
  Public Key (For SDK)
  </label>
  <div className="flex space-x-2">
- <input value={app.public_key} readOnly className="input flex-1 font-mono text-sm bg-gray-50" />
+ <input value={app.public_key} readOnly className="input flex-1 font-mono text-sm bg-gray-50 dark:bg-theme-bg-secondary dark:text-theme-text-primary dark:border-theme-border" />
  <CopyButton text={app.public_key} />
  </div>
  <p className="text-xs text-theme-text-secondary mt-2">
@@ -281,7 +300,7 @@ const response = await fetch('https://your-server.com/api/push/send', {
  <input
  value={app.secret_key}
  readOnly
- className="input flex-1 font-mono text-sm bg-gray-50"
+ className="input flex-1 font-mono text-sm bg-gray-50 dark:bg-theme-bg-secondary dark:text-theme-text-primary dark:border-theme-border"
  type="password"
  />
  <CopyButton text={app.secret_key} />

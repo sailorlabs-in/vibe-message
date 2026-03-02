@@ -102,8 +102,8 @@ router.get('/system/public', async (req: Request, res: Response, next: NextFunct
 // Get app by ID
 router.get('/:id', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const appId = parseInt(req.params.id, 10);
-    const app = await appService.getAppById(appId, req.user!.userId, req.user!.role);
+    const publicAppId = req.params.id;
+    const app = await appService.getAppById(publicAppId, req.user!.userId, req.user!.role);
 
     res.json({
       success: true,
@@ -117,9 +117,9 @@ router.get('/:id', requireApproved, async (req: Request, res: Response, next: Ne
 // Update app
 router.patch('/:id', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const appId = parseInt(req.params.id, 10);
+    const publicAppId = req.params.id;
     const data = validateUpdateApp(req.body);
-    const app = await appService.updateApp(appId, req.user!.userId, req.user!.role, data);
+    const app = await appService.updateApp(publicAppId, req.user!.userId, req.user!.role, data);
 
     res.json({
       success: true,
@@ -133,8 +133,8 @@ router.patch('/:id', requireApproved, async (req: Request, res: Response, next: 
 // Rotate app secret
 router.post('/:id/rotate-secret', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const appId = parseInt(req.params.id, 10);
-    const app = await appService.rotateAppSecret(appId, req.user!.userId, req.user!.role);
+    const publicAppId = req.params.id;
+    const app = await appService.rotateAppSecret(publicAppId, req.user!.userId, req.user!.role);
 
     res.json({
       success: true,
@@ -148,8 +148,8 @@ router.post('/:id/rotate-secret', requireApproved, async (req: Request, res: Res
 // Delete app (soft delete)
 router.delete('/:id', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const appId = parseInt(req.params.id, 10);
-    await appService.deleteApp(appId, req.user!.userId, req.user!.role);
+    const publicAppId = req.params.id;
+    await appService.deleteApp(publicAppId, req.user!.userId, req.user!.role);
 
     res.json({
       success: true,

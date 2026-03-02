@@ -128,6 +128,7 @@ export interface CreateAppRequest {
 export interface UpdateAppRequest {
   name?: string;
   description?: string;
+  is_active?: boolean;
 }
 
 export interface RegisterDeviceRequest {

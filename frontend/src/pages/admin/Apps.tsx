@@ -49,7 +49,7 @@ export const Apps: React.FC = () => {
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {apps.map(app => (
-            <Link key={app.id} to={`/apps/${app.id}`} className="card hover:shadow-xl dark:hover:shadow-theme-primary-500/5 transition block border border-transparent hover:border-theme-primary-500/30">
+            <Link key={app.id} to={`/apps/${app.public_app_id}`} className="card hover:shadow-xl dark:hover:shadow-theme-primary-500/5 transition block border border-transparent hover:border-theme-primary-500/30">
               <div className="flex justify-between items-start mb-3">
                 <h3 className="text-xl font-semibold text-theme-text-primary">{app.name}</h3>
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${app.is_active ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800/50' : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700'}`}>

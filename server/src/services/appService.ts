@@ -26,7 +26,7 @@ export const getUserApps = async (userId: number, role: UserRole): Promise<App[]
 };
 
 export const getAppById = async (
-  appId: number,
+  publicAppId: string,
   userId: number,
   role: UserRole
 ): Promise<AppWithStats> => {
@@ -38,9 +38,9 @@ export const getAppById = async (
     FROM apps a
     LEFT JOIN device_tokens dt ON a.id = dt.app_id AND dt.is_active = true
     LEFT JOIN notifications n ON a.id = n.app_id
-    WHERE a.id = $1
+    WHERE a.public_app_id = $1
   `;
-  const params: any[] = [appId];
+  const params: any[] = [publicAppId];
 
   // Regular admin can only access their own apps
   if (role !== 'SUPER_ADMIN') {
@@ -116,7 +116,7 @@ export const createApp = async (
 };
 
 export const updateApp = async (
-  appId: number,
+  publicAppId: string,
   userId: number,
   role: UserRole,
   data: UpdateAppRequest
@@ -135,10 +135,15 @@ export const updateApp = async (
     params.push(data.description);
   }
 
+  if (data.is_active !== undefined) {
+    setClauses.push(`is_active = $${paramIndex++}`);
+    params.push(data.is_active);
+  }
+
   setClauses.push(`updated_at = CURRENT_TIMESTAMP`);
 
-  let queryText = `UPDATE apps SET ${setClauses.join(', ')} WHERE id = $${paramIndex++}`;
-  params.push(appId);
+  let queryText = `UPDATE apps SET ${setClauses.join(', ')} WHERE public_app_id = $${paramIndex++}`;
+  params.push(publicAppId);
 
   // Regular admin can only update their own apps
   if (role !== 'SUPER_ADMIN') {
@@ -158,7 +163,7 @@ export const updateApp = async (
 };
 
 export const rotateAppSecret = async (
-  appId: number,
+  publicAppId: string,
   userId: number,
   role: UserRole
 ): Promise<App> => {
@@ -167,9 +172,9 @@ export const rotateAppSecret = async (
   let queryText = `
     UPDATE apps 
     SET secret_key = $1, updated_at = CURRENT_TIMESTAMP
-    WHERE id = $2
+    WHERE public_app_id = $2
   `;
-  const params: any[] = [newSecretKey, appId];
+  const params: any[] = [newSecretKey, publicAppId];
 
   // Regular admin can only rotate their own apps
   if (role !== 'SUPER_ADMIN') {
@@ -189,12 +194,12 @@ export const rotateAppSecret = async (
 };
 
 export const deleteApp = async (
-  appId: number,
+  publicAppId: string,
   userId: number,
   role: UserRole
 ): Promise<void> => {
-  let queryText = 'DELETE FROM apps WHERE id = $1';
-  const params: any[] = [appId];
+  let queryText = 'DELETE FROM apps WHERE public_app_id = $1';
+  const params: any[] = [publicAppId];
 
   // Regular admin can only delete their own apps
   if (role !== 'SUPER_ADMIN') {
@@ -227,12 +232,16 @@ export const validateAppCredentials = async (
   secretKey: string
 ): Promise<App> => {
   const result = await query(
-    'SELECT * FROM apps WHERE public_app_id = $1 AND secret_key = $2 AND is_active = true',
+    'SELECT * FROM apps WHERE public_app_id = $1 AND secret_key = $2',
     [publicAppId, secretKey]
   );
 
   if (result.rows.length === 0) {
     throw new ForbiddenError('Invalid app credentials');
+  }
+
+  if (!result.rows[0].is_active) {
+    throw new ForbiddenError('app is not activated');
   }
 
   return result.rows[0];
@@ -247,12 +256,16 @@ export const validateSdkCredentials = async (
   publicKey: string
 ): Promise<App> => {
   const result = await query(
-    'SELECT * FROM apps WHERE public_app_id = $1 AND public_key = $2 AND is_active = true',
+    'SELECT * FROM apps WHERE public_app_id = $1 AND public_key = $2',
     [publicAppId, publicKey]
   );
 
   if (result.rows.length === 0) {
     throw new ForbiddenError('Invalid SDK credentials');
+  }
+
+  if (!result.rows[0].is_active) {
+    throw new ForbiddenError('app is not activated');
   }
 
   return result.rows[0];
