@@ -1,16 +1,18 @@
 import React from "react";
+import { motion } from "motion/react";
 
 export const Pending: React.FC = () => {
   return (
-    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center relative overflow-hidden bg-theme-bg-primary transition-colors duration-300 px-4">
-      {/* Animated Background Mesh */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-40 dark:opacity-20">
-        <div className="absolute top-[10%] right-[10%] w-[40%] h-[40%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-warning to-transparent opacity-40 rounded-full animate-blob"></div>
-        <div className="absolute bottom-[10%] left-[10%] w-[40%] h-[40%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-info to-transparent opacity-40 rounded-full animate-blob animation-delay-2000"></div>
-      </div>
+    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center relative overflow-hidden transition-colors duration-300 px-4">
+      {/* Background is now handled globally in App.tsx */}
 
       <div className="max-w-lg w-full relative z-10">
-        <div className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2.5rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-12 text-center transform hover:scale-[1.01] transition-transform duration-500">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 24 }}
+          className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2.5rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-12 text-center"
+        >
           <div className="relative mx-auto w-24 h-24 mb-8">
             <div className="absolute inset-0 bg-theme-warning opacity-30 animate-ping rounded-full blur-md"></div>
             <div className="relative flex items-center justify-center w-full h-full bg-theme-bg-secondary rounded-full shadow-lg text-4xl border-2 border-theme-warning">
@@ -36,7 +38,7 @@ export const Pending: React.FC = () => {
             </span>
             Status Pending
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

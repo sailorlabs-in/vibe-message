@@ -1,106 +1,113 @@
-import React, { useEffect, useState } from"react";
-import { useParams, useNavigate } from"react-router-dom";
-import toast from"react-hot-toast";
-import { useAppDispatch, useAppSelector } from"../../store/store";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
+import { useAppDispatch, useAppSelector } from "../../store/store";
 import {
- fetchAppById,
- updateExistingApp,
- rotateSecret,
- removeApp,
- clearSelectedApp,
-} from"../../store/slices/appsSlice";
-import { CopyButton } from"../../components/common/CopyButton";
+  fetchAppById,
+  updateExistingApp,
+  rotateSecret,
+  removeApp,
+  clearSelectedApp,
+} from "../../store/slices/appsSlice";
+import { CopyButton } from "../../components/common/CopyButton";
+import { motion } from "motion/react";
 
 export const AppDetails: React.FC = () => {
- const { id } = useParams<{ id: string }>();
- const navigate = useNavigate();
- const dispatch = useAppDispatch();
- const { selectedApp: app, loading } = useAppSelector((state) => state.apps);
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { selectedApp: app, loading } = useAppSelector((state) => state.apps);
 
- const [isEditing, setIsEditing] = useState(false);
- const [editName, setEditName] = useState("");
- const [editDescription, setEditDescription] = useState("");
- const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
- useEffect(() => {
- if (id) {
- dispatch(fetchAppById(id));
- }
- return () => {
- dispatch(clearSelectedApp());
- };
- }, [id, dispatch]);
+  useEffect(() => {
+    if (id) {
+      dispatch(fetchAppById(id));
+    }
+    return () => {
+      dispatch(clearSelectedApp());
+    };
+  }, [id, dispatch]);
 
- useEffect(() => {
- if (app) {
- setEditName(app.name);
- setEditDescription(app.description ||"");
- }
- }, [app]);
+  useEffect(() => {
+    if (app) {
+      setEditName(app.name);
+      setEditDescription(app.description || "");
+    }
+  }, [app]);
 
- const handleRotateSecret = async () => {
- const confirmed = window.confirm(
-"Are you sure? This will invalidate the current secret key."
- );
- if (!confirmed || !id) return;
+  const handleRotateSecret = async () => {
+    const confirmed = window.confirm(
+      "Are you sure? This will invalidate the current secret key.",
+    );
+    if (!confirmed || !id) return;
 
- const result = await dispatch(rotateSecret(id));
- if (rotateSecret.fulfilled.match(result)) {
- toast.success("Secret key rotated successfully");
- } else {
- toast.error("Failed to rotate secret");
- }
- };
+    const result = await dispatch(rotateSecret(id));
+    if (rotateSecret.fulfilled.match(result)) {
+      toast.success("Secret key rotated successfully");
+    } else {
+      toast.error("Failed to rotate secret");
+    }
+  };
 
- const handleSaveEdit = async () => {
- if (!id) return;
- const result = await dispatch(
- updateExistingApp({
- id: id,
- data: {
- name: editName,
- description: editDescription || undefined,
- },
- })
- );
- if (updateExistingApp.fulfilled.match(result)) {
- setIsEditing(false);
- toast.success("App updated successfully");
- } else {
- toast.error("Failed to update app");
- }
- };
+  const handleSaveEdit = async () => {
+    if (!id) return;
+    const result = await dispatch(
+      updateExistingApp({
+        id: id,
+        data: {
+          name: editName,
+          description: editDescription || undefined,
+        },
+      }),
+    );
+    if (updateExistingApp.fulfilled.match(result)) {
+      setIsEditing(false);
+      toast.success("App updated successfully");
+    } else {
+      toast.error("Failed to update app");
+    }
+  };
 
- const handleToggleActive = async () => {
- if (!id || !app) return;
- const result = await dispatch(
- updateExistingApp({
- id: id,
- data: {
- is_active: !app.is_active,
- },
- })
- );
- if (updateExistingApp.fulfilled.match(result)) {
- toast.success(app.is_active ? "App disabled successfully" : "App enabled successfully");
- } else {
- toast.error("Failed to update app status");
- }
- };
+  const handleToggleActive = async () => {
+    if (!id || !app) return;
+    const result = await dispatch(
+      updateExistingApp({
+        id: id,
+        data: {
+          is_active: !app.is_active,
+        },
+      }),
+    );
+    if (updateExistingApp.fulfilled.match(result)) {
+      toast.success(
+        app.is_active
+          ? "App disabled successfully"
+          : "App enabled successfully",
+      );
+    } else {
+      toast.error("Failed to update app status");
+    }
+  };
 
- const handleDelete = async () => {
- if (!id) return;
- const result = await dispatch(removeApp(id));
- if (removeApp.fulfilled.match(result)) {
- toast.success("App deleted successfully");
- navigate("/apps");
- } else {
- toast.error("Failed to delete app");
- }
- };
+  const handleDelete = async () => {
+    if (!id) return;
+    const result = await dispatch(removeApp(id));
+    if (removeApp.fulfilled.match(result)) {
+      toast.success("App deleted successfully");
+      navigate("/apps");
+    } else {
+      toast.error("Failed to delete app");
+    }
+  };
 
- if (loading && !app) return <div className="p-8 text-theme-text-primary">Loading...</div>;
- if (!app) return <div className="p-8 text-theme-text-primary">App not found</div>;
+  if (loading && !app)
+    return <div className="p-8 text-theme-text-primary">Loading...</div>;
+  if (!app)
+    return <div className="p-8 text-theme-text-primary">App not found</div>;
 
   const integrationCode = `// 1. Initialize Service Worker (Run in terminal)
 // npx vibe-message init
@@ -144,194 +151,233 @@ const result = await vibe.notification({
   externalUsers: ['user-123']
 });`;
 
- return (
- <div className="max-w-7xl mx-auto px-4 py-8">
- <div className="flex justify-between items-start mb-8">
- <div className="flex-1">
- {isEditing ? (
- <div className="space-y-4">
- <input
- type="text"
- value={editName}
- onChange={(e) => setEditName(e.target.value)}
-              className="text-3xl font-bold border-b-2 border-theme-primary-500 focus:outline-none w-full bg-transparent text-theme-text-primary transition-colors"
- placeholder="App Name"
- />
- <textarea
- value={editDescription}
- onChange={(e) => setEditDescription(e.target.value)}
+  const fadeUpVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
+  return (
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+      }}
+      className="max-w-7xl mx-auto px-4 py-8"
+    >
+      <motion.div
+        variants={fadeUpVariants}
+        className="flex justify-between items-start mb-8"
+      >
+        <div className="flex-1">
+          {isEditing ? (
+            <div className="space-y-4">
+              <input
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="text-3xl font-bold border-b-2 border-theme-primary-500 focus:outline-none w-full bg-transparent text-theme-text-primary transition-colors"
+                placeholder="App Name"
+              />
+              <textarea
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
                 className="w-full border border-theme-border rounded-lg p-3 bg-theme-bg-secondary text-theme-text-primary focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-colors"
- placeholder="App Description (optional)"
- rows={3}
- />
- <div className="flex gap-2">
- <button onClick={handleSaveEdit} className="btn-primary">
- Save Changes
- </button>
- <button
- onClick={() => {
- setIsEditing(false);
- setEditName(app.name);
- setEditDescription(app.description ||"");
- }}
- className="btn-secondary"
- >
- Cancel
- </button>
- </div>
- </div>
- ) : (
- <>
- <h1 className="text-3xl font-bold text-theme-text-primary">{app.name}</h1>
- {app.description && (
- <p className="text-theme-text-secondary mt-2">{app.description}</p>
- )}
- </>
- )}
- </div>
- {!isEditing && (
- <div className="flex gap-2">
- <button
- onClick={() => setIsEditing(true)}
- className="btn-secondary px-4 py-2 text-sm"
- >
- Edit
- </button>
- <button
- onClick={() => setShowDeleteConfirm(true)}
- className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
- >
- Delete
- </button>
- </div>
- )}
- </div>
+                placeholder="App Description (optional)"
+                rows={3}
+              />
+              <div className="flex gap-2">
+                <button onClick={handleSaveEdit} className="btn-primary">
+                  Save Changes
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditName(app.name);
+                    setEditDescription(app.description || "");
+                  }}
+                  className="btn-secondary"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <h1 className="text-3xl font-bold text-theme-text-primary">
+                {app.name}
+              </h1>
+              {app.description && (
+                <p className="text-theme-text-secondary mt-2">
+                  {app.description}
+                </p>
+              )}
+            </>
+          )}
+        </div>
+        {!isEditing && (
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="btn-secondary px-4 py-2 text-sm"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+            >
+              Delete
+            </button>
+          </div>
+        )}
+      </motion.div>
 
- {showDeleteConfirm && (
- <div className="bg-red-50 dark:bg-red-900/10 border-2 border-red-300 dark:border-red-800/30 rounded-lg p-5 mb-6">
- <h3 className="text-red-800 dark:text-red-400 font-semibold mb-2">Delete App?</h3>
- <p className="text-red-700 dark:text-red-300 mb-4">
- This will permanently delete this app and all associated devices and
- notifications. This action cannot be undone.
- </p>
- <div className="flex gap-3">
- <button
- onClick={handleDelete}
- disabled={loading}
- className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
- >
- {loading ?"Deleting..." :"Yes, Delete App"}
- </button>
- <button
- onClick={() => setShowDeleteConfirm(false)}
- className="btn-secondary"
- >
- Cancel
- </button>
- </div>
- </div>
- )}
+      {showDeleteConfirm && (
+        <div className="bg-red-50 dark:bg-red-900/10 border-2 border-red-300 dark:border-red-800/30 rounded-lg p-5 mb-6">
+          <h3 className="text-red-800 dark:text-red-400 font-semibold mb-2">
+            Delete App?
+          </h3>
+          <p className="text-red-700 dark:text-red-300 mb-4">
+            This will permanently delete this app and all associated devices and
+            notifications. This action cannot be undone.
+          </p>
+          <div className="flex gap-3">
+            <button
+              onClick={handleDelete}
+              disabled={loading}
+              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
+            >
+              {loading ? "Deleting..." : "Yes, Delete App"}
+            </button>
+            <button
+              onClick={() => setShowDeleteConfirm(false)}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
 
- <div className="grid md:grid-cols-3 gap-6 mb-8">
- <div className="card">
- <h3 className="text-theme-text-secondary text-sm font-medium mb-2">Devices</h3>
- <p className="text-3xl font-bold text-theme-primary-600 dark:text-theme-primary-400">
- {app.device_count}
- </p>
- </div>
- <div className="card">
- <h3 className="text-theme-text-secondary text-sm font-medium mb-2">
- Notifications Sent
- </h3>
- <p className="text-3xl font-bold text-green-600 dark:text-green-400">
- {app.notification_count}
- </p>
- </div>
- <div className="card">
- <h3 className="text-theme-text-secondary text-sm font-medium mb-2">Status</h3>
- <div className="flex items-center justify-between">
- <p className="text-xl font-semibold text-theme-text-primary">
- {app.is_active ?"✅ Active" :"❌ Inactive"}
- </p>
- <button
- onClick={handleToggleActive}
- disabled={loading}
- className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${app.is_active ? "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50" : "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"} disabled:opacity-50`}
- >
- {app.is_active ? "Disable" : "Enable"}
- </button>
- </div>
- </div>
- </div>
+      <motion.div
+        variants={fadeUpVariants}
+        className="grid md:grid-cols-3 gap-6 mb-8"
+      >
+        <div className="card">
+          <h3 className="text-theme-text-secondary text-sm font-medium mb-2">
+            Devices
+          </h3>
+          <p className="text-3xl font-bold text-theme-primary-600 dark:text-theme-primary-400">
+            {app.device_count}
+          </p>
+        </div>
+        <div className="card">
+          <h3 className="text-theme-text-secondary text-sm font-medium mb-2">
+            Notifications Sent
+          </h3>
+          <p className="text-3xl font-bold text-green-600 dark:text-green-400">
+            {app.notification_count}
+          </p>
+        </div>
+        <div className="card">
+          <h3 className="text-theme-text-secondary text-sm font-medium mb-2">
+            Status
+          </h3>
+          <div className="flex items-center justify-between">
+            <p className="text-xl font-semibold text-theme-text-primary">
+              {app.is_active ? "✅ Active" : "❌ Inactive"}
+            </p>
+            <button
+              onClick={handleToggleActive}
+              disabled={loading}
+              className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${app.is_active ? "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50" : "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"} disabled:opacity-50`}
+            >
+              {app.is_active ? "Disable" : "Enable"}
+            </button>
+          </div>
+        </div>
+      </motion.div>
 
- <div className="card mb-6">
- <h2 className="text-xl font-semibold mb-6 text-theme-text-primary">Credentials</h2>
- <div className="space-y-6">
- <div>
- <label className="block text-sm font-medium mb-2 text-theme-text-primary">
- App ID (Public)
- </label>
- <div className="flex space-x-2">
- <input
- value={app.public_app_id}
- readOnly
- className="input flex-1 font-mono text-sm bg-gray-50 dark:bg-theme-bg-secondary dark:text-theme-text-primary dark:border-theme-border"
- />
- <CopyButton text={app.public_app_id} />
- </div>
- </div>
- <div>
- <label className="block text-sm font-medium mb-2 text-theme-text-primary">
- Public Key (For SDK)
- </label>
- <div className="flex space-x-2">
- <input value={app.public_key} readOnly className="input flex-1 font-mono text-sm bg-gray-50 dark:bg-theme-bg-secondary dark:text-theme-text-primary dark:border-theme-border" />
- <CopyButton text={app.public_key} />
- </div>
- <p className="text-xs text-theme-text-secondary mt-2">
- Safe to use in client-side code
- </p>
- </div>
- <div>
- <label className="block text-sm font-medium mb-2 text-theme-text-primary">
- Secret Key (For Server API)
- </label>
- <div className="flex space-x-2">
- <input
- value={app.secret_key}
- readOnly
- className="input flex-1 font-mono text-sm bg-gray-50 dark:bg-theme-bg-secondary dark:text-theme-text-primary dark:border-theme-border"
- type="password"
- />
- <CopyButton text={app.secret_key} />
- <button
- onClick={handleRotateSecret}
- disabled={loading}
- className="btn-danger whitespace-nowrap"
- >
- {loading ?"Rotating..." :"Rotate Key"}
- </button>
- </div>
- <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-medium">
- Keep this secret! Never expose it in client-side code.
- </p>
- </div>
- </div>
- </div>
+      <motion.div variants={fadeUpVariants} className="card mb-6">
+        <h2 className="text-xl font-semibold mb-6 text-theme-text-primary">
+          Credentials
+        </h2>
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+              App ID (Public)
+            </label>
+            <div className="flex space-x-2">
+              <input
+                value={app.public_app_id}
+                readOnly
+                className="input flex-1 font-mono text-sm bg-gray-50 dark:bg-theme-bg-secondary dark:text-theme-text-primary dark:border-theme-border"
+              />
+              <CopyButton text={app.public_app_id} />
+            </div>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+              Public Key (For SDK)
+            </label>
+            <div className="flex space-x-2">
+              <input
+                value={app.public_key}
+                readOnly
+                className="input flex-1 font-mono text-sm bg-gray-50 dark:bg-theme-bg-secondary dark:text-theme-text-primary dark:border-theme-border"
+              />
+              <CopyButton text={app.public_key} />
+            </div>
+            <p className="text-xs text-theme-text-secondary mt-2">
+              Safe to use in client-side code
+            </p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+              Secret Key (For Server API)
+            </label>
+            <div className="flex space-x-2">
+              <input
+                value={app.secret_key}
+                readOnly
+                className="input flex-1 font-mono text-sm bg-gray-50 dark:bg-theme-bg-secondary dark:text-theme-text-primary dark:border-theme-border"
+                type="password"
+              />
+              <CopyButton text={app.secret_key} />
+              <button
+                onClick={handleRotateSecret}
+                disabled={loading}
+                className="btn-danger whitespace-nowrap"
+              >
+                {loading ? "Rotating..." : "Rotate Key"}
+              </button>
+            </div>
+            <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-medium">
+              Keep this secret! Never expose it in client-side code.
+            </p>
+          </div>
+        </div>
+      </motion.div>
 
- <div className="card mb-6">
- <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">Frontend Integration</h2>
- <pre className="bg-gray-900 dark:bg-[#060606] text-gray-100 p-4 rounded-lg overflow-x-auto text-sm border border-gray-800">
- {integrationCode}
- </pre>
- </div>
+      <motion.div variants={fadeUpVariants} className="card mb-6">
+        <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
+          Frontend Integration
+        </h2>
+        <pre className="bg-gray-900 dark:bg-[#060606] text-gray-100 p-4 rounded-lg overflow-x-auto text-sm border border-gray-800">
+          {integrationCode}
+        </pre>
+      </motion.div>
 
- <div className="card">
- <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">Backend Integration</h2>
- <pre className="bg-gray-900 dark:bg-[#060606] text-gray-100 p-4 rounded-lg overflow-x-auto text-sm border border-gray-800">
- {backendCode}
- </pre>
- </div>
- </div>
- );
+      <motion.div variants={fadeUpVariants} className="card">
+        <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
+          Backend Integration
+        </h2>
+        <pre className="bg-gray-900 dark:bg-[#060606] text-gray-100 p-4 rounded-lg overflow-x-auto text-sm border border-gray-800">
+          {backendCode}
+        </pre>
+      </motion.div>
+    </motion.div>
+  );
 };

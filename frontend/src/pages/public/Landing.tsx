@@ -1,26 +1,20 @@
-import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "motion/react";
 
 export const Landing: React.FC = () => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setIsVisible(true);
-  }, []);
+  // Remove the old state-based visibility transition
+  // We'll use framer-motion instead
 
   return (
-    <div className="min-h-screen bg-theme-bg-primary text-theme-text-primary selection:bg-theme-primary-500/30 font-sans overflow-x-hidden transition-colors duration-300">
-      {/* Decorative Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-primary-500 to-transparent rounded-full dark:opacity-20 opacity-40" />
-        <div className="absolute top-[20%] right-[-10%] w-[30%] h-[30%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-accent-500 to-transparent rounded-full dark:opacity-20 opacity-40" />
-        <div className="absolute bottom-[-10%] left-[20%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-primary-400 to-transparent rounded-full dark:opacity-20 opacity-40" />
-      </div>
+    <div className="min-h-screen text-theme-text-primary selection:bg-theme-primary-500/30 font-sans overflow-x-hidden transition-colors duration-300">
+      {/* Background is now handled globally in App.tsx */}
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
-        <div
-          className={`transition-all duration-1000 transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"}`}
+      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <div className="inline-flex items-center space-x-2 bg-theme-primary-500/10 border border-theme-primary-500/20 dark:border-theme-primary-500/5 rounded-full px-4 py-2 mb-8 backdrop-blur-sm cursor-default hover:bg-theme-primary-500/20 transition-all">
             <span className="flex h-2 w-2 rounded-full bg-theme-primary-500 animate-pulse border border-theme-primary-400"></span>
@@ -86,13 +80,16 @@ export const Landing: React.FC = () => {
               Explore Documentation
             </Link>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Dashboard Preview / Mockup Section */}
       <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-32">
-        <div
-          className={`transition-all duration-1000 delay-300 transform ${isVisible ? "translate-y-0 opacity-100" : "translate-y-24 opacity-0"}`}
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8, delay: 0.2 }}
         >
           <div className="relative rounded-2xl overflow-hidden bg-theme-bg-secondary border border-theme-border shadow-2xl shadow-theme-primary-500/10 dark:shadow-theme-primary-500/5">
             <div className="flex items-center px-4 py-3 bg-theme-bg-muted border-b border-theme-border">
@@ -166,14 +163,20 @@ export const Landing: React.FC = () => {
 
             <div className="absolute inset-0 bg-gradient-to-t from-theme-bg-primary via-transparent to-transparent pointer-events-none opacity-50 dark:opacity-100"></div>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Features Grid */}
       <section className="py-24 relative overflow-hidden bg-theme-bg-secondary border-t border-theme-border">
         <div className="absolute top-0 w-full h-px bg-gradient-to-r from-transparent via-theme-border to-transparent"></div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-20">
+          <motion.div
+            className="text-center max-w-3xl mx-auto mb-20"
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
             <h2 className="text-sm font-bold tracking-widest text-theme-primary-600 dark:text-theme-primary-400 uppercase mb-3">
               Enterprise Grade
             </h2>
@@ -184,11 +187,17 @@ export const Landing: React.FC = () => {
               We've handled the complex infrastructure so you can focus on
               building your application's core product.
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Feature 1 */}
-            <div className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300">
+            <motion.div
+              className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
               <div className="w-14 h-14 bg-theme-primary-100 rounded-xl flex items-center justify-center mb-6 text-theme-primary-600 dark:text-theme-primary-400 group-hover:scale-110 transition-transform">
                 <svg
                   className="w-7 h-7"
@@ -211,10 +220,16 @@ export const Landing: React.FC = () => {
                 Plug-and-play JavaScript SDK alongside a robust REST API. From
                 zero to your first push notification in under 5 minutes.
               </p>
-            </div>
+            </motion.div>
 
             {/* Feature 2 */}
-            <div className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300">
+            <motion.div
+              className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
               <div className="w-14 h-14 bg-theme-primary-100 rounded-xl flex items-center justify-center mb-6 text-theme-primary-600 dark:text-theme-primary-400 group-hover:scale-110 transition-transform">
                 <svg
                   className="w-7 h-7"
@@ -238,10 +253,16 @@ export const Landing: React.FC = () => {
                 strict super-admin approval workflow to guarantee absolute
                 security.
               </p>
-            </div>
+            </motion.div>
 
             {/* Feature 3 */}
-            <div className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300">
+            <motion.div
+              className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
               <div className="w-14 h-14 bg-theme-accent-100 rounded-xl flex items-center justify-center mb-6 text-theme-accent-500 dark:text-theme-accent-400 group-hover:scale-110 transition-transform">
                 <svg
                   className="w-7 h-7"
@@ -264,10 +285,16 @@ export const Landing: React.FC = () => {
                 Granular, real-time analytics. Monitor delivery status, manage
                 device registries, and track notification health instantly.
               </p>
-            </div>
+            </motion.div>
 
             {/* Feature 4 */}
-            <div className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300">
+            <motion.div
+              className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
               <div className="w-14 h-14 bg-theme-primary-100 rounded-xl flex items-center justify-center mb-6 text-theme-primary-600 dark:text-theme-primary-400 group-hover:scale-110 transition-transform">
                 <svg
                   className="w-7 h-7"
@@ -291,10 +318,16 @@ export const Landing: React.FC = () => {
                 data-only silent pushes to sync application state in the
                 background.
               </p>
-            </div>
+            </motion.div>
 
             {/* Feature 5 */}
-            <div className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300">
+            <motion.div
+              className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+            >
               <div className="w-14 h-14 bg-theme-accent-100 rounded-xl flex items-center justify-center mb-6 text-theme-accent-500 dark:text-theme-accent-400 group-hover:scale-110 transition-transform">
                 <svg
                   className="w-7 h-7"
@@ -317,10 +350,16 @@ export const Landing: React.FC = () => {
                 Hyper-specific routing. Broadcast globally to millions, or
                 target individual devices and custom user-groups seamlessly.
               </p>
-            </div>
+            </motion.div>
 
             {/* Feature 6 */}
-            <div className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300">
+            <motion.div
+              className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+            >
               <div className="w-14 h-14 bg-theme-primary-100 rounded-xl flex items-center justify-center mb-6 text-theme-primary-600 dark:text-theme-primary-400 group-hover:scale-110 transition-transform">
                 <svg
                   className="w-7 h-7"
@@ -343,16 +382,21 @@ export const Landing: React.FC = () => {
                 Architected on Node.js and heavily optimized PostgreSQL. Built
                 specifically to handle immense throughput without bottlenecking.
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Workflow Steps */}
-      <section className="py-24 bg-theme-bg-primary relative border-t border-theme-border">
+      <section className="py-24 bg-theme-bg-primary relative border-t border-theme-border overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <div>
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
               <h2 className="text-3xl md:text-4xl font-bold mb-8 text-theme-text-primary">
                 From setup to deployment in{" "}
                 <span className="text-theme-primary-500 dark:text-theme-primary-400">
@@ -432,9 +476,15 @@ export const Landing: React.FC = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="relative">
+            <motion.div
+              className="relative"
+              initial={{ opacity: 0, x: 50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
               <div className="absolute -inset-4 bg-gradient-to-r from-theme-primary-500 to-theme-accent-500 rounded-2xl blur-lg opacity-20"></div>
               <div className="relative bg-theme-bg-secondary border border-theme-border rounded-xl p-6 shadow-2xl">
                 <div className="flex items-center space-x-2 mb-4 b-border-white/10 pb-4 border-b border-theme-border">
@@ -495,7 +545,7 @@ export const Landing: React.FC = () => {
                   </code>
                 </pre>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -505,7 +555,13 @@ export const Landing: React.FC = () => {
         <div className="absolute inset-0 bg-theme-primary-500 mix-blend-multiply opacity-5 dark:opacity-20 pointer-events-none"></div>
         <div className="absolute bottom-0 w-full h-px bg-gradient-to-r from-transparent via-theme-border to-transparent"></div>
 
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
+        <motion.div
+          className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10"
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
           <h2 className="text-4xl md:text-5xl font-bold mb-6 text-theme-text-primary">
             Build the future of communication.
           </h2>
@@ -527,7 +583,7 @@ export const Landing: React.FC = () => {
               Read Documentation
             </Link>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* Footer */}

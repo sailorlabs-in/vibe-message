@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "motion/react";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { fetchApps } from "../../store/slices/appsSlice";
 
@@ -10,6 +11,24 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     dispatch(fetchApps());
   }, [dispatch]);
+
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 300, damping: 24 },
+    },
+  };
 
   if (loading && apps.length === 0) {
     return (
@@ -44,16 +63,16 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-theme-bg-primary transition-colors duration-300 px-4 py-8">
-      {/* Animated Background Mesh */}
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none opacity-40 dark:opacity-20">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-primary-500 to-transparent opacity-20 rounded-full animate-blob"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-accent-500 to-transparent opacity-20 rounded-full animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-primary-400 to-transparent opacity-10 rounded-full animate-blob animation-delay-4000"></div>
-      </div>
+    <div className="min-h-[calc(100vh-64px)] relative overflow-hidden transition-colors duration-300 px-4 py-8">
+      {/* Background is now handled globally in App.tsx */}
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+        >
           <div>
             <h1 className="text-4xl font-black tracking-tight text-theme-text-primary drop-shadow-sm">
               Dashboard
@@ -82,11 +101,19 @@ export const Dashboard: React.FC = () => {
             </svg>
             New App
           </Link>
-        </div>
+        </motion.div>
 
         {/* Stats Grid */}
-        <div className="grid md:grid-cols-3 gap-6 mb-10">
-          <div className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 transform hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="grid md:grid-cols-3 gap-6 mb-10"
+        >
+          <motion.div
+            variants={itemVariants}
+            className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 transform hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group"
+          >
             <div className="absolute -right-6 -top-6 w-32 h-32 bg-theme-primary-500 opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity"></div>
             <div className="relative z-10">
               <div className="w-12 h-12 rounded-2xl bg-theme-primary-500/10 text-theme-primary-500 flex items-center justify-center mb-6">
@@ -111,9 +138,12 @@ export const Dashboard: React.FC = () => {
                 {apps.length}
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 transform hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group">
+          <motion.div
+            variants={itemVariants}
+            className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 transform hover:scale-[1.02] transition-transform duration-300 relative overflow-hidden group"
+          >
             <div className="absolute -right-6 -top-6 w-32 h-32 bg-theme-success opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity"></div>
             <div className="relative z-10">
               <div className="w-12 h-12 rounded-2xl bg-theme-success/10 text-theme-success flex items-center justify-center mb-6">
@@ -138,9 +168,12 @@ export const Dashboard: React.FC = () => {
                 {apps.filter((app) => app.is_active).length}
               </p>
             </div>
-          </div>
+          </motion.div>
 
-          <div className="backdrop-blur-2xl bg-theme-primary-500/5 dark:bg-theme-primary-500/10 border border-theme-primary-500/30 rounded-[2rem] shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 transform hover:scale-[1.02] transition-transform duration-300 flex flex-col justify-center relative overflow-hidden group">
+          <motion.div
+            variants={itemVariants}
+            className="backdrop-blur-2xl bg-theme-primary-500/5 dark:bg-theme-primary-500/10 border border-theme-primary-500/30 rounded-[2rem] shadow-lg dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8 transform hover:scale-[1.02] transition-transform duration-300 flex flex-col justify-center relative overflow-hidden group"
+          >
             <div className="absolute inset-0 bg-gradient-to-br from-theme-primary-500/0 via-theme-primary-500/5 to-theme-primary-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             <div className="relative z-10">
               <h3 className="text-theme-text-primary font-bold text-xl mb-3">
@@ -169,11 +202,16 @@ export const Dashboard: React.FC = () => {
                 </svg>
               </Link>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Recent Apps List */}
-        <div className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] overflow-hidden"
+        >
           <div className="p-8 border-b border-theme-border flex justify-between items-center bg-theme-bg-primary/50">
             <h2 className="text-2xl font-bold text-theme-text-primary">
               Recent Apps
@@ -309,7 +347,7 @@ export const Dashboard: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

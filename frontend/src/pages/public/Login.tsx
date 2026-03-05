@@ -36,13 +36,8 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center relative overflow-hidden bg-theme-bg-primary transition-colors duration-300 py-12 px-4">
-      {/* Animated Background Mesh */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-50 dark:opacity-30">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-primary-500 to-transparent opacity-30 rounded-full animate-blob"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-accent-500 to-transparent opacity-30 rounded-full animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-primary-400 to-transparent opacity-20 rounded-full animate-blob animation-delay-4000"></div>
-      </div>
+    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center relative overflow-hidden transition-colors duration-300 py-12 px-4">
+      {/* Background is now handled globally in App.tsx */}
 
       <div className="max-w-md w-full relative z-10">
         <div className="text-center mb-8">
