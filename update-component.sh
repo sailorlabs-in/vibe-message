@@ -70,10 +70,10 @@ case $COMPONENT in
 esac
 
 echo "Step 1/3: Rebuilding Docker image for $COMPONENT..."
-docker build -t $IMAGE $DIR
+sudo docker build -t $IMAGE $DIR
 
 echo "Step 2/3: Loading image into KIND cluster..."
-kind load docker-image $IMAGE
+sudo kind load docker-image $IMAGE
 
 echo "Step 3/3: Restarting Kubernetes deployment to pick up the new image..."
 kubectl rollout restart deployment/$DEPLOYMENT -n $NAMESPACE

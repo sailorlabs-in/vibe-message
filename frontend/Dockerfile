@@ -1,5 +1,5 @@
 # Build stage
-FROM node:22-alpine AS builder
+FROM node:24-alpine AS builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ COPY . .
 
 # Create production .env file with relative API path for Kubernetes ingress
 # This allows the frontend to call /api which gets routed to the backend service
-RUN echo "VITE_API_URL=/api" > .env
+RUN echo "VITE_API_URL=/api" > .env.production
 
 # Build the application
 RUN npm run build
