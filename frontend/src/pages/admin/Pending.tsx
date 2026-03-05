@@ -10,7 +10,7 @@ export const Pending: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 24 }}
+          transition={{ type: "spring" as const, stiffness: 300, damping: 24 }}
           className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2.5rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-12 text-center"
         >
           <div className="relative mx-auto w-24 h-24 mb-8">
