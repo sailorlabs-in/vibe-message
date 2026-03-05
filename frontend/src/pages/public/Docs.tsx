@@ -333,45 +333,36 @@ export const Docs: React.FC = () => {
                 transition={{ duration: 0.4 }}
                 className="max-w-4xl mx-auto"
               >
-                <h2 className="text-3xl font-bold mb-4 text-theme-text-primary">
-                  Backend Integration (Sending)
-                </h2>
-                <p className="text-lg text-theme-text-secondary mb-10 leading-relaxed p-4 bg-theme-warning/10 border-l-4 border-theme-warning rounded-r-lg">
-                  Your backend server is responsible for triggering
-                  notifications. You should{" "}
-                  <strong className="text-theme-error">never</strong> expose
-                  your{" "}
-                  <code className="font-mono text-sm bg-theme-bg-secondary px-1 py-0.5 rounded">
-                    secretKey
-                  </code>{" "}
-                  to your frontend code.
-                </p>
+                <div className="mb-10 text-center sm:text-left">
+                  <h2 className="text-3xl font-bold mb-4 text-theme-text-primary">
+                    Backend Integration (Sending)
+                  </h2>
+                  <p className="text-lg text-theme-text-secondary mb-10 leading-relaxed p-4 bg-theme-warning/10 border-l-4 border-theme-warning rounded-r-lg inline-block text-left">
+                    Your backend server is responsible for triggering
+                    notifications. You should{" "}
+                    <strong className="text-theme-error">never</strong> expose
+                    your{" "}
+                    <code className="font-mono text-sm bg-theme-bg-secondary px-1 py-0.5 rounded">
+                      secretKey
+                    </code>{" "}
+                    to your frontend code.
+                  </p>
+                </div>
 
                 <div className="space-y-12">
-                  <div>
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-3">
-                      1. Install the SDK
-                    </h3>
-                    <p className="text-theme-text-secondary mb-6">
-                      First, you need to install the package via npm in your
-                      Node.js backend.
-                    </p>
-                    <CodeBlock
-                      code={`npm install vibe-message`}
-                      language="bash"
-                    />
-                  </div>
+                  <StepBlock
+                    step="1"
+                    title="Install the SDK"
+                    description="First, you need to install the package via npm in your Node.js backend."
+                    code={`npm install vibe-message`}
+                    language="bash"
+                  />
 
-                  <div>
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-3">
-                      2. Send a Notification via SDK
-                    </h3>
-                    <p className="text-theme-text-secondary mb-6">
-                      Use the Vibe Message SDK in your Node.js server to quickly
-                      initialize and dispatch notifications securely.
-                    </p>
-                    <CodeBlock
-                      code={`import { initServerClient } from 'vibe-message';
+                  <StepBlock
+                    step="2"
+                    title="Send a Notification via SDK"
+                    description="Use the Vibe Message SDK in your Node.js server to quickly initialize and dispatch notifications securely."
+                    code={`import { initServerClient } from 'vibe-message';
 
 const vibe = initServerClient({
   appId: 'your-app-id',
@@ -389,25 +380,14 @@ const result = await vibe.notification({
 });
 
 console.log(result);`}
-                      language="typescript"
-                    />
-                  </div>
+                    language="typescript"
+                  />
 
-                  <div>
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-3">
-                      3. Send a Silent Data Payload
-                    </h3>
-                    <p className="text-theme-text-secondary mb-6">
-                      Need to trigger an invisible background refresh on the
-                      client? Send a silent payload without a title/body using
-                      the{" "}
-                      <code className="text-sm font-mono bg-theme-bg-muted px-1 py-0.5 border border-theme-border rounded text-theme-primary-500">
-                        silentNotification
-                      </code>{" "}
-                      method.
-                    </p>
-                    <CodeBlock
-                      code={`import { initServerClient } from 'vibe-message';
+                  <StepBlock
+                    step="3"
+                    title="Send a Silent Data Payload"
+                    description="Need to trigger an invisible background refresh on the client? Send a silent payload without a title/body using the silentNotification method."
+                    code={`import { initServerClient } from 'vibe-message';
 
 const vibe = initServerClient({
   appId: 'your-app-id',
@@ -421,9 +401,8 @@ await vibe.silentNotification({
   },
   externalUsers: ['user-123']
 });`}
-                      language="typescript"
-                    />
-                  </div>
+                    language="typescript"
+                  />
                 </div>
               </motion.div>
             )}
@@ -437,103 +416,125 @@ await vibe.silentNotification({
                 transition={{ duration: 0.4 }}
                 className="max-w-4xl mx-auto"
               >
-                <h2 className="text-3xl font-bold mb-4 text-theme-text-primary">
-                  React Frontend (Receiving)
-                </h2>
-                <p className="text-lg text-theme-text-secondary mb-10 leading-relaxed">
-                  The recommended pattern for SPAs like Create React App or Vite
-                  to start receiving messages sent by your backend.
-                </p>
+                <div className="mb-10 text-center sm:text-left">
+                  <h2 className="text-3xl font-bold mb-4 text-theme-text-primary">
+                    React Integration Guide
+                  </h2>
+                  <p className="text-lg text-theme-text-secondary leading-relaxed">
+                    The best way to integrate Vibe Message in SPAs (Create React
+                    App, Vite, etc.) is by using a global Context to manage your
+                    notification client. This allows you to easily tie
+                    notifications to your user's authentication state.
+                  </p>
+                </div>
 
                 <div className="space-y-12">
-                  <div>
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-3">
-                      1. Install SDK & Generate Worker
-                    </h3>
-                    <p className="text-theme-text-secondary mb-6">
-                      Install the package, and drop the Service Worker file into
-                      your public folder using the CLI.
-                    </p>
-                    <CodeBlock
-                      code={`npm install vibe-message\n\nnpx vibe-message init`}
-                      language="bash"
-                    />
-                  </div>
+                  <StepBlock
+                    step="1"
+                    title="Install SDK & Generate Worker"
+                    description="Install the package from npm, and initialize the required Service Worker in your public directory. This worker runs in the background to receive messages even when your app is closed."
+                    code={`npm install vibe-message\n\nnpx vibe-message init`}
+                    language="bash"
+                  />
 
-                  <div>
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-3">
-                      2. Create a Context Provider
-                    </h3>
-                    <p className="text-theme-text-secondary mb-6">
-                      Create a global React context to manage notification state
-                      and permissions.
-                    </p>
-                    <CodeBlock
-                      code={`import React, { createContext, useContext, useState, useRef } from 'react';
+                  <StepBlock
+                    step="2"
+                    title="Create a Notification Provider"
+                    description="Set up a Context Provider that initializes the client exactly once. It exposes methods to register the device upon login, and unregister it upon logout."
+                    code={`import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { initNotificationClient } from 'vibe-message';
-import toast from 'react-hot-toast';
+import toast from 'react-hot-toast'; // Optional: for in-app alerts
 
 export const NotificationContext = createContext<any>(null);
 
-export const NotificationProvider = ({ children }: any) => {
-  const [isRegistered, setIsRegistered] = useState(false);
+export const NotificationProvider = ({ children }: { children: React.ReactNode }) => {
   const clientRef = useRef<any>(null);
 
-  const init = async (userId: string) => {
-    const client = initNotificationClient({
+  useEffect(() => {
+    // 1. Initialize client once on app load
+    clientRef.current = initNotificationClient({
       appId: 'your-app-id',
       publicKey: 'your-public-key'
     });
-    clientRef.current = client;
 
-    client.onMessage((payload: any) => {
-      // Show modern in-app toast for foreground users
+    // 2. Listen for messages while the app is actively open
+    clientRef.current.onMessage((payload: any) => {
       toast.success(payload.title + ": " + payload.body);
     });
+  }, []);
 
-    // Register the client using the logged-in user's DB ID
-    await client.registerDevice({ externalUserId: userId });
-    setIsRegistered(true);
+  // Use this when a user logs in
+  const registerDevice = async (userId: string) => {
+    if (!clientRef.current) return;
+    await clientRef.current.registerDevice({ externalUserId: userId });
+  };
+
+  // Use this when a user logs out
+  const unregisterDevice = async () => {
+    if (!clientRef.current) return;
+    await clientRef.current.unregisterDevice();
   };
 
   return (
-    <NotificationContext.Provider value={{ isRegistered, init }}>
+    <NotificationContext.Provider value={{ registerDevice, unregisterDevice }}>
       {children}
     </NotificationContext.Provider>
   );
 };`}
-                      language="tsx"
-                    />
-                  </div>
+                    language="tsx"
+                  />
 
-                  <div>
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-3">
-                      3. Use Anywhere
-                    </h3>
-                    <p className="text-theme-text-secondary mb-6">
-                      Now you can request permissions and initialize the SDK
-                      from any component (e.g. after login)!
-                    </p>
-                    <CodeBlock
-                      code={`function LoginButton() {
-  const { init } = useContext(NotificationContext);
+                  <StepBlock
+                    step="3"
+                    title="Wrap Your App"
+                    description="Wrap your main application component with the provider so the context is available anywhere."
+                    code={`import { NotificationProvider } from './NotificationContext';
+
+function App() {
+  return (
+    <NotificationProvider>
+      <Router>
+        <YourAppComponents />
+      </Router>
+    </NotificationProvider>
+  );
+}`}
+                    language="tsx"
+                  />
+
+                  <StepBlock
+                    step="4"
+                    title="Manage Device Registration on Login/Logout"
+                    description="Now you can securely tie the push notification delivery to your authentication flow. When they log in, they get registered. When they log out, they stop receiving pushes to this device."
+                    code={`import { useContext } from 'react';
+import { NotificationContext } from './NotificationContext';
+
+function AuthButtons() {
+  const { registerDevice, unregisterDevice } = useContext(NotificationContext);
 
   const handleLogin = async () => {
-    // 1. Perform login via your backend
     const user = await API.login();
     
-    // 2. Request browser permission
+    // Prompt the user for permission, then route pushes to their ID
     await Notification.requestPermission();
-    
-    // 3. Connect the browser to Vibe Message
-    await init(user.id);
+    await registerDevice(user.id);
   };
 
-  return <button onClick={handleLogin}>Log In</button>;
+  const handleLogout = async () => {
+    // Stop sending notifications to this browser
+    await unregisterDevice();
+    await API.logout();
+  };
+
+  return (
+    <div className="flex gap-4">
+      <button onClick={handleLogin}>Log In</button>
+      <button onClick={handleLogout}>Log Out</button>
+    </div>
+  );
 }`}
-                      language="tsx"
-                    />
-                  </div>
+                    language="tsx"
+                  />
                 </div>
               </motion.div>
             )}
@@ -547,102 +548,134 @@ export const NotificationProvider = ({ children }: any) => {
                 transition={{ duration: 0.4 }}
                 className="max-w-4xl mx-auto"
               >
-                <h2 className="text-3xl font-bold mb-4 text-theme-text-primary">
-                  Next.js Frontend (Receiving)
-                </h2>
-                <p className="text-lg text-theme-text-secondary mb-10 leading-relaxed">
-                  Integration guide optimized for Next.js 13+ App Router Client
-                  Components.
-                </p>
+                <div className="mb-10 text-center sm:text-left">
+                  <h2 className="text-3xl font-bold mb-4 text-theme-text-primary">
+                    Next.js App Router Integration
+                  </h2>
+                  <p className="text-lg text-theme-text-secondary leading-relaxed">
+                    Designed for Next.js 13+ App Router. Because the Vibe
+                    Message SDK relies on browser APIs (like Service Workers and
+                    Notification), we use Client Components (
+                    <code className="text-sm font-mono text-theme-primary-500 bg-theme-bg-muted p-1 rounded">
+                      'use client'
+                    </code>
+                    ) to manage the integration.
+                  </p>
+                </div>
 
                 <div className="space-y-12">
-                  <div>
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-3">
-                      1. Install SDK & Generate Worker
-                    </h3>
-                    <p className="text-theme-text-secondary mb-6">
-                      Install the package from npm, and generate the{" "}
-                      <code>push-sw.js</code> file into your Next.js public
-                      directory.
-                    </p>
-                    <CodeBlock
-                      code={`npm install vibe-message\n\nnpx vibe-message init`}
-                      language="bash"
-                    />
-                  </div>
+                  <StepBlock
+                    step="1"
+                    title="Install SDK & Generate Worker"
+                    description="Install the dependency and use the CLI to generate the Service Worker file in your public directory. Next.js will automatically serve files in the public folder."
+                    code={`npm install vibe-message\n\nnpx vibe-message init`}
+                    language="bash"
+                  />
 
-                  <div>
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-3">
-                      2. Create a Client Component
-                    </h3>
-                    <p className="text-theme-text-secondary mb-6">
-                      Because the SDK uses browser APIs, ensure the wrapper
-                      component uses the{" "}
-                      <code className="font-mono text-sm bg-theme-bg-muted px-1 py-0.5 border border-theme-border rounded text-theme-primary-500">
-                        'use client'
-                      </code>{" "}
-                      directive.
-                    </p>
-                    <CodeBlock
-                      code={`"use client";
-import { useEffect, useRef } from 'react';
+                  <StepBlock
+                    step="2"
+                    title="Create a Client Provider Component"
+                    description="Create a dedicated Client Component to initialize the SDK and expose register/unregister methods."
+                    code={`"use client";
+import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { initNotificationClient } from 'vibe-message';
 
-export default function PushNotifications() {
-  const isInitialized = useRef(false);
+export const NotificationContext = createContext<any>(null);
+
+export function NotificationProvider({ children }: { children: React.ReactNode }) {
+  const clientRef = useRef<any>(null);
 
   useEffect(() => {
-    if (isInitialized.current) return;
-    
-    const setup = async () => {
-      // Verify browser permission before registering
-      if (typeof window === 'undefined' || Notification.permission !== 'granted') return;
+    // Check if we are in the browser
+    if (typeof window === 'undefined') return;
 
-      const client = initNotificationClient({
-        appId: 'your-app-id',
-        publicKey: 'your-public-key'
-      });
+    clientRef.current = initNotificationClient({
+      appId: 'your-app-id',
+      publicKey: 'your-public-key'
+    });
 
-      client.onMessage((payload) => alert("Received: " + payload.title));
-
-      // Register with the logged-in user's ID
-      await client.registerDevice({ externalUserId: 'user-123' });
-      isInitialized.current = true;
-    };
-
-    setup();
+    clientRef.current.onMessage((payload: any) => {
+      // Incoming message while tab is active! (e.g., show a toast)
+      console.log('Received payload:', payload);
+    });
   }, []);
 
-  return null; // Empty wrapper
+  const registerDevice = async (userId: string) => {
+    if (!clientRef.current) return;
+    await clientRef.current.registerDevice({ externalUserId: userId });
+  };
+
+  const unregisterDevice = async () => {
+    if (!clientRef.current) return;
+    await clientRef.current.unregisterDevice();
+  };
+
+  return (
+    <NotificationContext.Provider value={{ registerDevice, unregisterDevice }}>
+      {children}
+    </NotificationContext.Provider>
+  );
 }`}
-                      language="tsx"
-                    />
-                  </div>
+                    language="tsx"
+                  />
 
-                  <div>
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-3">
-                      3. Mount inside Layout
-                    </h3>
-                    <p className="text-theme-text-secondary mb-6">
-                      Mount your client component somewhere global, like your
-                      root Layout or a specific Dashboard layout wrapper.
-                    </p>
-                    <CodeBlock
-                      code={`import PushNotifications from './components/PushNotifications';
+                  <StepBlock
+                    step="3"
+                    title="Inject Provider in Root Layout"
+                    description="Wrap your application layout with the provider so all pages can access the context."
+                    code={`// app/layout.tsx
+import { NotificationProvider } from './components/NotificationProvider';
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <PushNotifications />
-        {children}
+        <NotificationProvider>
+          {children}
+        </NotificationProvider>
       </body>
     </html>
   );
 }`}
-                      language="tsx"
-                    />
-                  </div>
+                    language="tsx"
+                  />
+
+                  <StepBlock
+                    step="4"
+                    title="Register/Unregister on Authentication"
+                    description="In your login and logout components (which must also be Client Components), use the Context to manage device registration."
+                    code={`"use client";
+import { useContext } from 'react';
+import { NotificationContext } from './NotificationProvider';
+
+export default function AuthForms() {
+  const { registerDevice, unregisterDevice } = useContext(NotificationContext);
+
+  const handleLogin = async () => {
+    const user = await loginUserToBackend();
+    
+    // Ensure the browser allows notifications
+    await Notification.requestPermission();
+    
+    // Start routing pushes to this device
+    await registerDevice(user.id);
+  };
+
+  const handleLogout = async () => {
+    // Cut off push notifications to this device
+    await unregisterDevice();
+    await logoutUserFromBackend();
+  };
+
+  return (
+    <div className="flex gap-4">
+      <button onClick={handleLogin}>Log In</button>
+      <button onClick={handleLogout}>Log Out</button>
+    </div>
+  );
+}`}
+                    language="tsx"
+                  />
                 </div>
               </motion.div>
             )}
@@ -705,4 +738,39 @@ const CodeBlock = ({ code, language }: { code: string; language: string }) => (
       </pre>
     </div>
   </motion.div>
+);
+
+const StepBlock = ({
+  step,
+  title,
+  description,
+  code,
+  language,
+}: {
+  step: string;
+  title: string;
+  description: string;
+  code: string;
+  language: string;
+}) => (
+  <div className="relative pl-0 md:pl-16">
+    <div className="hidden md:flex absolute top-0 left-0 w-11 h-11 rounded-full bg-gradient-to-br from-theme-primary-500 to-theme-primary-600 text-white items-center justify-center font-bold text-lg shadow-lg shadow-theme-primary-500/30 border border-white/10">
+      {step}
+    </div>
+    <div className="md:hidden flex items-center gap-4 mb-5">
+      <div className="w-11 h-11 shrink-0 rounded-full bg-gradient-to-br from-theme-primary-500 to-theme-primary-600 text-white flex items-center justify-center font-bold text-lg shadow-lg shadow-theme-primary-500/30 border border-white/10">
+        {step}
+      </div>
+      <h3 className="text-xl font-bold text-theme-text-primary m-0">{title}</h3>
+    </div>
+    <div className="hidden md:block">
+      <h3 className="text-2xl font-bold text-theme-text-primary mb-3">
+        {title}
+      </h3>
+    </div>
+    <p className="text-theme-text-secondary mb-6 leading-relaxed">
+      {description}
+    </p>
+    <CodeBlock code={code} language={language} />
+  </div>
 );
