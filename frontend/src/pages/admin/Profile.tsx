@@ -9,6 +9,7 @@ import {
   changeUserPassword,
   deleteUserAccount,
 } from "../../store/slices/authSlice";
+import { motion } from "motion/react";
 
 const Profile: React.FC = () => {
   const { user, logout } = useAuth();
@@ -135,28 +136,42 @@ const Profile: React.FC = () => {
     </button>
   );
 
+  const fadeUpVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+  };
+
   return (
-    <div className="min-h-[calc(100vh-64px)] relative overflow-hidden bg-theme-bg-primary transition-colors duration-300 py-12 px-4">
-      {/* Animated Background Mesh */}
-      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none opacity-50 dark:opacity-30">
-        <div className="absolute top-[10%] right-[20%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-primary-500 to-transparent opacity-20 rounded-full animate-blob"></div>
-        <div className="absolute top-[40%] left-[10%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-accent-500 to-transparent opacity-20 rounded-full animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-[0%] right-[10%] w-[50%] h-[50%] bg-[radial-gradient(circle,_var(--tw-gradient-stops))] from-theme-info to-transparent opacity-10 rounded-full animate-blob animation-delay-4000"></div>
-      </div>
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+      }}
+      className="min-h-[calc(100vh-64px)] relative overflow-hidden transition-colors duration-300 py-12 px-4"
+    >
+      {/* Background is now handled globally in App.tsx */}
 
       <div className="max-w-3xl mx-auto relative z-10">
-        <div className="mb-10 text-center sm:text-left">
+        <motion.div
+          variants={fadeUpVariants}
+          className="mb-10 text-center sm:text-left"
+        >
           <h1 className="text-4xl font-black tracking-tight text-theme-text-primary drop-shadow-sm">
             Profile Settings
           </h1>
           <p className="text-theme-text-secondary mt-2 font-medium">
             Manage your personal information, security, and preferences.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid gap-8">
           {/* Account Information */}
-          <div className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8">
+          <motion.div
+            variants={fadeUpVariants}
+            className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8"
+          >
             <h2 className="text-2xl font-bold mb-6 text-theme-text-primary pb-4 border-b border-theme-border/50">
               Account Information
             </h2>
@@ -269,10 +284,13 @@ const Profile: React.FC = () => {
                 </button>
               </div>
             </form>
-          </div>
+          </motion.div>
 
           {/* Change Password */}
-          <div className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8">
+          <motion.div
+            variants={fadeUpVariants}
+            className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8"
+          >
             <h2 className="text-2xl font-bold mb-6 text-theme-text-primary pb-4 border-b border-theme-border/50">
               Security
             </h2>
@@ -369,10 +387,13 @@ const Profile: React.FC = () => {
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Notification Settings */}
-          <div className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8">
+          <motion.div
+            variants={fadeUpVariants}
+            className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8"
+          >
             <h2 className="text-2xl font-bold mb-6 text-theme-text-primary pb-4 border-b border-theme-border/50">
               Notification Preferences
             </h2>
@@ -525,11 +546,14 @@ const Profile: React.FC = () => {
                 </div>
               )}
             </div>
-          </div>
+          </motion.div>
 
           {/* Danger Zone */}
           {!isSuperAdmin && (
-            <div className="backdrop-blur-2xl bg-theme-error/5 border border-theme-error/20 rounded-[2rem] p-8">
+            <motion.div
+              variants={fadeUpVariants}
+              className="backdrop-blur-2xl bg-theme-error/5 border border-theme-error/20 rounded-[2rem] p-8"
+            >
               <h2 className="text-2xl font-bold mb-4 text-theme-error pb-4 border-b border-theme-error/20">
                 Danger Zone
               </h2>
@@ -593,11 +617,11 @@ const Profile: React.FC = () => {
                   </div>
                 </div>
               )}
-            </div>
+            </motion.div>
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

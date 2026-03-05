@@ -7,6 +7,7 @@ import {
   ServiceWorkerMessage,
   NotificationPayload,
 } from './types';
+import { encryptPayload } from './utils/crypto';
 
 export class NotificationClient {
   private baseUrl: string;
@@ -190,9 +191,11 @@ export class NotificationClient {
       },
       body: JSON.stringify({
         appId: this.appId,
-        publicKey: this.publicKey,
-        externalUserId: options.externalUserId,
-        subscription: subscriptionObject,
+        payload: encryptPayload({
+          publicKey: this.publicKey,
+          externalUserId: options.externalUserId,
+          subscription: subscriptionObject,
+        }, this.publicKey),
       }),
     });
 
@@ -214,7 +217,9 @@ export class NotificationClient {
       },
       body: JSON.stringify({
         appId: this.appId,
-        externalUserId,
+        payload: encryptPayload({
+          externalUserId,
+        }, this.publicKey),
       }),
     });
 

@@ -22,12 +22,14 @@ import { Pending } from "./pages/admin/Pending";
 // Super admin pages
 import { Users } from "./pages/super/Users";
 import { ScrollToTop } from "./components/common/ScrollToTop";
+import { AnimatedBackground } from "./components/common/AnimatedBackground";
 
 const AppContent: React.FC = () => {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <div className="min-h-screen bg-theme-bg-primary transition-colors duration-300 pt-24">
+      <AnimatedBackground />
+      <div className="min-h-screen transition-colors duration-300 pt-[120px] relative z-0">
         <Header />
         <Routes>
           {/* Public routes */}

@@ -3,6 +3,7 @@ import * as appService from '../services/appService';
 import * as deviceService from '../services/deviceService';
 import { validateRegisterDevice, validateUnregisterDevice } from '../utils/validation';
 import { getVapidPublicKey } from '../utils/webPush';
+import { decryptPayload } from '../utils/crypto';
 
 const router = Router();
 
@@ -48,7 +49,30 @@ router.get('/vapid-public-key', (_req: Request, res: Response) => {
  */
 router.post('/register-device', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = validateRegisterDevice(req.body);
+    const { appId, payload } = req.body;
+    if (!appId || !payload) {
+      res.status(400).json({ success: false, message: 'appId and payload are required' });
+      return;
+    }
+
+    const appInfo = await appService.getAppByPublicId(appId);
+    if (!appInfo) {
+      res.status(404).json({ success: false, message: 'App not found' });
+      return;
+    }
+
+    let decrypted = {};
+    try {
+      decrypted = decryptPayload(payload, appInfo.public_key);
+    } catch (e) {
+      res.status(400).json({ success: false, message: 'Invalid payload encryption' });
+      return;
+    }
+
+    const data = validateRegisterDevice({
+      appId,
+      ...decrypted
+    });
 
     // Validate SDK credentials (appId + publicKey)
     const app = await appService.validateSdkCredentials(data.appId, data.publicKey);
@@ -75,19 +99,37 @@ router.post('/register-device', async (req: Request, res: Response, next: NextFu
 // Unregister device
 router.post('/unregister-device', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = validateUnregisterDevice(req.body);
+    const { appId, payload } = req.body;
+    if (!appId || !payload) {
+      res.status(400).json({ success: false, message: 'appId and payload are required' });
+      return;
+    }
 
     // Validate app exists
-    const app = await appService.getAppByPublicId(data.appId);
-    if (!app) {
-      return res.status(404).json({
+    const appInfo = await appService.getAppByPublicId(appId);
+    if (!appInfo) {
+      res.status(404).json({
         success: false,
         message: 'App not found',
       });
+      return;
     }
 
+    let decrypted = {};
+    try {
+      decrypted = decryptPayload(payload, appInfo.public_key);
+    } catch (e) {
+      res.status(400).json({ success: false, message: 'Invalid payload encryption' });
+      return;
+    }
+
+    const data = validateUnregisterDevice({
+      appId,
+      ...decrypted
+    });
+
     // Unregister device
-    await deviceService.unregisterDevice(app.id, data.externalUserId);
+    await deviceService.unregisterDevice(appInfo.id, data.externalUserId);
 
     return res.json({
       success: true,

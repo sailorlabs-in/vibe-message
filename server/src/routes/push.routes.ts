@@ -3,6 +3,7 @@ import * as appService from '../services/appService';
 import * as pushService from '../services/pushService';
 import { validateSendPush } from '../utils/validation';
 import { pushLimiter } from '../middleware/rateLimiter';
+import { decryptPayload } from '../utils/crypto';
 
 const router = Router();
 
@@ -53,9 +54,33 @@ const router = Router();
  */
 router.post('/send', pushLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const data = validateSendPush(req.body);
+    const { appId, payload } = req.body;
+    if (!appId || !payload) {
+      res.status(400).json({ success: false, message: 'appId and payload are required' });
+      return;
+    }
 
-    // Validate app credentials
+    const appInfo = await appService.getAppByPublicId(appId);
+    if (!appInfo) {
+      res.status(404).json({ success: false, message: 'App not found' });
+      return;
+    }
+
+    let decrypted = {};
+    try {
+      decrypted = decryptPayload(payload, appInfo.secret_key);
+    } catch (e) {
+      res.status(400).json({ success: false, message: 'Invalid payload encryption' });
+      return;
+    }
+
+    const data = validateSendPush({
+      appId,
+      secretKey: appInfo.secret_key, // Re-inject secretKey to pass validation
+      ...decrypted
+    });
+
+    // Validate app credentials (reused logic for robustness)
     const app = await appService.validateAppCredentials(data.appId, data.secretKey);
 
     // Determine target users

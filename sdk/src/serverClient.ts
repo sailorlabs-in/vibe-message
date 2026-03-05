@@ -12,6 +12,8 @@ export interface NotificationData {
   data?: Record<string, any>;
 }
 
+import { encryptPayload } from './utils/crypto';
+
 export class NotificationServerClient {
   private baseUrl: string;
   private appId: string;
@@ -34,11 +36,12 @@ export class NotificationServerClient {
       },
       body: JSON.stringify({
         appId: this.appId,
-        secretKey: this.secretKey,
-        notification: options.notificationData,
-        targets: {
-          externalUserIds: options.externalUsers,
-        },
+        payload: encryptPayload({
+          notification: options.notificationData,
+          targets: {
+            externalUserIds: options.externalUsers,
+          },
+        }, this.secretKey),
       }),
     });
 
@@ -62,14 +65,15 @@ export class NotificationServerClient {
       },
       body: JSON.stringify({
         appId: this.appId,
-        secretKey: this.secretKey,
-        notification: {
-          // A payload with only 'data' and no 'title'/'body' behaves as a silent push
-          data: options.data,
-        },
-        targets: {
-          externalUserIds: options.externalUsers,
-        },
+        payload: encryptPayload({
+          notification: {
+            // A payload with only 'data' and no 'title'/'body' behaves as a silent push
+            data: options.data,
+          },
+          targets: {
+            externalUserIds: options.externalUsers,
+          },
+        }, this.secretKey),
       }),
     });
 
