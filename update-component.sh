@@ -2,23 +2,27 @@
 set -e
 
 if [ -z "$1" ]; then
-  echo "Usage: ./update-component.sh <component-name>"
-  echo "Example: ./update-component.sh backend"
-  echo "Valid components: frontend, backend, demo"
+  echo "Usage: ./update-component-v2.sh <component-name>"
+  echo "Example: ./update-component-v2.sh backend"
+  echo "Valid components: frontend, backend, demo, frontend-new, backend-new, demo-new"
   exit 1
 fi
 
 COMPONENT=$1
 NAMESPACE="message-app"
+CLUSTER_NAME="vibe-new"
+
+# Switch kubectl context to ensure deployment goes to the new cluster
+kubectl config use-context kind-$CLUSTER_NAME
 
 case $COMPONENT in
   frontend|frontend-new)
-    DIR="./apps/frontend"
+    DOCKERFILE="./apps/frontend/Dockerfile"
     IMAGE="local/frontend:latest"
     DEPLOYMENT="frontend"
     ;;
   backend|backend-new)
-    DIR="./apps/server"
+    DOCKERFILE="./apps/server/Dockerfile"
     IMAGE="local/server:latest"
     DEPLOYMENT="backend"
     
@@ -58,7 +62,7 @@ case $COMPONENT in
     rm .env.k8s
     ;;
   demo|demo-new)
-    DIR="./apps/notification-demo"
+    DOCKERFILE="./apps/notification-demo/Dockerfile"
     IMAGE="local/demo:latest"
     DEPLOYMENT="demo"
     ;;
@@ -69,11 +73,11 @@ case $COMPONENT in
     ;;
 esac
 
-echo "Step 1/3: Rebuilding Docker image for $COMPONENT..."
-sudo docker build -t $IMAGE $DIR
+echo "Step 1/3: Rebuilding Docker image for $COMPONENT (using Monorepo Root Context)..."
+sudo docker build -f $DOCKERFILE -t $IMAGE .
 
-echo "Step 2/3: Loading image into KIND cluster..."
-sudo kind load docker-image $IMAGE
+echo "Step 2/3: Loading image into KIND cluster '$CLUSTER_NAME'..."
+sudo kind load docker-image $IMAGE --name $CLUSTER_NAME
 
 echo "Step 3/3: Restarting Kubernetes deployment to pick up the new image..."
 kubectl rollout restart deployment/$DEPLOYMENT -n $NAMESPACE

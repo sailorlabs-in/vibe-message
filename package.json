@@ -18,5 +18,8 @@
   },
   "devDependencies": {
     "nx": "22.5.4"
+  },
+  "dependencies": {
+    "vibe-message": "^1.1.0"
   }
 }

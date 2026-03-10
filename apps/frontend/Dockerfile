@@ -3,30 +3,31 @@ FROM node:24-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy root package files including nx configuration
 COPY package*.json ./
+# Copy workspace libs
+COPY libs ./libs
+# Copy frontend app
+COPY apps/frontend ./apps/frontend
 
-# Install dependencies
-RUN npm ci
+# Install workspace dependencies
+RUN npm install
 
-# Copy source code
-COPY . .
+# Build SDK first since apps depend on its output
+RUN npm run build -w vibe-message
 
-# Create production .env file with relative API path for Kubernetes ingress
-# This allows the frontend to call /api which gets routed to the backend service
-RUN echo "VITE_API_URL=/api" > .env.production
-
-# Build the application
-RUN npm run build
+# Build the frontend application
+RUN npx nx run vibe-message-frontend:build
 
 # Production stage
 FROM nginx:alpine
 
-# Copy built assets from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Copy built assets from builder output in dist/apps/frontend
+# Note: Nx build output path for vite usually dist/apps/frontend
+COPY --from=builder /app/apps/frontend/dist /usr/share/nginx/html
 
 # Copy service worker to root
-COPY --from=builder /app/public/push-sw.js /usr/share/nginx/html/
+COPY --from=builder /app/apps/frontend/public/push-sw.js /usr/share/nginx/html/
 
 # Create nginx configuration
 RUN echo 'server { \

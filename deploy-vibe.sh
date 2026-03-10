@@ -3,18 +3,23 @@ set -e
 
 echo "Starting Vibe Message Deployment to Local Kubernetes (KIND)..."
 
+CLUSTER_NAME="vibe-new"
+
 # Ensure KIND cluster exists
-if ! sudo kind get clusters | grep -q "kind" ; then
-    echo "KIND cluster not found. Creating local cluster with port 3200 mapping..."
-    sudo kind create cluster --config kind-config.yaml
+if ! sudo kind get clusters | grep -q "$CLUSTER_NAME" ; then
+    echo "KIND cluster not found. Creating local cluster with port 3400 mapping..."
+    sudo kind create cluster --name $CLUSTER_NAME --config kind-config.yaml
     
     # Copy kubeconfig for the normal user
     mkdir -p ~/.kube
     sudo cp /root/.kube/config ~/.kube/config
     sudo chown $USER:$USER ~/.kube/config
 else
-    echo "KIND cluster already exists."
+    echo "KIND cluster '$CLUSTER_NAME' already exists."
 fi
+
+# Switch kubectl context to ensure deployment goes to the new cluster
+kubectl config use-context kind-$CLUSTER_NAME
 
 echo "Setting up NGINX Ingress controller..."
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
@@ -79,14 +84,14 @@ kubectl create configmap backend-config \
 rm .env.k8s
 
 echo "Building Docker images..."
-sudo docker build -t local/frontend:latest ./apps/frontend
-sudo docker build -t local/server:latest ./apps/server
-sudo docker build -t local/demo:latest ./apps/notification-demo
+sudo docker build -f ./apps/frontend/Dockerfile -t local/frontend:latest .
+sudo docker build -f ./apps/server/Dockerfile -t local/server:latest .
+sudo docker build -f ./apps/notification-demo/Dockerfile -t local/demo:latest .
 
 echo "Loading docker images into KIND cluster..."
-sudo kind load docker-image local/frontend:latest
-sudo kind load docker-image local/server:latest
-sudo kind load docker-image local/demo:latest
+sudo kind load docker-image local/frontend:latest --name $CLUSTER_NAME
+sudo kind load docker-image local/server:latest --name $CLUSTER_NAME
+sudo kind load docker-image local/demo:latest --name $CLUSTER_NAME
 
 echo "Applying Kubernetes manifests (excluding DB)..."
 kubectl apply -f k8s/backend-service.yaml
@@ -98,12 +103,26 @@ kubectl apply -f k8s/frontend-deployment.yaml
 kubectl apply -f k8s/demo-service.yaml
 kubectl apply -f k8s/demo-deployment.yaml
 
-kubectl apply -f k8s/ingress.yaml
-kubectl apply -f k8s/ingress-api.yaml
+echo "Applying Ingress Manifests..."
+# The admission webhook might take a bit longer to be ready even after the pod is in Ready state.
+# We retry a few times if it fails.
+for i in {1..5}; do
+    if kubectl apply -f k8s/ingress.yaml && kubectl apply -f k8s/ingress-api.yaml; then
+        echo "Ingress applied successfully."
+        break
+    else
+        echo "Ingress webhook not ready yet, retrying in 10 seconds... ($i/5)"
+        sleep 10
+    fi
+    if [ $i -eq 5 ]; then
+        echo "Failed to apply ingress resources."
+        exit 1
+    fi
+done
 
 echo "✅ Deployment requested successfully!"
 echo "Run 'kubectl get pods -n message-app -w' to monitor the startup."
 echo "Once running, access the apps at:"
-echo "- Frontend: http://localhost:3200/"
-echo "- Backend:  http://localhost:3200/api/"
-echo "- Demo:     http://localhost:3200/demo-app/"
+echo "- Frontend: http://localhost:3400/"
+echo "- Backend:  http://localhost:3400/api/"
+echo "- Demo:     http://localhost:3400/demo-app/"
