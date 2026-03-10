@@ -1,0 +1,22 @@
+{
+  "name": "vibe-message-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ],
+  "scripts": {
+    "serve-all:dev": "nx run-many --target=dev --all --parallel=10",
+    "build-all:prod": "nx run-many --target=build --all --parallel=10",
+    "serve:frontend:dev": "nx run vibe-message-frontend:dev",
+    "serve:server:dev": "nx run vibe-message-server:dev",
+    "serve:notification-demo:dev": "nx run notification-demo:dev",
+    "build:frontend:prod": "nx run vibe-message-frontend:build",
+    "build:server:prod": "nx run vibe-message-server:build",
+    "build:notification-demo:prod": "nx run notification-demo:build"
+  },
+  "devDependencies": {
+    "nx": "22.5.4"
+  }
+}

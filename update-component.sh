@@ -13,23 +13,23 @@ NAMESPACE="message-app"
 
 case $COMPONENT in
   frontend|frontend-new)
-    DIR="./frontend"
+    DIR="./apps/frontend"
     IMAGE="local/frontend:latest"
     DEPLOYMENT="frontend"
     ;;
   backend|backend-new)
-    DIR="./server"
+    DIR="./apps/server"
     IMAGE="local/server:latest"
     DEPLOYMENT="backend"
     
     # Refresh the backend secret so latest .env changes are picked up
-    echo "Updating backend-secret from server/.env..."
+    echo "Updating backend-secret from apps/server/.env..."
     if command -v ip &> /dev/null; then
         HOST_IP=$(ip -4 route get 1.1.1.1 | grep -P -o 'src \K\S+')
     else
         HOST_IP="host.docker.internal"
     fi
-    cp server/.env .env.k8s
+    cp apps/server/.env .env.k8s
     sed -i "s/localhost/$HOST_IP/g" .env.k8s
     sed -i "s/127.0.0.1/$HOST_IP/g" .env.k8s
     kubectl create secret generic backend-secret \
@@ -37,7 +37,7 @@ case $COMPONENT in
         -n $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
     
     # Refresh the backend configmap
-    echo "Updating backend-config ConfigMap from server/.env..."
+    echo "Updating backend-config ConfigMap from apps/server/.env..."
     PORT_VAL=$(grep '^PORT=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
     ENV_VAL=$(grep '^NODE_ENV=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
     CORS_VAL=$(grep '^FRONTEND_URL=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
@@ -58,7 +58,7 @@ case $COMPONENT in
     rm .env.k8s
     ;;
   demo|demo-new)
-    DIR="./notification-demo"
+    DIR="./apps/notification-demo"
     IMAGE="local/demo:latest"
     DEPLOYMENT="demo"
     ;;

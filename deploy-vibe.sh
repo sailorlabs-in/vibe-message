@@ -27,13 +27,13 @@ kubectl wait --namespace ingress-nginx \
   --timeout=90s || echo "Ingress controller may take longer to be fully ready."
 
 # Setup Secrets from .env
-ENV_FILE="server/.env"
+ENV_FILE="apps/server/.env"
 if [ ! -f "$ENV_FILE" ]; then
     echo "Wait, checking root .env..."
     if [ -f ".env" ]; then
         ENV_FILE=".env"
     else
-        echo "Error: .env file does not exist in server/ or root. Please create it first."
+        echo "Error: .env file does not exist in apps/server/ or root. Please create it first."
         exit 1
     fi
 fi
@@ -79,9 +79,9 @@ kubectl create configmap backend-config \
 rm .env.k8s
 
 echo "Building Docker images..."
-sudo docker build -t local/frontend:latest ./frontend
-sudo docker build -t local/server:latest ./server
-sudo docker build -t local/demo:latest ./notification-demo
+sudo docker build -t local/frontend:latest ./apps/frontend
+sudo docker build -t local/server:latest ./apps/server
+sudo docker build -t local/demo:latest ./apps/notification-demo
 
 echo "Loading docker images into KIND cluster..."
 sudo kind load docker-image local/frontend:latest
