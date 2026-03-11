@@ -11,6 +11,8 @@ import { Landing } from "./pages/public/Landing";
 import { Login } from "./pages/public/Login";
 import { Signup } from "./pages/public/Signup";
 import { Docs } from "./pages/public/Docs";
+import { License } from "./pages/public/License";
+import { TermsOfService } from "./pages/public/TermsOfService";
 
 // Admin pages
 import { Dashboard } from "./pages/admin/Dashboard";
@@ -37,6 +39,8 @@ const AppContent: React.FC = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/docs" element={<Docs />} />
+          <Route path="/license" element={<License />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
 
           {/* Protected routes */}
           <Route

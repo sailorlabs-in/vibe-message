@@ -69,11 +69,75 @@ export const Docs: React.FC = () => {
                 <h2 className="text-3xl font-bold mb-6 text-theme-text-primary">
                   Why Vibe Message?
                 </h2>
-                <p className="text-lg text-theme-text-secondary mb-12 leading-relaxed max-w-4xl">
+                <p className="text-lg text-theme-text-secondary mb-8 leading-relaxed max-w-4xl">
                   Vibe Message is built for modern web applications that need
                   reliable, customizable, and fast push notifications without
                   the heavy baggage of legacy SDKs.
                 </p>
+
+                <div className="relative mb-16 rounded-2xl border border-theme-border dark:border-theme-border/30 bg-theme-bg-secondary p-1">
+                  <div className="absolute inset-0 bg-gradient-to-r from-theme-primary-500/20 via-theme-accent-500/20 to-transparent opacity-50 blur-xl"></div>
+                  <div className="relative bg-theme-bg-primary rounded-xl overflow-hidden shadow-inner border border-theme-border/50 dark:border-white/5">
+                    <div className="flex flex-col md:flex-row">
+                      {/* Left: General Info */}
+                      <div className="p-8 md:w-3/5 border-b md:border-b-0 md:border-r border-theme-border/50 dark:border-white/5">
+                        <div className="flex items-center space-x-3 mb-4">
+                          <div className="w-10 h-10 rounded-lg bg-theme-primary-500/10 flex items-center justify-center text-theme-primary-600 dark:text-theme-primary-400">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <h3 className="text-xl font-bold text-theme-text-primary m-0">
+                            Intended Usage Guidelines
+                          </h3>
+                        </div>
+                        <p className="text-theme-text-secondary leading-relaxed mb-6">
+                          Our free hosted service is an ecosystem built primarily to support the developer community. It is designed and optimized for:
+                        </p>
+                        <ul className="grid grid-cols-2 gap-3">
+                          {[
+                            "Students & Education",
+                            "Personal Projects",
+                            "Testing & Prototyping",
+                            "Small-scale Applications",
+                          ].map((item, idx) => (
+                            <li key={idx} className="flex items-center text-sm text-theme-text-primary">
+                              <svg className="w-4 h-4 mr-2 text-theme-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Right: Restrictions & Warnings */}
+                      <div className="p-8 md:w-2/5 bg-gradient-to-br from-theme-bg-secondary to-theme-bg-primary flex flex-col justify-between">
+                        <div>
+                          <div className="inline-flex items-center px-3 py-1 bg-theme-error/10 text-theme-error border border-theme-error/20 dark:border-theme-error/10 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
+                            <svg className="w-3 h-3 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            Strictly Restricted
+                          </div>
+                          <h4 className="font-bold text-theme-text-primary mb-2">Commercial Production</h4>
+                          <p className="text-sm text-theme-text-secondary leading-relaxed mb-6">
+                            Large-scale and unmetered commercial usage is strictly restricted on the public tier. Accounts generating excessive structural load outside fair-use will be permanently banned to protect network stability.
+                          </p>
+                        </div>
+                        
+                        <div className="pt-4 border-t border-theme-border/50 dark:border-white/5">
+                          <p className="text-xs text-theme-text-muted flex items-start">
+                             <svg className="w-4 h-4 shrink-0 mr-1.5 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                            <span><strong className="text-theme-text-primary">Coming Soon:</strong> Pre-configured Docker images for self-hosted, unmetered commercial deployments on your own infrastructure.</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
                   <FeatureCard

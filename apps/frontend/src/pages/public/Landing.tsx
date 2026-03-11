@@ -593,20 +593,20 @@ export const Landing: React.FC = () => {
             &copy; {new Date().getFullYear()} Vibe Message. All rights reserved.
           </div>
           <div className="flex space-x-6">
-            <a
-              href="#"
-              className="hover:text-theme-text-primary transition-colors"
-            >
-              Privacy
-            </a>
-            <a
-              href="#"
+            <Link
+              to="/terms-of-service"
               className="hover:text-theme-text-primary transition-colors"
             >
               Terms
-            </a>
+            </Link>
+            <Link
+              to="/license"
+              className="hover:text-theme-text-primary transition-colors"
+            >
+              License
+            </Link>
             <a
-              href="#"
+              href="mailto:service@sailorlabs.in"
               className="hover:text-theme-text-primary transition-colors"
             >
               Contact
