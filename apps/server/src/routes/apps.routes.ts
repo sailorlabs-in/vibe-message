@@ -1,6 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import * as appService from '../services/appService';
 import * as userService from '../services/userService';
+import * as pushService from '../services/pushService';
+import * as deviceService from '../services/deviceService';
 import { validateCreateApp, validateUpdateApp } from '../utils/validation';
 import { authMiddleware } from '../middleware/auth';
 import { requireApproved } from '../middleware/roleCheck';
@@ -31,7 +33,8 @@ router.use(authMiddleware);
  */
 router.get('/', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const apps = await appService.getUserApps(req.user!.userId, req.user!.role);
+    const targetUserId = req.query.userId ? parseInt(req.query.userId as string, 10) : undefined;
+    const apps = await appService.getUserApps(req.user!.userId, req.user!.role, targetUserId);
 
     res.json({
       success: true,
@@ -154,6 +157,100 @@ router.delete('/:id', requireApproved, async (req: Request, res: Response, next:
     res.json({
       success: true,
       message: 'App deleted successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get app notifications (History)
+router.get('/:id/notifications', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const publicAppId = req.params.id;
+    const app = await appService.getAppById(publicAppId, req.user!.userId, req.user!.role);
+    const notifications = await pushService.getAppNotifications(app.id, 100);
+
+    res.json({
+      success: true,
+      data: notifications,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get app notification logs (Analytics)
+router.get('/:id/notifications/:notificationId/logs', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const publicAppId = req.params.id;
+    const notificationId = parseInt(req.params.notificationId, 10);
+    // Verifying app ownership first
+    await appService.getAppById(publicAppId, req.user!.userId, req.user!.role);
+    
+    const logs = await pushService.getNotificationLogs(notificationId);
+
+    res.json({
+      success: true,
+      data: logs,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Get app subscribers (Device Tokens)
+router.get('/:id/subscribers', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const publicAppId = req.params.id;
+    const app = await appService.getAppById(publicAppId, req.user!.userId, req.user!.role);
+    const devices = await deviceService.getDevicesByApp(app.id);
+
+    // Map to remove sensitive subscription JSON
+    const subscribers = devices.map(d => ({
+      id: d.id,
+      external_user_id: d.external_user_id,
+      is_active: d.is_active,
+      created_at: d.created_at,
+      updated_at: d.updated_at
+    }));
+
+    res.json({
+      success: true,
+      data: subscribers,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Send push notification directly (Admin panel)
+router.post('/:id/push', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const publicAppId = req.params.id;
+    const app = await appService.getAppById(publicAppId, req.user!.userId, req.user!.role);
+    
+    // Using existing pushService, but without the payload encryption reqs of external API
+    const notification = req.body.notification;
+    let targetUserIds: string[] | undefined;
+    
+    if (req.body.targets && req.body.targets.externalUserIds && req.body.targets.externalUserIds.length > 0) {
+      targetUserIds = req.body.targets.externalUserIds;
+    }
+
+    const result = await pushService.sendPushNotification(
+      app.id,
+      notification,
+      targetUserIds
+    );
+
+    res.json({
+      success: true,
+      data: {
+        notificationId: result.notificationId,
+        sent: result.sent,
+        failed: result.failed,
+        message: `Notification sent to ${result.sent} device(s), ${result.failed} failed`,
+      },
     });
   } catch (error) {
     next(error);

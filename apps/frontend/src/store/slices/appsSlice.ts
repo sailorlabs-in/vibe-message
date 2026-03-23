@@ -19,11 +19,12 @@ const initialState: AppsState = {
 // Async thunks
 export const fetchApps = createAsyncThunk<
   App[],
-  void,
+  number | undefined,
   { rejectValue: string }
->('apps/fetchApps', async (_, { rejectWithValue }) => {
+>('apps/fetchApps', async (userId, { rejectWithValue }) => {
   try {
-    const response = await ApiRequest('/apps', 'get');
+    const url = userId ? `/apps?userId=${userId}` : '/apps';
+    const response = await ApiRequest(url, 'get');
     return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to fetch apps');
@@ -58,7 +59,7 @@ export const createNewApp = createAsyncThunk<
 
 export const updateExistingApp = createAsyncThunk<
   App,
-  { id: string; data: { name?: string; description?: string; is_active?: boolean } },
+  { id: string; data: { name?: string; description?: string; is_active?: boolean; retention_days?: number | null } },
   { rejectValue: string }
 >('apps/updateApp', async ({ id, data }, { rejectWithValue }) => {
   try {

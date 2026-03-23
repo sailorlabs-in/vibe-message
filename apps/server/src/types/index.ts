@@ -10,6 +10,7 @@ export interface User {
   role: UserRole;
   status: UserStatus;
   app_limit: number | null;
+  can_manage_retention: boolean;
   created_at: Date;
   updated_at: Date;
 }
@@ -21,6 +22,7 @@ export interface UserResponse {
   role: UserRole;
   status: UserStatus;
   app_limit: number | null;
+  can_manage_retention: boolean;
   created_at: Date;
   updated_at: Date;
 }
@@ -35,6 +37,7 @@ export interface App {
   public_key: string;
   secret_key: string;
   is_active: boolean;
+  retention_days: number | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -129,6 +132,7 @@ export interface UpdateAppRequest {
   name?: string;
   description?: string;
   is_active?: boolean;
+  retention_days?: number | null;
 }
 
 export interface RegisterDeviceRequest {
@@ -155,6 +159,10 @@ export interface SendPushRequest {
 
 export interface UpdateUserStatusRequest {
   status: UserStatus;
+}
+
+export interface UpdateUserRoleRequest {
+  role: UserRole;
 }
 
 export interface UpdateAppLimitRequest {

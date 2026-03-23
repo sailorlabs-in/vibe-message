@@ -141,10 +141,12 @@ export class NotificationClient {
 
     // Register service worker
     const swPath = options.serviceWorkerPath || '/push-sw.js';
-    const registration = await navigator.serviceWorker.register(swPath, { scope: '/' });
+    const swScope = options.serviceWorkerScope || '/';
+    const registration = await navigator.serviceWorker.register(swPath, { scope: swScope });
 
-    // Wait for service worker to be ready
-    await navigator.serviceWorker.ready;
+    // We do NOT await navigator.serviceWorker.ready here because if the page is outside the scope 
+    // (e.g. page is /demo-app but scope is /demo-app/), ready will hang forever.
+    // The registration object already has the pushManager.
 
     // Get VAPID public key
     const vapidPublicKey = await this.getVapidPublicKey();
@@ -154,7 +156,7 @@ export class NotificationClient {
     try {
       subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey),
+        applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey) as any,
       });
     } catch (error: any) {
       // If there's an existing subscription with a different key, unsubscribe and retry
@@ -164,7 +166,7 @@ export class NotificationClient {
           await existingSubscription.unsubscribe();
           subscription = await registration.pushManager.subscribe({
             userVisibleOnly: true,
-            applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey),
+            applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey) as any,
           });
         } else {
           throw error;
@@ -231,10 +233,12 @@ export class NotificationClient {
 
     // Unsubscribe from push manager
     if ('serviceWorker' in navigator) {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await registration.pushManager.getSubscription();
-      if (subscription) {
-        await subscription.unsubscribe();
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription && subscription.endpoint.includes(this.appId)) {
+          await subscription.unsubscribe();
+        }
       }
     }
   }

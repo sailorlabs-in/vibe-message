@@ -11,6 +11,11 @@ import {
 } from "../../store/slices/appsSlice";
 import { CopyButton } from "../../components/common/CopyButton";
 import { motion } from "motion/react";
+import { systemService } from "../../services/systemService";
+
+import { PushComposer } from "./components/PushComposer";
+import { NotificationHistory } from "./components/NotificationHistory";
+import { Subscribers } from "./components/Subscribers";
 
 export const AppDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +27,15 @@ export const AppDetails: React.FC = () => {
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'subscribers' | 'push' | 'history'>('overview');
+  const [globalRetention, setGlobalRetention] = useState<number>(14);
+  const { user } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    systemService.getSettings()
+      .then((settings) => setGlobalRetention(settings.default_retention_days))
+      .catch((err) => console.error("Failed to load global retention", err));
+  }, []);
 
   useEffect(() => {
     if (id) {
@@ -71,6 +85,26 @@ export const AppDetails: React.FC = () => {
       toast.error("Failed to update app");
     }
   };
+
+  const handleRetentionChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!id || !app) return;
+    const value = e.target.value;
+    const retentionDays = value === "default" ? null : parseInt(value, 10);
+    
+    const result = await dispatch(
+      updateExistingApp({
+        id: id,
+        data: { retention_days: retentionDays },
+      }),
+    );
+    if (updateExistingApp.fulfilled.match(result)) {
+      toast.success("Retention settings updated");
+    } else {
+      toast.error("Failed to update retention settings");
+    }
+  };
+
+  const hasRetentionPermission = user?.role === 'SUPER_ADMIN' || user?.can_manage_retention;
 
   const handleToggleActive = async () => {
     if (!id || !app) return;
@@ -300,10 +334,33 @@ const result = await vibe.notification({
         </div>
       </motion.div>
 
-      <motion.div variants={fadeUpVariants} className="card mb-6">
-        <h2 className="text-xl font-semibold mb-6 text-theme-text-primary">
-          Credentials
-        </h2>
+      <div className="flex border-b border-theme-border mb-6 overflow-x-auto print:hidden">
+        {[
+          { id: 'overview', label: 'Overview' },
+          { id: 'subscribers', label: 'Subscribers' },
+          { id: 'push', label: 'Send Push' },
+          { id: 'history', label: 'History' }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === tab.id
+                ? 'border-theme-primary-500 text-theme-primary-500'
+                : 'border-transparent text-theme-text-secondary hover:text-theme-text-primary hover:border-theme-border'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'overview' && (
+        <>
+          <motion.div variants={fadeUpVariants} className="card mb-6">
+            <h2 className="text-xl font-semibold mb-6 text-theme-text-primary">
+              Credentials
+            </h2>
         <div className="space-y-6">
           <div>
             <label className="block text-sm font-medium mb-2 text-theme-text-primary">
@@ -362,6 +419,38 @@ const result = await vibe.notification({
       </motion.div>
 
       <motion.div variants={fadeUpVariants} className="card mb-6">
+        <h2 className="text-xl font-semibold mb-6 text-theme-text-primary">
+          Auto-Delete Settings
+        </h2>
+        <div>
+          <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+            Retention Period
+          </label>
+          <select
+            value={app.retention_days === null ? "default" : app.retention_days}
+            onChange={handleRetentionChange}
+            disabled={!hasRetentionPermission || loading}
+            className="w-full md:w-1/2 p-2 border border-theme-border rounded-lg bg-theme-bg-secondary text-theme-text-primary focus:ring-2 focus:ring-theme-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <option value="default">Use Global Default ({globalRetention} days)</option>
+            <option value="1">1 Day</option>
+            <option value="2">2 Days</option>
+            <option value="7">1 Week</option>
+            <option value="14">2 Weeks</option>
+            <option value="30">1 Month</option>
+          </select>
+          {!hasRetentionPermission && (
+            <p className="text-xs text-theme-text-secondary mt-2 flex items-center gap-1">
+              <span className="text-amber-500">🔒</span> Controlled by Super Admin
+            </p>
+          )}
+          <p className="text-sm text-theme-text-secondary mt-3">
+            Push notifications and logs sent from this app will be automatically deleted after the selected retention period to preserve space.
+          </p>
+        </div>
+      </motion.div>
+
+      <motion.div variants={fadeUpVariants} className="card mb-6">
         <h2 className="text-xl font-semibold mb-4 text-theme-text-primary">
           Frontend Integration
         </h2>
@@ -378,6 +467,26 @@ const result = await vibe.notification({
           {backendCode}
         </pre>
       </motion.div>
+        </>
+      )}
+
+      {activeTab === 'subscribers' && (
+        <motion.div variants={fadeUpVariants}>
+          <Subscribers appId={app.public_app_id} />
+        </motion.div>
+      )}
+
+      {activeTab === 'push' && (
+        <motion.div variants={fadeUpVariants}>
+          <PushComposer appId={app.public_app_id} />
+        </motion.div>
+      )}
+
+      {activeTab === 'history' && (
+        <motion.div variants={fadeUpVariants}>
+          <NotificationHistory appId={app.public_app_id} />
+        </motion.div>
+      )}
     </motion.div>
   );
 };

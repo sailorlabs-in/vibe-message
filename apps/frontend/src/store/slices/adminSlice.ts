@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import ApiRequest from '../../services/ApiRequest';
-import { User, UserStatus } from '../../types';
+import { User, UserStatus, UserRole } from '../../types';
 
 interface AdminState {
   users: User[];
@@ -42,6 +42,19 @@ export const updateStatus = createAsyncThunk<
   }
 });
 
+export const updateRole = createAsyncThunk<
+  User,
+  { userId: number; role: UserRole },
+  { rejectValue: string }
+>('admin/updateRole', async ({ userId, role }, { rejectWithValue }) => {
+  try {
+    const response = await ApiRequest(`/admin/users/${userId}/role`, 'patch', { role });
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to update role');
+  }
+});
+
 export const updateAppLimit = createAsyncThunk<
   User,
   { userId: number; appLimit: number | null },
@@ -52,6 +65,19 @@ export const updateAppLimit = createAsyncThunk<
     return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to update app limit');
+  }
+});
+
+export const updateUserRetentionPermission = createAsyncThunk<
+  User,
+  { userId: number; canManageRetention: boolean },
+  { rejectValue: string }
+>('admin/updateUserRetentionPermission', async ({ userId, canManageRetention }, { rejectWithValue }) => {
+  try {
+    const response = await ApiRequest(`/admin/users/${userId}/retention-permission`, 'patch', { canManageRetention });
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to update retention permission');
   }
 });
 
@@ -139,6 +165,42 @@ const adminSlice = createSlice({
       .addCase(updateAppLimit.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to update app limit';
+      });
+
+    // Update retention permission
+    builder
+      .addCase(updateUserRetentionPermission.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserRetentionPermission.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.users.findIndex(user => user.id === action.payload.id);
+        if (index !== -1) {
+          state.users[index] = action.payload;
+        }
+      })
+      .addCase(updateUserRetentionPermission.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update retention permission';
+      });
+
+    // Update role
+    builder
+      .addCase(updateRole.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateRole.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.users.findIndex(user => user.id === action.payload.id);
+        if (index !== -1) {
+          state.users[index] = action.payload;
+        }
+      })
+      .addCase(updateRole.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update role';
       });
 
     // Send warning

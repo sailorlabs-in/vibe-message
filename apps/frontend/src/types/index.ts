@@ -8,6 +8,7 @@ export interface User {
   role: UserRole;
   status: UserStatus;
   app_limit: number | null;
+  can_manage_retention: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -26,6 +27,7 @@ export interface App {
   public_key: string;
   secret_key: string;
   is_active: boolean;
+  retention_days: number | null;
   created_at: string;
   updated_at: string;
 }

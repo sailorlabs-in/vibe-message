@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "motion/react";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import {
@@ -11,13 +11,23 @@ import {
 export const Apps: React.FC = () => {
   const dispatch = useAppDispatch();
   const { apps, loading, error } = useAppSelector((state) => state.apps);
+  const [searchParams] = useSearchParams();
+  const targetUserId = searchParams.get('userId');
+  const userId = targetUserId ? parseInt(targetUserId, 10) : undefined;
+  
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
   useEffect(() => {
-    dispatch(fetchApps());
-  }, [dispatch]);
+    dispatch(fetchApps(userId));
+  }, [dispatch, userId]);
+
+  useEffect(() => {
+    if (searchParams.get('create') === 'true') {
+      setShowCreateModal(true);
+    }
+  }, [searchParams]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,13 +70,24 @@ export const Apps: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="flex justify-between items-center mb-8"
       >
-        <h1 className="text-3xl font-bold text-theme-text-primary">My Apps</h1>
-        <button
-          onClick={() => setShowCreateModal(true)}
-          className="btn-primary shadow-lg shadow-theme-primary-500/20"
-        >
-          + Create App
-        </button>
+        <div>
+          <h1 className="text-3xl font-bold text-theme-text-primary">
+            {userId ? `Apps for User #${userId}` : "My Apps"}
+          </h1>
+          {userId && (
+            <p className="text-theme-text-secondary mt-1 text-sm">
+              Viewing as Super Admin
+            </p>
+          )}
+        </div>
+        {!userId && (
+          <button
+            onClick={() => setShowCreateModal(true)}
+            className="btn-primary shadow-lg shadow-theme-primary-500/20"
+          >
+            + Create App
+          </button>
+        )}
       </motion.div>
 
       {apps.length === 0 ? (

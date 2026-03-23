@@ -17,9 +17,10 @@
     "build:notification-demo:prod": "nx run notification-demo:build"
   },
   "devDependencies": {
+    "baseline-browser-mapping": "^2.10.10",
     "nx": "22.5.4"
   },
   "dependencies": {
-    "vibe-message": "^1.1.0"
+    "vibe-message": "^1.1.1"
   }
 }

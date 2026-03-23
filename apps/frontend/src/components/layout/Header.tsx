@@ -65,8 +65,8 @@ export const Header: React.FC = () => {
                 </Link>
                 <div className="w-px h-4 bg-theme-border mx-2"></div>
                 <ThemeSwitcher />
-                <Link to="/signup" className="text-sm px-4 py-2 bg-theme-primary-600 hover:bg-theme-primary-700 text-white rounded-full font-medium transition-all shadow-lg shadow-theme-primary-500/20 hover:scale-105 ml-2">
-                  Get Started
+                <Link to="/login" className="text-sm px-4 py-2 bg-theme-primary-600 hover:bg-theme-primary-700 text-white rounded-full font-medium transition-all shadow-lg shadow-theme-primary-500/20 hover:scale-105 ml-2">
+                  Login
                 </Link>
               </>
             )}

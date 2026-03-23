@@ -40,6 +40,7 @@ export interface InitOptions {
 export interface RegisterDeviceOptions {
   externalUserId: string;
   serviceWorkerPath?: string;
+  serviceWorkerScope?: string;
 }
 
 export interface PushSubscription {

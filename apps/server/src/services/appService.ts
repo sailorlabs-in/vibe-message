@@ -9,16 +9,18 @@ import {
 import { generateAppId, generateSecretKey } from '../utils/crypto';
 import { NotFoundError, ForbiddenError } from '../utils/errors';
 
-export const getUserApps = async (userId: number, role: UserRole): Promise<App[]> => {
+export const getUserApps = async (
+  userId: number, 
+  role: UserRole, 
+  targetUserId?: number
+): Promise<App[]> => {
   let queryText = 'SELECT * FROM apps';
-  const params: any[] = [];
+  
+  // Determine which user's apps to fetch
+  const filterId = (role === 'SUPER_ADMIN' && targetUserId) ? targetUserId : userId;
+  const params: any[] = [filterId];
 
-  // Super admin can see all apps, regular admin only their own
-  if (role !== 'SUPER_ADMIN') {
-    queryText += ' WHERE user_id = $1';
-    params.push(userId);
-  }
-
+  queryText += ' WHERE user_id = $1';
   queryText += ' ORDER BY created_at DESC';
 
   const result = await query(queryText, params);
@@ -121,6 +123,14 @@ export const updateApp = async (
   role: UserRole,
   data: UpdateAppRequest
 ): Promise<App> => {
+  if (data.retention_days !== undefined && role !== 'SUPER_ADMIN') {
+    // Verify admin is allowed to override retention limits
+    const userCheck = await query('SELECT can_manage_retention FROM users WHERE id = $1', [userId]);
+    if (!userCheck.rows[0]?.can_manage_retention) {
+      throw new ForbiddenError('You do not have permission to change the auto-delete retention period.');
+    }
+  }
+
   const setClauses: string[] = [];
   const params: any[] = [];
   let paramIndex = 1;
@@ -138,6 +148,11 @@ export const updateApp = async (
   if (data.is_active !== undefined) {
     setClauses.push(`is_active = $${paramIndex++}`);
     params.push(data.is_active);
+  }
+
+  if (data.retention_days !== undefined) {
+    setClauses.push(`retention_days = $${paramIndex++}`);
+    params.push(data.retention_days);
   }
 
   setClauses.push(`updated_at = CURRENT_TIMESTAMP`);
