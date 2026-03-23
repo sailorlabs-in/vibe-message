@@ -7,6 +7,17 @@ DROP TABLE IF EXISTS device_tokens CASCADE;
 DROP TABLE IF EXISTS warnings CASCADE;
 DROP TABLE IF EXISTS apps CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS system_settings CASCADE;
+
+-- System Settings table (Global settings)
+CREATE TABLE system_settings (
+  id SERIAL PRIMARY KEY,
+  default_retention_days INTEGER NOT NULL DEFAULT 14,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert default system settings row
+INSERT INTO system_settings (default_retention_days) VALUES (14);
 
 -- Users table (platform admins)
 CREATE TABLE users (
@@ -17,6 +28,7 @@ CREATE TABLE users (
   role VARCHAR(20) NOT NULL CHECK (role IN ('SUPER_ADMIN', 'ADMIN')),
   status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'BANNED')),
   app_limit INTEGER,
+  can_manage_retention BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -31,6 +43,7 @@ CREATE TABLE apps (
   public_key VARCHAR(100) NOT NULL,  -- For client SDK authentication
   secret_key VARCHAR(100) NOT NULL,  -- For server-to-server API authentication
   is_active BOOLEAN DEFAULT true,
+  retention_days INTEGER, -- IF NULL, use default from system_settings
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

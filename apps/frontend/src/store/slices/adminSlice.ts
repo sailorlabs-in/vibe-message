@@ -68,6 +68,19 @@ export const updateAppLimit = createAsyncThunk<
   }
 });
 
+export const updateUserRetentionPermission = createAsyncThunk<
+  User,
+  { userId: number; canManageRetention: boolean },
+  { rejectValue: string }
+>('admin/updateUserRetentionPermission', async ({ userId, canManageRetention }, { rejectWithValue }) => {
+  try {
+    const response = await ApiRequest(`/admin/users/${userId}/retention-permission`, 'patch', { canManageRetention });
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to update retention permission');
+  }
+});
+
 export const sendWarning = createAsyncThunk<
   void,
   { userId: number; message: string },
@@ -152,6 +165,24 @@ const adminSlice = createSlice({
       .addCase(updateAppLimit.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to update app limit';
+      });
+
+    // Update retention permission
+    builder
+      .addCase(updateUserRetentionPermission.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateUserRetentionPermission.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.users.findIndex(user => user.id === action.payload.id);
+        if (index !== -1) {
+          state.users[index] = action.payload;
+        }
+      })
+      .addCase(updateUserRetentionPermission.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update retention permission';
       });
 
     // Update role

@@ -202,6 +202,25 @@ export const updateUserProfile = async (
   return userToResponse(result.rows[0]);
 };
 
+export const updateUserRetentionPermission = async (
+  userId: number,
+  canManageRetention: boolean
+): Promise<UserResponse> => {
+  const result = await query(
+    `UPDATE users 
+     SET can_manage_retention = $1, updated_at = CURRENT_TIMESTAMP
+     WHERE id = $2
+     RETURNING *`,
+    [canManageRetention, userId]
+  );
+
+  if (result.rows.length === 0) {
+    throw new NotFoundError('User not found');
+  }
+
+  return userToResponse(result.rows[0]);
+};
+
 export const deleteUserAccount = async (userId: number): Promise<void> => {
   // Prevent super admin from deleting their own account
   const userCheck = await query(

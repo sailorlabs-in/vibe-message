@@ -59,7 +59,7 @@ export const createNewApp = createAsyncThunk<
 
 export const updateExistingApp = createAsyncThunk<
   App,
-  { id: string; data: { name?: string; description?: string; is_active?: boolean } },
+  { id: string; data: { name?: string; description?: string; is_active?: boolean; retention_days?: number | null } },
   { rejectValue: string }
 >('apps/updateApp', async ({ id, data }, { rejectWithValue }) => {
   try {

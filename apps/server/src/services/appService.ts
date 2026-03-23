@@ -123,6 +123,14 @@ export const updateApp = async (
   role: UserRole,
   data: UpdateAppRequest
 ): Promise<App> => {
+  if (data.retention_days !== undefined && role !== 'SUPER_ADMIN') {
+    // Verify admin is allowed to override retention limits
+    const userCheck = await query('SELECT can_manage_retention FROM users WHERE id = $1', [userId]);
+    if (!userCheck.rows[0]?.can_manage_retention) {
+      throw new ForbiddenError('You do not have permission to change the auto-delete retention period.');
+    }
+  }
+
   const setClauses: string[] = [];
   const params: any[] = [];
   let paramIndex = 1;
@@ -140,6 +148,11 @@ export const updateApp = async (
   if (data.is_active !== undefined) {
     setClauses.push(`is_active = $${paramIndex++}`);
     params.push(data.is_active);
+  }
+
+  if (data.retention_days !== undefined) {
+    setClauses.push(`retention_days = $${paramIndex++}`);
+    params.push(data.retention_days);
   }
 
   setClauses.push(`updated_at = CURRENT_TIMESTAMP`);

@@ -108,6 +108,27 @@ router.patch('/users/:id/role', async (req: Request, res: Response, next: NextFu
   }
 });
 
+// Update user retention permission
+router.patch('/users/:id/retention-permission', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    const { canManageRetention } = req.body;
+    
+    if (typeof canManageRetention !== 'boolean') {
+      return res.status(400).json({ success: false, message: 'Invalid permission flag' });
+    }
+
+    const user = await userService.updateUserRetentionPermission(userId, canManageRetention);
+
+    return res.json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 // Update user app limit
 router.patch('/users/:id/app-limit', async (req: Request, res: Response, next: NextFunction) => {
   try {

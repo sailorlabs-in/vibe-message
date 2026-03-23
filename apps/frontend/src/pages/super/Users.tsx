@@ -9,6 +9,7 @@ import {
   sendWarning,
   removeUser,
   updateRole,
+  updateUserRetentionPermission,
 } from "../../store/slices/adminSlice";
 import { User, UserStatus, UserRole } from "../../types";
 
@@ -42,6 +43,17 @@ export const Users: React.FC = () => {
       toast.success(`User role updated to ${role}`);
     } else {
       toast.error("Failed to update role");
+    }
+  };
+
+  const handleToggleRetentionPerm = async (user: User) => {
+    const result = await dispatch(
+      updateUserRetentionPermission({ userId: user.id, canManageRetention: !user.can_manage_retention })
+    );
+    if (updateUserRetentionPermission.fulfilled.match(result)) {
+      toast.success(`Retention permission ${!user.can_manage_retention ? 'granted' : 'revoked'}`);
+    } else {
+      toast.error("Failed to update retention permission");
     }
   };
 
@@ -268,6 +280,18 @@ export const Users: React.FC = () => {
                         </button>
 
                         <div className="h-px bg-theme-border my-1 w-full flex-shrink-0" />
+
+                        {user.role === "ADMIN" && (
+                          <button
+                            onClick={() => {
+                              setOpenMenuId(null);
+                              handleToggleRetentionPerm(user);
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm text-theme-text-primary hover:bg-theme-bg-muted transition"
+                          >
+                            {user.can_manage_retention ? "Revoke Custom Auto-Delete" : "Allow Custom Auto-Delete"}
+                          </button>
+                        )}
 
                         {user.role !== "SUPER_ADMIN" ? (
                           <button

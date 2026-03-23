@@ -12,8 +12,10 @@ import adminRoutes from "./routes/admin.routes";
 import appsRoutes from "./routes/apps.routes";
 import sdkRoutes from "./routes/sdk.routes";
 import pushRoutes from "./routes/push.routes";
+import systemRoutes from "./routes/system.routes";
 import swaggerUi from "swagger-ui-express";
 import { specs } from "./config/swagger";
+import { startCleanupJob } from "./jobs/cleanupJob";
 
 const app: Application = express();
 
@@ -75,6 +77,7 @@ app.use(`${apiPrefix}/admin`, adminRoutes);
 app.use(`${apiPrefix}/apps`, appsRoutes);
 app.use(`${apiPrefix}/sdk`, sdkRoutes);
 app.use(`${apiPrefix}/push`, pushRoutes);
+app.use(`${apiPrefix}/system`, systemRoutes);
 
 const swaggerPath = apiPrefix === "" ? "/" : apiPrefix;
 app.use(swaggerPath, (req, res, next) => {
@@ -119,6 +122,8 @@ const startServer = async () => {
       console.log(
         `🌐 CORS enabled for: ${config.cors.allowedOrigins.join(", ")}`,
       );
+      // Start background cron jobs
+      startCleanupJob();
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);

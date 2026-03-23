@@ -86,7 +86,7 @@ export const validateCreateApp = (data: any): CreateAppRequest => {
 };
 
 export const validateUpdateApp = (data: any): UpdateAppRequest => {
-  const { name, description, is_active } = data;
+  const { name, description, is_active, retention_days } = data;
   const updates: UpdateAppRequest = {};
 
   if (name !== undefined) {
@@ -105,6 +105,13 @@ export const validateUpdateApp = (data: any): UpdateAppRequest => {
       throw new ValidationError('is_active must be a boolean');
     }
     updates.is_active = is_active;
+  }
+
+  if (retention_days !== undefined) {
+    if (retention_days !== null && (typeof retention_days !== 'number' || retention_days < 1)) {
+      throw new ValidationError('retention_days must be a positive number or null');
+    }
+    updates.retention_days = retention_days;
   }
 
   if (Object.keys(updates).length === 0) {

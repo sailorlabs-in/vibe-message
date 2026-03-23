@@ -9,6 +9,7 @@ import {
   changeUserPassword,
   deleteUserAccount,
 } from "../../store/slices/authSlice";
+import { systemService } from "../../services/systemService";
 import { motion } from "motion/react";
 
 const Profile: React.FC = () => {
@@ -41,6 +42,29 @@ const Profile: React.FC = () => {
       setEmail(user.email);
     }
   }, [user]);
+
+  const [globalRetention, setGlobalRetention] = useState(14);
+  const [retentionSaving, setRetentionSaving] = useState(false);
+
+  useEffect(() => {
+    if (user?.role === "SUPER_ADMIN") {
+      systemService.getSettings()
+        .then(settings => setGlobalRetention(settings.default_retention_days))
+        .catch(console.error);
+    }
+  }, [user]);
+
+  const handleUpdateRetention = async () => {
+    setRetentionSaving(true);
+    try {
+      await systemService.updateSettings(globalRetention);
+      toast.success("Global Default Retention updated");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to update system settings");
+    } finally {
+      setRetentionSaving(false);
+    }
+  };
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -547,6 +571,47 @@ const Profile: React.FC = () => {
               )}
             </div>
           </motion.div>
+
+          {/* System Configuration (SUPER ADMIN ONLY) */}
+          {isSuperAdmin && (
+            <motion.div
+              variants={fadeUpVariants}
+              className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8"
+            >
+              <h2 className="text-2xl font-bold mb-6 text-theme-text-primary pb-4 border-b border-theme-border/50">
+                System Global Settings
+              </h2>
+              
+              <div className="space-y-6">
+                <div className="relative group max-w-md">
+                  <label htmlFor="global-retention" className="block text-sm font-medium mb-2 text-theme-text-primary">
+                    Default Notification Retention (Days)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={globalRetention}
+                    onChange={(e) => setGlobalRetention(parseInt(e.target.value, 10) || 1)}
+                    className="w-full px-5 py-4 bg-theme-bg-primary text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 transition-all peer"
+                    id="global-retention"
+                  />
+                  <p className="text-xs text-theme-text-muted mt-2">
+                    This timer determines how long notification logs are kept before being auto-deleted by the cron job across all apps that don't specify their own retention override.
+                  </p>
+                </div>
+                
+                <div className="pt-2 flex justify-start">
+                  <button
+                    onClick={handleUpdateRetention}
+                    disabled={retentionSaving}
+                    className="w-full sm:w-auto px-8 py-3 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-xl font-semibold transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                  >
+                    {retentionSaving ? "Saving..." : "Save System Settings"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* Danger Zone */}
           {!isSuperAdmin && (
