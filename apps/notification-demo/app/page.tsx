@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { initNotificationClient } from "vibe-message";
+import { initNotificationClient, initServerClient } from "vibe-message";
 import toast, { Toaster } from "react-hot-toast";
 
 const STORAGE_KEY = "fcm-demo-config";
@@ -146,7 +146,7 @@ export default function Home() {
       }
 
       const client = initNotificationClient({
-        baseUrl: baseUrl + "/api",
+        baseUrl: baseUrl.endsWith('/api') ? baseUrl : baseUrl + "/api",
         appId: appId,
         publicKey: publicKey,
       });
@@ -217,14 +217,17 @@ export default function Home() {
       addLog("🔄 Registering device...");
       const registration = await client.registerDevice({
         externalUserId: userId,
-        serviceWorkerPath: "/push-sw.js",
+        serviceWorkerPath: "/demo-app/push-sw.js",
+        serviceWorkerScope: "/demo-app/",
       });
 
       // Get subscription details
-      const swRegistration = await navigator.serviceWorker.ready;
-      const subscription = await swRegistration.pushManager.getSubscription();
-
-      if (subscription) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      const swRegistration = registrations.find(r => r.scope.includes('/demo-app/'));
+      
+      if (swRegistration) {
+        const subscription = await swRegistration.pushManager.getSubscription();
+        if (subscription) {
         setDeviceInfo({
           userId: userId,
           endpoint: subscription.endpoint,
@@ -233,6 +236,7 @@ export default function Home() {
             auth: subscription.toJSON().keys?.auth,
           },
         });
+        }
       }
 
       setNotificationClient(client);
@@ -254,12 +258,15 @@ export default function Home() {
       addLog("🔄 Clearing device registration...");
 
       // Unregister service worker
-      const swRegistration = await navigator.serviceWorker.ready;
-      const subscription = await swRegistration.pushManager.getSubscription();
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      const swRegistration = registrations.find(r => r.scope.includes('/demo-app/'));
 
-      if (subscription) {
-        await subscription.unsubscribe();
-        addLog("✅ Push subscription removed");
+      if (swRegistration) {
+        const subscription = await swRegistration.pushManager.getSubscription();
+        if (subscription) {
+          await subscription.unsubscribe();
+          addLog("✅ Push subscription removed");
+        }
       }
 
       setIsRegistered(false);
@@ -299,30 +306,23 @@ export default function Home() {
 
     try {
       addLog("🔄 Sending self push notification...");
-      const response = await fetch(`${baseUrl}/api/push/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          appId,
-          secretKey,
-          notification: {
-            title: "Self Push Notification",
-            body: "This is a push notification sent to yourself!",
-            icon: "/icon.png",
-            click_action: "/",
-          },
-          targets: {
-            externalUserIds: [userId],
-          },
-        }),
+      const serverClient = initServerClient({
+        baseUrl: baseUrl.endsWith('/api') ? baseUrl : baseUrl + '/api',
+        appId,
+        secretKey,
       });
 
-      const data = await response.json();
-      if (data.success) {
-        addLog("✅ Self push notification sent successfully!");
-      } else {
-        addLog(`❌ Failed: ${data.message}`);
-      }
+      await serverClient.notification({
+        notificationData: {
+          title: "Self Push Notification",
+          body: "This is a push notification sent to yourself!",
+          icon: "/demo-app/icon.png",
+          click_action: "/demo-app/",
+        },
+        externalUsers: [userId],
+      });
+
+      addLog("✅ Self push notification sent successfully!");
     } catch (error: any) {
       addLog(`❌ Error: ${error.message}`);
     }
@@ -337,29 +337,22 @@ export default function Home() {
     try {
       addLog("🔄 Sending in-app notification via messaging service...");
 
-      const response = await fetch(`${baseUrl}/api/push/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          appId,
-          secretKey,
-          notification: {
-            title: "Self In-App Notification",
-            body: "This was sent through the messaging service!",
-            icon: "/icon.png",
-          },
-          targets: {
-            externalUserIds: [userId],
-          },
-        }),
+      const serverClient = initServerClient({
+        baseUrl: baseUrl.endsWith('/api') ? baseUrl : baseUrl + '/api',
+        appId,
+        secretKey,
       });
 
-      const data = await response.json();
-      if (data.success) {
-        addLog("✅ Notification sent! Watch for onMessage callback.");
-      } else {
-        addLog(`❌ Failed: ${data.message}`);
-      }
+      await serverClient.notification({
+        notificationData: {
+          title: "Self In-App Notification",
+          body: "This was sent through the messaging service!",
+          icon: "/demo-app/icon.png",
+        },
+        externalUsers: [userId],
+      });
+
+      addLog("✅ Notification sent! Watch for onMessage callback.");
     } catch (error: any) {
       addLog(`❌ Error: ${error.message}`);
     }
@@ -373,30 +366,23 @@ export default function Home() {
 
     try {
       addLog(`🔄 Sending push notification to ${otherUserId}...`);
-      const response = await fetch(`${baseUrl}/api/push/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          appId,
-          secretKey,
-          notification: {
-            title: "Push from Another User",
-            body: `${userId} sent you a push notification!`,
-            icon: "/icon.png",
-            click_action: "/",
-          },
-          targets: {
-            externalUserIds: [otherUserId],
-          },
-        }),
+      const serverClient = initServerClient({
+        baseUrl: baseUrl.endsWith('/api') ? baseUrl : baseUrl + '/api',
+        appId,
+        secretKey,
       });
 
-      const data = await response.json();
-      if (data.success) {
-        addLog(`✅ Push notification sent to ${otherUserId}!`);
-      } else {
-        addLog(`❌ Failed: ${data.message}`);
-      }
+      await serverClient.notification({
+        notificationData: {
+          title: "Push from Another User",
+          body: `${userId} sent you a push notification!`,
+          icon: "/demo-app/icon.png",
+          click_action: "/demo-app/",
+        },
+        externalUsers: [otherUserId],
+      });
+
+      addLog(`✅ Push notification sent to ${otherUserId}!`);
     } catch (error: any) {
       addLog(`❌ Error: ${error.message}`);
     }

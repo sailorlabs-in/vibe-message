@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import * as userService from '../services/userService';
 import {
   validateUpdateUserStatus,
+  validateUpdateUserRole,
   validateUpdateAppLimit,
   validateCreateWarning,
 } from '../utils/validation';
@@ -81,6 +82,22 @@ router.patch('/users/:id/status', async (req: Request, res: Response, next: Next
     const userId = parseInt(req.params.id, 10);
     const data = validateUpdateUserStatus(req.body);
     const user = await userService.updateUserStatus(userId, data);
+
+    res.json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Update user role
+router.patch('/users/:id/role', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = parseInt(req.params.id, 10);
+    const data = validateUpdateUserRole(req.body);
+    const user = await userService.updateUserRole(userId, data);
 
     res.json({
       success: true,

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import ApiRequest from '../../services/ApiRequest';
-import { User, UserStatus } from '../../types';
+import { User, UserStatus, UserRole } from '../../types';
 
 interface AdminState {
   users: User[];
@@ -39,6 +39,19 @@ export const updateStatus = createAsyncThunk<
     return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to update status');
+  }
+});
+
+export const updateRole = createAsyncThunk<
+  User,
+  { userId: number; role: UserRole },
+  { rejectValue: string }
+>('admin/updateRole', async ({ userId, role }, { rejectWithValue }) => {
+  try {
+    const response = await ApiRequest(`/admin/users/${userId}/role`, 'patch', { role });
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to update role');
   }
 });
 
@@ -139,6 +152,24 @@ const adminSlice = createSlice({
       .addCase(updateAppLimit.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to update app limit';
+      });
+
+    // Update role
+    builder
+      .addCase(updateRole.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateRole.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.users.findIndex(user => user.id === action.payload.id);
+        if (index !== -1) {
+          state.users[index] = action.payload;
+        }
+      })
+      .addCase(updateRole.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update role';
       });
 
     // Send warning

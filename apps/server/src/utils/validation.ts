@@ -7,6 +7,7 @@ import {
   UnregisterDeviceRequest,
   SendPushRequest,
   UpdateUserStatusRequest,
+  UpdateUserRoleRequest,
   UpdateAppLimitRequest,
   CreateWarningRequest,
 } from '../types';
@@ -191,6 +192,16 @@ export const validateUpdateUserStatus = (data: any): UpdateUserStatusRequest => 
   }
 
   return { status };
+};
+
+export const validateUpdateUserRole = (data: any): UpdateUserRoleRequest => {
+  const { role } = data;
+
+  if (!role || !['ADMIN', 'SUPER_ADMIN'].includes(role)) {
+    throw new ValidationError('role must be ADMIN or SUPER_ADMIN');
+  }
+
+  return { role };
 };
 
 export const validateUpdateAppLimit = (data: any): UpdateAppLimitRequest => {

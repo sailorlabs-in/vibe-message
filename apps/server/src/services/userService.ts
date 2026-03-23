@@ -4,6 +4,7 @@ import {
   UserResponse,
   UserStatus,
   UpdateUserStatusRequest,
+  UpdateUserRoleRequest,
   UpdateAppLimitRequest,
   CreateWarningRequest,
   Warning,
@@ -16,11 +17,11 @@ const userToResponse = (user: User): UserResponse => {
 };
 
 export const getAllUsers = async (statusFilter?: UserStatus): Promise<UserResponse[]> => {
-  let queryText = 'SELECT * FROM users WHERE role = $1';
-  const params: any[] = ['ADMIN'];
+  let queryText = 'SELECT * FROM users';
+  const params: any[] = [];
 
   if (statusFilter) {
-    queryText += ' AND status = $2';
+    queryText += ' WHERE status = $1';
     params.push(statusFilter);
   }
 
@@ -37,9 +38,9 @@ export const updateUserStatus = async (
   const result = await query(
     `UPDATE users 
      SET status = $1, updated_at = CURRENT_TIMESTAMP
-     WHERE id = $2 AND role = $3
+     WHERE id = $2
      RETURNING *`,
-    [data.status, userId, 'ADMIN']
+    [data.status, userId]
   );
 
   if (result.rows.length === 0) {
@@ -67,6 +68,25 @@ export const updateUserStatus = async (
   return userToResponse(user);
 };
 
+export const updateUserRole = async (
+  userId: number,
+  data: UpdateUserRoleRequest
+): Promise<UserResponse> => {
+  let queryText = `UPDATE users SET role = $1, updated_at = CURRENT_TIMESTAMP`;
+  if (data.role === 'SUPER_ADMIN') {
+    queryText += `, app_limit = NULL`;
+  }
+  queryText += ` WHERE id = $2 RETURNING *`;
+  
+  const result = await query(queryText, [data.role, userId]);
+
+  if (result.rows.length === 0) {
+    throw new NotFoundError('User not found');
+  }
+
+  return userToResponse(result.rows[0]);
+};
+
 export const updateUserAppLimit = async (
   userId: number,
   data: UpdateAppLimitRequest
@@ -74,9 +94,9 @@ export const updateUserAppLimit = async (
   const result = await query(
     `UPDATE users 
      SET app_limit = $1, updated_at = CURRENT_TIMESTAMP
-     WHERE id = $2 AND role = $3
+     WHERE id = $2
      RETURNING *`,
-    [data.appLimit, userId, 'ADMIN']
+    [data.appLimit, userId]
   );
 
   if (result.rows.length === 0) {

@@ -1,16 +1,20 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAppDispatch, useAppSelector } from '../../store/store';
-import { fetchAllUsers, updateStatus, updateAppLimit, sendWarning, removeUser } from '../../store/slices/adminSlice';
-import { User, UserStatus } from '../../types';
+import { fetchAllUsers, updateStatus, updateAppLimit, sendWarning, removeUser, updateRole } from '../../store/slices/adminSlice';
+import { User, UserStatus, UserRole } from '../../types';
 
 export const Users: React.FC = () => {
  const dispatch = useAppDispatch();
+ const navigate = useNavigate();
  const { users, loading } = useAppSelector((state) => state.admin);
+ const { user: currentUser } = useAppSelector((state) => state.auth);
  const [filter, setFilter] = useState<UserStatus | 'ALL'>('ALL');
  const [selectedUser, setSelectedUser] = useState<User | null>(null);
  const [appLimit, setAppLimit] = useState<string | undefined>(undefined);
  const [warningMessage, setWarningMessage] = useState('');
+ const [openMenuId, setOpenMenuId] = useState<number | null>(null);
 
  useEffect(() => {
  dispatch(fetchAllUsers(filter === 'ALL' ? undefined : filter));
@@ -22,6 +26,15 @@ export const Users: React.FC = () => {
  toast.success(`User ${status.toLowerCase()} successfully`);
  } else {
  toast.error('Failed to update status');
+ }
+ };
+
+ const handleRoleChange = async (userId: number, role: UserRole) => {
+ const result = await dispatch(updateRole({ userId, role }));
+ if (updateRole.fulfilled.match(result)) {
+ toast.success(`User role updated to ${role}`);
+ } else {
+ toast.error('Failed to update role');
  }
  };
 
@@ -87,18 +100,22 @@ export const Users: React.FC = () => {
  ))}
  </div>
 
- <div className="card overflow-x-auto">
+ <div className="card overflow-x-auto min-h-[calc(100dvh-340px)]">
  <table className="w-full text-left border-collapse">
  <thead>
  <tr className="border-b border-theme-border">
  <th className="py-4 px-4 font-semibold text-theme-text-primary">Name</th>
  <th className="py-4 px-4 font-semibold text-theme-text-primary">Email</th>
  <th className="py-4 px-4 font-semibold text-theme-text-primary">Status</th>
+ <th className="py-4 px-4 font-semibold text-theme-text-primary">Role</th>
  <th className="py-4 px-4 font-semibold text-theme-text-primary">App Limit</th>
  <th className="py-4 px-4 font-semibold text-theme-text-primary text-right">Actions</th>
  </tr>
  </thead>
  <tbody>
+ {openMenuId !== null && (
+    <div className="fixed inset-0 z-40" onClick={() => setOpenMenuId(null)}></div>
+  )}
  {users.map(user => (
  <tr key={user.id} className="border-b border-gray-50 dark:border-[#1A1A1D] hover:bg-gray-50/50 dark:hover:bg-[#151518] transition-colors">
  <td className="py-4 px-4 font-medium text-theme-text-primary">{user.name}</td>
@@ -114,52 +131,112 @@ export const Users: React.FC = () => {
  </td>
  <td className="py-4 px-4 text-theme-text-secondary">
  <span className="bg-theme-bg-muted border border-theme-border px-2 py-1 rounded font-mono text-sm text-theme-text-primary">
+ {user.role}
+ </span>
+ </td>
+ <td className="py-4 px-4 text-theme-text-secondary">
+ <span className="bg-theme-bg-muted border border-theme-border px-2 py-1 rounded font-mono text-sm text-theme-text-primary">
  {user.app_limit ?? 'Unlimited'}
  </span>
  </td>
- <td className="py-4 px-4">
- <div className="flex space-x-2 justify-end">
- {user.status !== 'APPROVED' && (
- <button
- onClick={() => handleStatusChange(user.id, 'APPROVED')}
- className="text-xs btn-primary px-3 py-1.5"
- >
- Approve
- </button>
- )}
- {user.status !== 'BANNED' && (
- <button
- onClick={() => handleStatusChange(user.id, 'BANNED')}
- className="text-xs bg-red-600 text-white px-3 py-1.5 rounded-lg hover:bg-red-700 transition"
- >
- Ban
- </button>
- )}
- <button
- onClick={() => {
- setSelectedUser(user);
- setAppLimit(user.app_limit?.toString() || '');
- }}
- className="text-xs btn-secondary px-3 py-1.5"
- >
- Limit
- </button>
- <button
- onClick={() => setSelectedUser(user)}
- className="text-xs btn-secondary px-3 py-1.5"
- >
- Warn
- </button>
- <button
- onClick={() => {
- setSelectedUser(user);
- setWarningMessage('DELETE_CONFIRM');
- }}
- className="text-xs border border-red-300 dark:border-red-900/50 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1.5 rounded-lg transition"
- >
- Delete
- </button>
- </div>
+ <td className="py-4 px-4 text-right">
+   <div className="relative inline-block text-left">
+     <button
+       onClick={() => setOpenMenuId(openMenuId === user.id ? null : user.id)}
+       className="p-2 text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-muted rounded-lg transition"
+     >
+       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+       </svg>
+     </button>
+
+     {openMenuId === user.id && (
+       <div className="absolute right-0 mt-2 w-48 bg-theme-bg-secondary rounded-xl shadow-xl border border-theme-border py-1 z-50 flex flex-col">
+         <button
+           onClick={() => { setOpenMenuId(null); navigate(`/apps?userId=${user.id}`); }}
+           className="w-full text-left px-4 py-2.5 text-sm font-medium hover:bg-theme-bg-muted transition text-indigo-600 dark:text-indigo-400"
+         >
+           View Apps
+         </button>
+         
+         <div className="h-px bg-theme-border my-1 w-full flex-shrink-0" />
+
+         {user.status !== 'APPROVED' && (
+           <button
+             onClick={() => { setOpenMenuId(null); handleStatusChange(user.id, 'APPROVED'); }}
+             disabled={currentUser?.id === user.id}
+             className="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+           >
+             Approve User
+           </button>
+         )}
+
+         {user.status !== 'BANNED' && (
+           <button
+             onClick={() => { setOpenMenuId(null); handleStatusChange(user.id, 'BANNED'); }}
+             disabled={currentUser?.id === user.id}
+             className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+           >
+             Ban User
+           </button>
+         )}
+
+         <button
+           onClick={() => {
+             setOpenMenuId(null);
+             setSelectedUser(user);
+             setAppLimit(user.app_limit?.toString() || '');
+           }}
+           disabled={currentUser?.id === user.id}
+           className="w-full text-left px-4 py-2 text-sm text-theme-text-primary hover:bg-theme-bg-muted transition disabled:opacity-50 disabled:cursor-not-allowed"
+         >
+           Set App Limit
+         </button>
+
+         <button
+           onClick={() => { setOpenMenuId(null); setSelectedUser(user); }}
+           disabled={currentUser?.id === user.id}
+           className="w-full text-left px-4 py-2 text-sm text-theme-text-primary hover:bg-theme-bg-muted transition disabled:opacity-50 disabled:cursor-not-allowed"
+         >
+           Send Warning
+         </button>
+
+         <div className="h-px bg-theme-border my-1 w-full flex-shrink-0" />
+
+         {user.role !== 'SUPER_ADMIN' ? (
+           <button
+             onClick={() => { setOpenMenuId(null); handleRoleChange(user.id, 'SUPER_ADMIN'); }}
+             disabled={currentUser?.id === user.id}
+             className="w-full text-left px-4 py-2 text-sm text-theme-text-primary hover:bg-theme-bg-muted transition disabled:opacity-50 disabled:cursor-not-allowed"
+           >
+             Make Super Admin
+           </button>
+         ) : (
+           <button
+             onClick={() => { setOpenMenuId(null); handleRoleChange(user.id, 'ADMIN'); }}
+             disabled={currentUser?.id === user.id}
+             className="w-full text-left px-4 py-2 text-sm text-theme-text-primary hover:bg-theme-bg-muted transition disabled:opacity-50 disabled:cursor-not-allowed"
+           >
+             Remove Super Admin
+           </button>
+         )}
+         <div className="h-px bg-theme-border my-1 w-full flex-shrink-0" />
+
+
+         <button
+           onClick={() => {
+             setOpenMenuId(null);
+             setSelectedUser(user);
+             setWarningMessage('DELETE_CONFIRM');
+           }}
+           disabled={currentUser?.id === user.id}
+           className="w-full text-left px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition disabled:opacity-50 disabled:cursor-not-allowed"
+         >
+           Delete User
+         </button>
+       </div>
+     )}
+   </div>
  </td>
  </tr>
  ))}

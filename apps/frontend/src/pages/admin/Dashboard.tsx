@@ -7,6 +7,7 @@ import { fetchApps } from "../../store/slices/appsSlice";
 export const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
   const { apps, loading } = useAppSelector((state) => state.apps);
+  const { user } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     dispatch(fetchApps());
@@ -82,7 +83,7 @@ export const Dashboard: React.FC = () => {
             </p>
           </div>
           <Link
-            to="/apps/new"
+            to="/apps?create=true"
             className="shrink-0 px-6 py-3 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-xl font-bold shadow-lg shadow-theme-primary-500/20 hover:shadow-theme-primary-500/40 transform hover:-translate-y-0.5 transition-all active:translate-y-0 active:shadow-md flex items-center gap-2"
           >
             <svg
@@ -132,11 +133,33 @@ export const Dashboard: React.FC = () => {
                 </svg>
               </div>
               <h3 className="text-theme-text-secondary font-semibold mb-1">
-                Total Apps
+                {user?.app_limit ? 'App Limit Progress' : 'Total Apps'}
               </h3>
-              <p className="text-4xl font-black text-theme-text-primary">
-                {apps.length}
-              </p>
+              <div className="flex flex-col">
+                <p className="text-4xl font-black text-theme-text-primary flex items-baseline gap-2">
+                  {apps.length}
+                  {user?.app_limit && (
+                    <span className="text-lg font-medium text-theme-text-secondary">
+                      / {user.app_limit} apps
+                    </span>
+                  )}
+                </p>
+                {user?.app_limit && (
+                  <div className="mt-4">
+                    <div className="h-2 w-full bg-theme-bg-muted rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-theme-primary-500 rounded-full transition-all duration-500"
+                        style={{ width: `${Math.min(100, (apps.length / user.app_limit) * 100)}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-theme-text-muted mt-2 font-medium">
+                      {user.app_limit - apps.length > 0 
+                        ? `${user.app_limit - apps.length} app(s) remaining`
+                        : 'App limit reached'}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
           </motion.div>
 

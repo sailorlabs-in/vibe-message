@@ -48,8 +48,8 @@ export const signup = async (data: SignupRequest): Promise<AuthResponse> => {
 
   // Create user
   const result = await query(
-    `INSERT INTO users (name, email, password_hash, role, status)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO users (name, email, password_hash, role, status, app_limit)
+     VALUES ($1, $2, $3, $4, $5, 5)
      RETURNING *`,
     [name, email, password_hash, 'ADMIN', 'PENDING']
   );

@@ -31,7 +31,8 @@ router.use(authMiddleware);
  */
 router.get('/', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const apps = await appService.getUserApps(req.user!.userId, req.user!.role);
+    const targetUserId = req.query.userId ? parseInt(req.query.userId as string, 10) : undefined;
+    const apps = await appService.getUserApps(req.user!.userId, req.user!.role, targetUserId);
 
     res.json({
       success: true,

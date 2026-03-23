@@ -34,6 +34,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
     useState<NotificationPermission>("default");
   const [isRegistered, setIsRegistered] = useState(false);
   const initializingRef = useRef(false);
+  const initializedRef = useRef(false);
   const clientRef = useRef<any>(null);
   const dispatch = useAppDispatch();
   const { user, token } = useAppSelector((state) => state.auth);
@@ -76,95 +77,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [user, apps.length, dispatch]);
 
-  // Listen for service worker messages when in foreground
-  useEffect(() => {
-    if ("serviceWorker" in navigator) {
-      const handleServiceWorkerMessage = (event: MessageEvent) => {
-        if (event.data && event.data.type === "FOREGROUND_MESSAGE") {
-          const payload = event.data.payload;
-          toast.custom(
-            (t) => (
-              <div
-                className={`${
-                  t.visible ? "animate-enter" : "animate-leave"
-                } max-w-sm w-full bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-xl pointer-events-auto flex ring-1 ring-black/5 overflow-hidden transition-all duration-300 transform`}
-              >
-                <div className="flex-1 w-0 p-4">
-                  <div className="flex items-start">
-                    <div className="flex-shrink-0 pt-0.5">
-                      <div className="h-10 w-10 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100">
-                        <svg
-                          className="h-6 w-6 text-indigo-600"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-                    <div className="ml-3 flex-1">
-                      <p className="text-sm font-semibold text-gray-900 mb-1">
-                        {payload.title || "New Notification"}
-                      </p>
-                      {payload.body && (
-                        <p className="text-sm text-gray-600 leading-relaxed">
-                          {payload.body}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex border-l border-gray-100 bg-gray-50/50">
-                  <button
-                    onClick={() => toast.dismiss(t.id)}
-                    className="w-full border border-transparent rounded-none rounded-r-xl p-4 flex items-center justify-center text-sm font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:z-10 transition-colors"
-                  >
-                    <svg
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            ),
-            {
-              duration: 5000,
-              position: "top-right",
-            },
-          );
-        }
-      };
 
-      if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
-        navigator.serviceWorker.addEventListener(
-          "message",
-          handleServiceWorkerMessage,
-        );
-      }
-
-      return () => {
-        if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
-          navigator.serviceWorker.removeEventListener(
-            "message",
-            handleServiceWorkerMessage,
-          );
-        }
-      };
-    }
-  }, []);
 
   const initializeNotifications = useCallback(async () => {
     if (!user || initializingRef.current) return;
@@ -375,13 +288,14 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
     if (
       user &&
       permissionStatus === "granted" &&
-      !isRegistered &&
+      !initializedRef.current &&
       (apps.length > 0 || token)
     ) {
+      initializedRef.current = true;
       initializeNotifications();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, permissionStatus, apps.length, token, isRegistered]);
+  }, [user, permissionStatus, apps.length, token]);
 
   const requestPermission = useCallback(async () => {
     try {

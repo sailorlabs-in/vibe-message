@@ -157,6 +157,10 @@ export interface UpdateUserStatusRequest {
   status: UserStatus;
 }
 
+export interface UpdateUserRoleRequest {
+  role: UserRole;
+}
+
 export interface UpdateAppLimitRequest {
   appLimit: number | null;
 }

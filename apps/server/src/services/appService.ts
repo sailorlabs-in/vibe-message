@@ -9,16 +9,18 @@ import {
 import { generateAppId, generateSecretKey } from '../utils/crypto';
 import { NotFoundError, ForbiddenError } from '../utils/errors';
 
-export const getUserApps = async (userId: number, role: UserRole): Promise<App[]> => {
+export const getUserApps = async (
+  userId: number, 
+  role: UserRole, 
+  targetUserId?: number
+): Promise<App[]> => {
   let queryText = 'SELECT * FROM apps';
-  const params: any[] = [];
+  
+  // Determine which user's apps to fetch
+  const filterId = (role === 'SUPER_ADMIN' && targetUserId) ? targetUserId : userId;
+  const params: any[] = [filterId];
 
-  // Super admin can see all apps, regular admin only their own
-  if (role !== 'SUPER_ADMIN') {
-    queryText += ' WHERE user_id = $1';
-    params.push(userId);
-  }
-
+  queryText += ' WHERE user_id = $1';
   queryText += ' ORDER BY created_at DESC';
 
   const result = await query(queryText, params);
