@@ -12,6 +12,10 @@ import {
 import { CopyButton } from "../../components/common/CopyButton";
 import { motion } from "motion/react";
 
+import { PushComposer } from "./components/PushComposer";
+import { NotificationHistory } from "./components/NotificationHistory";
+import { Subscribers } from "./components/Subscribers";
+
 export const AppDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -22,6 +26,7 @@ export const AppDetails: React.FC = () => {
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'subscribers' | 'push' | 'history'>('overview');
 
   useEffect(() => {
     if (id) {
@@ -300,10 +305,33 @@ const result = await vibe.notification({
         </div>
       </motion.div>
 
-      <motion.div variants={fadeUpVariants} className="card mb-6">
-        <h2 className="text-xl font-semibold mb-6 text-theme-text-primary">
-          Credentials
-        </h2>
+      <div className="flex border-b border-theme-border mb-6 overflow-x-auto print:hidden">
+        {[
+          { id: 'overview', label: 'Overview' },
+          { id: 'subscribers', label: 'Subscribers' },
+          { id: 'push', label: 'Send Push' },
+          { id: 'history', label: 'History' }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === tab.id
+                ? 'border-theme-primary-500 text-theme-primary-500'
+                : 'border-transparent text-theme-text-secondary hover:text-theme-text-primary hover:border-theme-border'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'overview' && (
+        <>
+          <motion.div variants={fadeUpVariants} className="card mb-6">
+            <h2 className="text-xl font-semibold mb-6 text-theme-text-primary">
+              Credentials
+            </h2>
         <div className="space-y-6">
           <div>
             <label className="block text-sm font-medium mb-2 text-theme-text-primary">
@@ -378,6 +406,26 @@ const result = await vibe.notification({
           {backendCode}
         </pre>
       </motion.div>
+        </>
+      )}
+
+      {activeTab === 'subscribers' && (
+        <motion.div variants={fadeUpVariants}>
+          <Subscribers appId={app.public_app_id} />
+        </motion.div>
+      )}
+
+      {activeTab === 'push' && (
+        <motion.div variants={fadeUpVariants}>
+          <PushComposer appId={app.public_app_id} />
+        </motion.div>
+      )}
+
+      {activeTab === 'history' && (
+        <motion.div variants={fadeUpVariants}>
+          <NotificationHistory appId={app.public_app_id} />
+        </motion.div>
+      )}
     </motion.div>
   );
 };

@@ -77,8 +77,6 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [user, apps.length, dispatch]);
 
-
-
   const initializeNotifications = useCallback(async () => {
     if (!user || initializingRef.current) return;
 
@@ -152,14 +150,14 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
               <div
                 className={`${
                   t.visible ? "animate-enter" : "animate-leave"
-                } max-w-sm w-full bg-white shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-xl pointer-events-auto flex ring-1 ring-black/5 overflow-hidden transition-all duration-300 transform`}
+                } max-w-sm w-full bg-theme-bg-primary shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] rounded-xl pointer-events-auto flex border border-theme-border overflow-hidden transition-all duration-300 transform`}
               >
                 <div className="flex-1 w-0 p-4">
                   <div className="flex items-start">
                     <div className="flex-shrink-0 pt-0.5">
-                      <div className="h-10 w-10 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100">
+                      <div className="h-10 w-10 rounded-full bg-theme-primary-500/10 flex items-center justify-center border border-indigo-100 dark:border-indigo-900">
                         <svg
-                          className="h-6 w-6 text-indigo-600"
+                          className="h-6 w-6 text-theme-primary-500"
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -174,21 +172,25 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
                       </div>
                     </div>
                     <div className="ml-3 flex-1">
-                      <p className="text-sm font-semibold text-gray-900 mb-1">
+                      <p className="text-sm font-semibold text-theme-text-primary mb-1">
                         {payload.title || "New Notification"}
                       </p>
                       {payload.body && (
-                        <p className="text-sm text-gray-600 leading-relaxed">
+                        <p className="text-sm text-theme-text-secondary leading-relaxed line-clamp-2">
                           {payload.body}
                         </p>
                       )}
                     </div>
                   </div>
                 </div>
-                <div className="flex border-l border-gray-100 bg-gray-50/50">
+                <div className="flex border-l border-theme-border bg-theme-bg-secondary/50">
                   <button
-                    onClick={() => toast.dismiss(t.id)}
-                    className="w-full border border-transparent rounded-none rounded-r-xl p-4 flex items-center justify-center text-sm font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:z-10 transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      toast.remove(t.id);
+                    }}
+                    className="w-full h-full border border-transparent rounded-none rounded-r-xl p-4 flex items-center justify-center text-sm font-medium text-theme-text-muted hover:text-theme-text-primary hover:bg-theme-bg-muted focus:outline-none transition-colors"
                   >
                     <svg
                       className="h-5 w-5"
