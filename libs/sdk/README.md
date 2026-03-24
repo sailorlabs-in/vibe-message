@@ -1,144 +1,198 @@
 # Vibe Message SDK
 
-Lightweight JavaScript SDK for web push notifications - A modern Firebase Cloud Messaging alternative.
+Lightweight JavaScript SDK for web push notifications — a modern Firebase Cloud Messaging alternative.
 
-## Installation
+[![npm version](https://img.shields.io/npm/v/vibe-message.svg)](https://www.npmjs.com/package/vibe-message)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+## 🎯 Live Demo
+
+> Try a working demo at **[vibemessage.sailorlabs.in/demo-app](https://vibemessage.sailorlabs.in/demo-app)**
+
+---
+
+## Getting Started
+
+### Step 1 — Create an Account
+
+Sign up at [vibemessage.sailorlabs.in](https://vibemessage.sailorlabs.in) to access the admin panel.
+
+### Step 2 — Create an App
+
+Once logged in, create a new app from the dashboard. After creation you will receive three credentials:
+
+| Credential     | Where to use                          |
+| -------------- | ------------------------------------- |
+| **App ID**     | Both client SDK & server SDK          |
+| **Public Key** | Client SDK (frontend)                 |
+| **Secret Key** | Server SDK only (backend — keep safe) |
+
+> **⚠️ Important:** Never expose your **Secret Key** on the frontend. It must only be used in server-side (Node.js) environments.
+
+### Step 3 — Install the SDK
 
 ```bash
 npm install vibe-message
 ```
 
-## Usage
+### Step 4 — Generate the Service Worker
 
-### 1. Initialize Service Worker
-
-Run the following command in your project directory (e.g., in your React/Vite/Next.js frontend):
+Run this once in your project root (React / Vite / Next.js / plain HTML):
 
 ```bash
 npx vibe-message init
 ```
 
-This will automatically detect your public directory and generate the required `push-sw.js` file necessary for handling background notifications.
+This auto-detects your `public` directory and creates a `push-sw.js` service-worker file required for background notifications.
 
-### 2. Initialize SDK
+---
+
+## Client SDK (Frontend)
+
+Use the **App ID** and **Public Key** obtained from Step 2.
+
+### Initialize
 
 ```javascript
 import { initNotificationClient } from 'vibe-message';
 
 const client = initNotificationClient({
-  baseUrl: 'https://your-backend.com/api',
   appId: 'your-app-id',
-  publicKey: 'your-public-key'
+  publicKey: 'your-public-key',
+  // baseUrl: 'https://vibemessage.sailorlabs.in/api'  ← default, override if self-hosting
 });
 ```
 
-### 3. Register Device
+### Register a Device
+
+Call this when the user logs in or when you want to start receiving notifications:
 
 ```javascript
-// When user logs in
 await client.registerDevice({
   externalUserId: 'user-123',
-  serviceWorkerPath: '/push-sw.js' // optional, defaults to '/push-sw.js'
+  serviceWorkerPath: '/push-sw.js',  // optional, defaults to '/push-sw.js'
+  serviceWorkerScope: '/',            // optional, defaults to '/'
 });
 ```
 
-### 4. Listen for Messages
+### Listen for Messages
 
 ```javascript
-// Foreground messages (when app is visible)
+// Foreground — app is visible / focused
 client.onMessage((payload) => {
-  console.log('Message received:', payload);
-  // Show in-app notification
+  console.log('Foreground message:', payload);
+  // Show your own in-app toast / banner
 });
 
-// Background messages (when notification is clicked)
+// Background — user clicked a push notification
 client.onBackgroundMessage((payload) => {
   console.log('Notification clicked:', payload);
+  // Navigate, refresh data, etc.
 });
 
-// Silent messages (no UI)
+// Silent — no visible notification, just data
 client.onSilentMessage((data) => {
-  console.log('Silent message:', data);
+  console.log('Silent data:', data);
 });
 ```
 
-### 5. Unregister Device
+### Unregister a Device
+
+Call this when the user logs out:
 
 ```javascript
-// When user logs out
 await client.unregisterDevice('user-123');
 ```
 
+---
+
+## Server SDK (Backend — Node.js)
+
+Use the **App ID** and **Secret Key** obtained from Step 2.
+
+### Initialize
+
+```javascript
+import { initServerClient } from 'vibe-message';
+
+const server = initServerClient({
+  appId: 'your-app-id',
+  secretKey: 'your-secret-key',
+  // baseUrl: 'https://vibemessage.sailorlabs.in/api'  ← default
+});
+```
+
+### Send a Push Notification
+
+```javascript
+await server.notification({
+  notificationData: {
+    title: 'Hello!',
+    body: 'You have a new message.',
+    icon: '/icon.png',
+    click_action: 'https://your-app.com/messages',
+    data: { messageId: '42' },
+  },
+  externalUsers: ['user-123', 'user-456'],  // omit to broadcast
+});
+```
+
+### Send a Silent Notification
+
+Silent notifications carry data without showing a visible push to the user — useful for background syncing:
+
+```javascript
+await server.silentNotification({
+  data: { action: 'SYNC_MESSAGES', conversationId: '99' },
+  externalUsers: ['user-123'],
+});
+```
+
+---
+
 ## API Reference
 
-### `initNotificationClient(options)`
+### Client SDK
 
-Initialize the notification client.
+| Method | Description |
+| --- | --- |
+| `initNotificationClient(options)` | Create a client instance. Options: `appId`, `publicKey`, `baseUrl?` |
+| `client.registerDevice(options)` | Register for push. Options: `externalUserId`, `serviceWorkerPath?`, `serviceWorkerScope?` |
+| `client.unregisterDevice(userId)` | Unregister a device by external user ID |
+| `client.onMessage(callback)` | Foreground message handler |
+| `client.onBackgroundMessage(callback)` | Background (notification-click) handler |
+| `client.onSilentMessage(callback)` | Silent data handler |
 
-**Parameters:**
-- `options.baseUrl` (string): Base URL of your backend API
-- `options.appId` (string): Your app ID from the admin panel
-- `options.publicKey` (string): Your app's public key
+### Server SDK
 
-**Returns:** `NotificationClient`
+| Method | Description |
+| --- | --- |
+| `initServerClient(options)` | Create a server instance. Options: `appId`, `secretKey`, `baseUrl?` |
+| `server.notification(options)` | Send a push notification. Options: `notificationData`, `externalUsers?` |
+| `server.silentNotification(options)` | Send a silent data payload. Options: `data`, `externalUsers?` |
 
-### `client.registerDevice(options)`
-
-Register a device for push notifications.
-
-**Parameters:**
-- `options.externalUserId` (string): Your app's user ID
-- `options.serviceWorkerPath` (string, optional): Path to service worker file
-
-**Returns:** `Promise<void>`
-
-### `client.unregisterDevice(externalUserId)`
-
-Unregister a device from push notifications.
-
-**Parameters:**
-- `externalUserId` (string): Your app's user ID
-
-**Returns:** `Promise<void>`
-
-### `client.onMessage(callback)`
-
-Register a callback for foreground messages.
-
-**Parameters:**
-- `callback` (function): Function to handle message payload
-
-### `client.onBackgroundMessage(callback)`
-
-Register a callback for background messages (notification clicks).
-
-**Parameters:**
-- `callback` (function): Function to handle message payload
-
-### `client.onSilentMessage(callback)`
-
-Register a callback for silent messages.
-
-**Parameters:**
-- `callback` (function): Function to handle message data
+---
 
 ## Features
 
-- 🚀 **Lightweight** - Minimal dependencies, small bundle size
-- 🔒 **Secure** - VAPID authentication, encrypted push
-- 📱 **Cross-platform** - Works on all modern browsers
-- 🎯 **Type-safe** - Full TypeScript support
-- 🔄 **Background sync** - Receive notifications when app is closed
-- 🎨 **Customizable** - Full control over notification appearance
+- 🚀 **Lightweight** — Minimal dependencies, small bundle size
+- 🔒 **Secure** — VAPID authentication, encrypted payloads
+- 📱 **Cross-platform** — Works on all modern browsers
+- 🎯 **Type-safe** — Full TypeScript support
+- 🔄 **Background sync** — Receive notifications even when the app is closed
+- 🤫 **Silent push** — Send data payloads without disturbing the user
+- 🎨 **Customizable** — Full control over notification appearance
+- 🖥️ **Server SDK** — Send notifications from your Node.js backend with a single function call
 
 ## Browser Support
 
-- Chrome/Edge 50+
-- Firefox 44+
-- Safari 16+ (macOS 13+, iOS 16.4+)
-- Opera 37+
+| Browser      | Version |
+| ------------ | ------- |
+| Chrome/Edge  | 50+     |
+| Firefox      | 44+     |
+| Safari       | 16+ (macOS 13+, iOS 16.4+) |
+| Opera        | 37+     |
 
 ## License
 
 MIT
-
