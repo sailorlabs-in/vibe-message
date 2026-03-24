@@ -12,10 +12,12 @@ import {
 import { CopyButton } from "../../components/common/CopyButton";
 import { motion } from "motion/react";
 import { systemService } from "../../services/systemService";
+import { AppDetailsSkeleton } from "../../components/common/SkeletonLoader";
 
 import { PushComposer } from "./components/PushComposer";
 import { NotificationHistory } from "./components/NotificationHistory";
 import { Subscribers } from "./components/Subscribers";
+import { RiCheckboxCircleLine, RiCloseCircleLine, RiLockLine } from "@remixicon/react";
 
 export const AppDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -139,7 +141,7 @@ export const AppDetails: React.FC = () => {
   };
 
   if (loading && !app)
-    return <div className="p-8 text-theme-text-primary">Loading...</div>;
+    return <AppDetailsSkeleton />;
   if (!app)
     return <div className="p-8 text-theme-text-primary">App not found</div>;
 
@@ -170,6 +172,8 @@ await client.registerDevice({
 
 // 2. Send push notification from your backend
 import { initServerClient } from 'vibe-message';
+import { RiCheckboxCircleLine, RiCloseCircleLine, RiLockLine } from "@remixicon/react";
+
 
 const vibe = initServerClient({
   appId: '${app.public_app_id}',
@@ -320,8 +324,12 @@ const result = await vibe.notification({
             Status
           </h3>
           <div className="flex items-center justify-between">
-            <p className="text-xl font-semibold text-theme-text-primary">
-              {app.is_active ? "✅ Active" : "❌ Inactive"}
+            <p className="text-xl font-semibold text-theme-text-primary flex items-center gap-2">
+              {app.is_active ? (
+                <><RiCheckboxCircleLine size={20} className="text-theme-success" /> Active</>
+              ) : (
+                <><RiCloseCircleLine size={20} className="text-theme-error" /> Inactive</>
+              )}
             </p>
             <button
               onClick={handleToggleActive}
@@ -441,7 +449,7 @@ const result = await vibe.notification({
           </select>
           {!hasRetentionPermission && (
             <p className="text-xs text-theme-text-secondary mt-2 flex items-center gap-1">
-              <span className="text-amber-500">🔒</span> Controlled by Super Admin
+              <RiLockLine size={14} className="text-amber-500" /> Controlled by Super Admin
             </p>
           )}
           <p className="text-sm text-theme-text-secondary mt-3">

@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import ApiRequest from "../../../services/ApiRequest";
+import { TableSkeleton } from "../../../components/common/SkeletonLoader";
+import { RiGroupLine, RiRefreshLine } from "@remixicon/react";
+
 
 interface Subscriber {
   id: number;
@@ -35,14 +38,14 @@ export const Subscribers: React.FC<SubscribersProps> = ({ appId }) => {
   };
 
   if (loading) {
-    return <div className="text-theme-text-secondary animate-pulse p-4">Loading subscribers...</div>;
+    return <TableSkeleton rows={4} cols={4} />;
   }
 
   if (subscribers.length === 0) {
     return (
       <div className="card text-center py-10">
         <div className="w-16 h-16 mx-auto mb-4 bg-theme-bg-muted rounded-full flex items-center justify-center text-theme-text-muted">
-           <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+           <RiGroupLine size={32} />
         </div>
         <h3 className="text-lg font-medium text-theme-text-primary">No subscribers yet</h3>
         <p className="text-theme-text-secondary mt-1">Users will appear here once they register their devices via the SDK.</p>
@@ -57,7 +60,7 @@ export const Subscribers: React.FC<SubscribersProps> = ({ appId }) => {
           App Subscribers ({subscribers.length})
         </h2>
         <button onClick={fetchSubscribers} className="text-sm font-medium text-theme-primary-500 hover:text-theme-primary-600 focus:outline-none flex items-center gap-1">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+          <RiRefreshLine size={16} />
           Refresh
         </button>
       </div>

@@ -12,6 +12,9 @@ import {
   updateUserRetentionPermission,
 } from "../../store/slices/adminSlice";
 import { User, UserStatus, UserRole } from "../../types";
+import { UsersSkeleton } from "../../components/common/SkeletonLoader";
+import { RiMore2Line } from "@remixicon/react";
+
 
 export const Users: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -105,7 +108,7 @@ export const Users: React.FC = () => {
   };
 
   if (loading && users.length === 0)
-    return <div className="p-8 text-theme-text-primary">Loading...</div>;
+    return <UsersSkeleton />;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -202,19 +205,7 @@ export const Users: React.FC = () => {
                       }
                       className="p-2 text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-muted rounded-lg transition"
                     >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                        />
-                      </svg>
+                      <RiMore2Line size={20} />
                     </button>
 
                     {openMenuId === user.id && (

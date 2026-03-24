@@ -7,6 +7,7 @@ import {
   createNewApp,
   clearError,
 } from "../../store/slices/appsSlice";
+import { AppsSkeleton } from "../../components/common/SkeletonLoader";
 
 export const Apps: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -59,7 +60,7 @@ export const Apps: React.FC = () => {
   };
 
   if (loading && apps.length === 0) {
-    return <div className="p-8 text-theme-text-secondary">Loading...</div>;
+    return <AppsSkeleton />;
   }
 
   return (

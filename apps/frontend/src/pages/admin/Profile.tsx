@@ -11,6 +11,8 @@ import {
 } from "../../store/slices/authSlice";
 import { systemService } from "../../services/systemService";
 import { motion } from "motion/react";
+import { RiEyeLine, RiEyeOffLine, RiLoader4Line, RiCheckboxCircleLine, RiCloseCircleLine, RiErrorWarningLine, RiNotificationLine, RiAlertLine } from "@remixicon/react";
+
 
 const Profile: React.FC = () => {
   const { user, logout } = useAuth();
@@ -121,42 +123,7 @@ const Profile: React.FC = () => {
       className="absolute right-4 top-4 text-theme-text-muted hover:text-theme-text-primary transition-colors focus:outline-none"
       aria-label={show ? "Hide password" : "Show password"}
     >
-      {show ? (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-6 h-6"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"
-          />
-        </svg>
-      ) : (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1.5}
-          stroke="currentColor"
-          className="w-6 h-6"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
-      )}
+      {show ? <RiEyeOffLine size={24} /> : <RiEyeLine size={24} />}
     </button>
   );
 
@@ -280,26 +247,7 @@ const Profile: React.FC = () => {
                 >
                   {loading ? (
                     <>
-                      <svg
-                        className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <circle
-                          className="opacity-25"
-                          cx="12"
-                          cy="12"
-                          r="10"
-                          stroke="currentColor"
-                          strokeWidth="4"
-                        ></circle>
-                        <path
-                          className="opacity-75"
-                          fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                        ></path>
-                      </svg>
+                      <RiLoader4Line size={20} className="animate-spin" />
                       Updating...
                     </>
                   ) : (
@@ -467,47 +415,17 @@ const Profile: React.FC = () => {
                   >
                     {permissionStatus === "granted" ? (
                       <>
-                        <svg
-                          className="w-4 h-4"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                            clipRule="evenodd"
-                          />
-                        </svg>{" "}
+                        <RiCheckboxCircleLine size={16} />{" "}
                         Enabled
                       </>
                     ) : permissionStatus === "denied" ? (
                       <>
-                        <svg
-                          className="w-4 h-4"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z"
-                            clipRule="evenodd"
-                          />
-                        </svg>{" "}
+                        <RiCloseCircleLine size={16} />{" "}
                         Blocked
                       </>
                     ) : (
                       <>
-                        <svg
-                          className="w-4 h-4"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z"
-                            clipRule="evenodd"
-                          />
-                        </svg>{" "}
+                        <RiErrorWarningLine size={16} />{" "}
                         Disabled
                       </>
                     )}
@@ -538,27 +456,11 @@ const Profile: React.FC = () => {
               {permissionStatus === "granted" && (
                 <div className="bg-theme-success/5 border border-theme-success/20 rounded-2xl p-6 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <svg
-                      className="w-24 h-24 text-theme-success"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                    >
-                      <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z" />
-                    </svg>
+                    <RiNotificationLine size={96} className="text-theme-success" />
                   </div>
                   <div className="relative z-10">
                     <h4 className="text-theme-success font-semibold flex items-center gap-2">
-                      <svg
-                        className="w-5 h-5"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
+                      <RiCheckboxCircleLine size={20} />
                       Everything looks good!
                     </h4>
                     <p className="text-theme-text-secondary text-sm mt-2">
@@ -639,19 +541,7 @@ const Profile: React.FC = () => {
                 <div className="border border-red-500/30 rounded-2xl p-6 bg-red-500/10">
                   <div className="flex items-start gap-4">
                     <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
-                      <svg
-                        className="w-6 h-6 text-red-600 dark:text-red-400"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                        />
-                      </svg>
+                      <RiAlertLine size={24} className="text-red-600 dark:text-red-400" />
                     </div>
                     <div>
                       <h4 className="text-red-600 dark:text-red-400 font-bold text-lg mb-1">
