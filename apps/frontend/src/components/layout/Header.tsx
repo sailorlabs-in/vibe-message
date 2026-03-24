@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { ThemeSwitcher } from "../common/ThemeSwitcher";
+import { RiFlashlightLine } from "@remixicon/react";
+
 
 export const Header: React.FC = () => {
   const { user, logout } = useAuth();
@@ -24,9 +26,7 @@ export const Header: React.FC = () => {
       >
         <div className="flex justify-between items-center h-16 w-full px-6 flex-shrink-0">
           <Link to="/" className="text-xl font-bold text-theme-primary-600 dark:text-theme-primary-400 flex items-center gap-2 flex-shrink-0">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
+            <RiFlashlightLine size={24} />
             <span className="truncate tracking-tight hidden sm:block">Vibe Message</span>
             <span className="truncate tracking-tight sm:hidden">Vibe</span>
           </Link>

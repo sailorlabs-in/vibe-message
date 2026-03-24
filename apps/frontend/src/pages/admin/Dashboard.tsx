@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { fetchApps } from "../../store/slices/appsSlice";
+import { DashboardSkeleton } from "../../components/common/SkeletonLoader";
+import { RiAddLine, RiGridLine, RiCheckboxCircleLine, RiArrowRightLine, RiArrowRightSLine, RiSmartphoneLine, RiBriefcase4Line } from "@remixicon/react";
+
 
 export const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -33,32 +36,8 @@ export const Dashboard: React.FC = () => {
 
   if (loading && apps.length === 0) {
     return (
-      <div className="min-h-[calc(100vh-120px)] flex items-center justify-center bg-theme-bg-primary">
-        <div className="flex flex-col items-center gap-4">
-          <svg
-            className="animate-spin h-10 w-10 text-theme-primary-500"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              className="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="4"
-            ></circle>
-            <path
-              className="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          <p className="text-theme-text-secondary font-medium animate-pulse">
-            Loading dashboard...
-          </p>
-        </div>
+      <div className="min-h-[calc(100vh-120px)] transition-colors duration-300 px-4 py-8">
+        <DashboardSkeleton />
       </div>
     );
   }
@@ -86,20 +65,7 @@ export const Dashboard: React.FC = () => {
             to="/apps?create=true"
             className="shrink-0 px-6 py-3 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-xl font-bold shadow-lg shadow-theme-primary-500/20 hover:shadow-theme-primary-500/40 transform hover:-translate-y-0.5 transition-all active:translate-y-0 active:shadow-md flex items-center gap-2"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 4.5v15m7.5-7.5h-15"
-              />
-            </svg>
+            <RiAddLine size={20} />
             New App
           </Link>
         </motion.div>
@@ -118,19 +84,7 @@ export const Dashboard: React.FC = () => {
             <div className="absolute -right-6 -top-6 w-32 h-32 bg-theme-primary-500 opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity"></div>
             <div className="relative z-10">
               <div className="w-12 h-12 rounded-2xl bg-theme-primary-500/10 text-theme-primary-500 flex items-center justify-center mb-6">
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"
-                  />
-                </svg>
+                <RiGridLine size={24} />
               </div>
               <h3 className="text-theme-text-secondary font-semibold mb-1">
                 {user?.app_limit ? 'App Limit Progress' : 'Total Apps'}
@@ -170,19 +124,7 @@ export const Dashboard: React.FC = () => {
             <div className="absolute -right-6 -top-6 w-32 h-32 bg-theme-success opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity"></div>
             <div className="relative z-10">
               <div className="w-12 h-12 rounded-2xl bg-theme-success/10 text-theme-success flex items-center justify-center mb-6">
-                <svg
-                  className="w-6 h-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
+                <RiCheckboxCircleLine size={24} />
               </div>
               <h3 className="text-theme-text-secondary font-semibold mb-1">
                 Active Apps
@@ -210,19 +152,7 @@ export const Dashboard: React.FC = () => {
                 className="w-full px-6 py-3 bg-theme-bg-secondary hover:bg-theme-primary-50 text-theme-text-primary dark:hover:bg-theme-bg-muted border border-theme-border rounded-xl font-bold transition-colors shadow-sm flex items-center justify-center gap-2 group-hover:border-theme-primary-500/50"
               >
                 Manage Apps
-                <svg
-                  className="w-4 h-4 text-theme-primary-500 transform group-hover:translate-x-1 transition-transform"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
-                  />
-                </svg>
+                <RiArrowRightLine size={16} className="text-theme-primary-500 transform group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
           </motion.div>
@@ -245,19 +175,7 @@ export const Dashboard: React.FC = () => {
                 className="text-theme-primary-500 hover:text-theme-primary-600 font-semibold text-sm transition-colors flex items-center gap-1"
               >
                 View All
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
+                <RiArrowRightSLine size={16} />
               </Link>
             )}
           </div>
@@ -266,19 +184,7 @@ export const Dashboard: React.FC = () => {
             {apps.length === 0 ? (
               <div className="text-center py-16 px-4">
                 <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-theme-bg-muted flex items-center justify-center">
-                  <svg
-                    className="w-12 h-12 text-theme-text-muted"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z"
-                    />
-                  </svg>
+                  <RiBriefcase4Line size={48} className="text-theme-text-muted" />
                 </div>
                 <h3 className="text-xl font-bold text-theme-text-primary mb-2">
                   No apps built yet
@@ -306,19 +212,7 @@ export const Dashboard: React.FC = () => {
                       <div
                         className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${app.is_active ? "bg-theme-success/10 text-theme-success" : "bg-theme-bg-muted text-theme-text-muted"}`}
                       >
-                        <svg
-                          className="w-6 h-6"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
-                          />
-                        </svg>
+                        <RiSmartphoneLine size={24} />
                       </div>
                       <div>
                         <div className="flex items-center gap-3 mb-1">
@@ -350,19 +244,7 @@ export const Dashboard: React.FC = () => {
                         </p>
                       </div>
                       <div className="w-10 h-10 rounded-full bg-theme-bg-muted group-hover:bg-theme-primary-500 flex items-center justify-center text-theme-text-secondary group-hover:text-white transition-colors">
-                        <svg
-                          className="w-5 h-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={2}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
+                        <RiArrowRightSLine size={20} />
                       </div>
                     </div>
                   </Link>

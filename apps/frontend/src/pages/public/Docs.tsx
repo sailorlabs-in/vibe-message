@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import { RiMagicLine, RiKeyLine, RiSettings3Line, RiReactjsLine, RiArrowUpLine, RiFlashlightLine, RiShieldKeyholeLine, RiRefreshLine, RiTeamLine, RiPaletteLine, RiBarChartBoxLine, RiInformationLine, RiCheckLine, RiErrorWarningLine, RiArchiveLine, RiServerLine, RiSmartphoneLine, RiCodeLine, RiFlaskLine } from "@remixicon/react";
 
 type TabType = "overview" | "quickstart" | "backend" | "react" | "nextjs";
 
 export const Docs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
 
-  const tabs: { id: TabType; label: string; icon: string }[] = [
-    { id: "overview", label: "Platform Overview", icon: "✨" },
-    { id: "quickstart", label: "Quick Start", icon: "🔑" },
-    { id: "backend", label: "Backend Integration", icon: "⚙️" },
-    { id: "react", label: "React Frontend", icon: "⚛️" },
-    { id: "nextjs", label: "Next.js Frontend", icon: "▲" },
+  const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
+    { id: "overview", label: "Platform Overview", icon: <RiMagicLine size={18} /> },
+    { id: "quickstart", label: "Quick Start", icon: <RiKeyLine size={18} /> },
+    { id: "backend", label: "Backend Integration", icon: <RiSettings3Line size={18} /> },
+    { id: "react", label: "React Frontend", icon: <RiReactjsLine size={18} /> },
+    { id: "nextjs", label: "Next.js Frontend", icon: <RiArrowUpLine size={18} /> },
   ];
 
   return (
@@ -83,9 +84,7 @@ export const Docs: React.FC = () => {
                       <div className="p-8 md:w-3/5 border-b md:border-b-0 md:border-r border-theme-border/50 dark:border-white/5">
                         <div className="flex items-center space-x-3 mb-4">
                           <div className="w-10 h-10 rounded-lg bg-theme-primary-500/10 flex items-center justify-center text-theme-primary-600 dark:text-theme-primary-400">
-                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <RiInformationLine size={24} />
                           </div>
                           <h3 className="text-xl font-bold text-theme-text-primary m-0">
                             Intended Usage Guidelines
@@ -102,9 +101,7 @@ export const Docs: React.FC = () => {
                             "Small-scale Applications",
                           ].map((item, idx) => (
                             <li key={idx} className="flex items-center text-sm text-theme-text-primary">
-                              <svg className="w-4 h-4 mr-2 text-theme-success" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
+                              <RiCheckLine size={16} className="mr-2 text-theme-success" />
                               {item}
                             </li>
                           ))}
@@ -115,9 +112,7 @@ export const Docs: React.FC = () => {
                       <div className="p-8 md:w-2/5 bg-gradient-to-br from-theme-bg-secondary to-theme-bg-primary flex flex-col justify-between">
                         <div>
                           <div className="inline-flex items-center px-3 py-1 bg-theme-error/10 text-theme-error border border-theme-error/20 dark:border-theme-error/10 rounded-full text-xs font-bold uppercase tracking-wider mb-4">
-                            <svg className="w-3 h-3 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
+                            <RiErrorWarningLine size={12} className="mr-1.5" />
                             Strictly Restricted
                           </div>
                           <h4 className="font-bold text-theme-text-primary mb-2">Commercial Production</h4>
@@ -128,9 +123,7 @@ export const Docs: React.FC = () => {
                         
                         <div className="pt-4 border-t border-theme-border/50 dark:border-white/5">
                           <p className="text-xs text-theme-text-muted flex items-start">
-                             <svg className="w-4 h-4 shrink-0 mr-1.5 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                            </svg>
+                             <RiArchiveLine size={16} className="shrink-0 mr-1.5 mt-0.5" />
                             <span><strong className="text-theme-text-primary">Coming Soon:</strong> Pre-configured Docker images for self-hosted, unmetered commercial deployments on your own infrastructure.</span>
                           </p>
                         </div>
@@ -141,32 +134,32 @@ export const Docs: React.FC = () => {
 
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
                   <FeatureCard
-                    icon="⚡"
+                    icon={<RiFlashlightLine size={28} />}
                     title="Ultra Lightweight"
                     description="Zero bloated dependencies. Our SDK is a fraction of the size of traditional platforms, ensuring your web app stays blazing fast."
                   />
                   <FeatureCard
-                    icon="🔐"
+                    icon={<RiShieldKeyholeLine size={28} />}
                     title="VAPID Security"
                     description="Built on web standards. Uses encrypted payload delivery ensuring your notifications are secure from server to screen."
                   />
                   <FeatureCard
-                    icon="🔄"
+                    icon={<RiRefreshLine size={28} />}
                     title="Smart Delivery"
                     description="Automatically detects if your users are using the app. Show in-app toasts when active, and OS-level push notifications when away."
                   />
                   <FeatureCard
-                    icon="👥"
+                    icon={<RiTeamLine size={28} />}
                     title="Multi-tenant Ready"
                     description="Managing multiple apps? Vibe Message isolates credentials, users, and notifications giving you total platform control."
                   />
                   <FeatureCard
-                    icon="🎨"
+                    icon={<RiPaletteLine size={28} />}
                     title="Highly Customizable"
                     description="You own the UI. Use our CLI to generate your Service Worker, then customize exactly how your notifications look and feel."
                   />
                   <FeatureCard
-                    icon="📊"
+                    icon={<RiBarChartBoxLine size={28} />}
                     title="Silent Data Sync"
                     description="Send invisible data payloads to your app to trigger background data refreshes, perfect for chat apps and live dashboards."
                   />
@@ -230,19 +223,7 @@ export const Docs: React.FC = () => {
                       1
                     </div>
                     <div className="w-16 h-16 bg-gradient-to-br from-theme-primary-500 to-theme-primary-600 rounded-2xl flex items-center justify-center shadow-lg shadow-theme-primary-500/20 mb-8 mx-auto lg:mx-0 transform group-hover:rotate-6 transition-transform flex-shrink-0">
-                      <svg
-                        className="w-8 h-8 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"
-                        />
-                      </svg>
+                      <RiServerLine size={32} className="text-white" />
                     </div>
                     <h3 className="text-2xl font-bold text-theme-text-primary mb-4 text-center lg:text-left">
                       Create Application
@@ -285,19 +266,7 @@ export const Docs: React.FC = () => {
                       2
                     </div>
                     <div className="w-16 h-16 bg-gradient-to-br from-theme-accent-400 to-theme-accent-600 rounded-2xl flex items-center justify-center shadow-lg shadow-theme-accent-500/20 mb-8 mx-auto lg:mx-0 transform group-hover:-rotate-6 transition-transform flex-shrink-0">
-                      <svg
-                        className="w-8 h-8 text-gray-900 dark:text-gray-900"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-                        />
-                      </svg>
+                      <RiSmartphoneLine size={32} className="text-gray-900 dark:text-gray-900" />
                     </div>
                     <h3 className="text-2xl font-bold text-theme-text-primary mb-4 text-center lg:text-left">
                       Integrate Frontend
@@ -312,19 +281,7 @@ export const Docs: React.FC = () => {
                     </p>
                     <div className="bg-[#1e1e1e] border border-[#2d2d2d] rounded-xl p-5 mt-auto shadow-inner relative overflow-hidden group-hover:border-theme-primary-500/50 transition-colors">
                       <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-40 transition-opacity">
-                        <svg
-                          className="w-8 h-8 text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                          />
-                        </svg>
+                        <RiCodeLine size={32} className="text-white" />
                       </div>
                       <pre className="text-sm font-mono text-gray-300 overflow-x-auto relative z-10">
                         <span className="text-theme-accent-400">await</span>{" "}
@@ -344,19 +301,7 @@ export const Docs: React.FC = () => {
                       3
                     </div>
                     <div className="w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl flex items-center justify-center shadow-lg shadow-gray-900/20 mb-8 mx-auto lg:mx-0 transform group-hover:rotate-6 transition-transform flex-shrink-0">
-                      <svg
-                        className="w-8 h-8 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
-                        />
-                      </svg>
+                      <RiFlaskLine size={32} className="text-white" />
                     </div>
                     <h3 className="text-2xl font-bold text-theme-text-primary mb-4 text-center lg:text-left">
                       Trigger from Backend
@@ -711,6 +656,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     code={`"use client";
 import { useContext } from 'react';
 import { NotificationContext } from './NotificationProvider';
+import { RiMagicLine, RiKeyLine, RiSettings3Line, RiReactjsLine, RiArrowUpLine, RiFlashlightLine, RiShieldKeyholeLine, RiRefreshLine, RiTeamLine, RiPaletteLine, RiBarChartBoxLine, RiInformationLine, RiCheckLine, RiErrorWarningLine, RiArchiveLine, RiServerLine, RiSmartphoneLine, RiCodeLine, RiFlaskLine } from "@remixicon/react";
+
 
 export default function AuthForms() {
   const { registerDevice, unregisterDevice } = useContext(NotificationContext);
@@ -757,7 +704,7 @@ const FeatureCard = ({
   title,
   description,
 }: {
-  icon: string;
+  icon: React.ReactNode;
   title: string;
   description: string;
 }) => (

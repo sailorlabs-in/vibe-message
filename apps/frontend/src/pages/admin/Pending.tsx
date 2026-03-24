@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
+import { RiTimerLine } from "@remixicon/react";
 
 export const Pending: React.FC = () => {
   return (
@@ -15,8 +16,8 @@ export const Pending: React.FC = () => {
         >
           <div className="relative mx-auto w-24 h-24 mb-8">
             <div className="absolute inset-0 bg-theme-warning opacity-30 animate-ping rounded-full blur-md"></div>
-            <div className="relative flex items-center justify-center w-full h-full bg-theme-bg-secondary rounded-full shadow-lg text-4xl border-2 border-theme-warning">
-              ⏳
+            <div className="relative flex items-center justify-center w-full h-full bg-theme-bg-secondary rounded-full shadow-lg border-2 border-theme-warning text-theme-warning">
+              <RiTimerLine size={48} />
             </div>
           </div>
 

@@ -12,6 +12,8 @@ import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { fetchApps } from "../store/slices/appsSlice";
 import { api, API_BASE_URL } from "../services/api";
+import { RiNotificationLine, RiCloseLine } from "@remixicon/react";
+
 
 const NOTIFICATION_STORAGE_KEY = "admin-notification-registered";
 
@@ -156,19 +158,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
                   <div className="flex items-start">
                     <div className="flex-shrink-0 pt-0.5">
                       <div className="h-10 w-10 rounded-full bg-theme-primary-500/10 flex items-center justify-center border border-indigo-100 dark:border-indigo-900">
-                        <svg
-                          className="h-6 w-6 text-theme-primary-500"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                          />
-                        </svg>
+                        <RiNotificationLine size={24} className="text-theme-primary-500" />
                       </div>
                     </div>
                     <div className="ml-3 flex-1">
@@ -192,17 +182,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
                     }}
                     className="w-full h-full border border-transparent rounded-none rounded-r-xl p-4 flex items-center justify-center text-sm font-medium text-theme-text-muted hover:text-theme-text-primary hover:bg-theme-bg-muted focus:outline-none transition-colors"
                   >
-                    <svg
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
+                    <RiCloseLine size={20} />
                   </button>
                 </div>
               </div>

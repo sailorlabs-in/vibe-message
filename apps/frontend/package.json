@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.10.1",
+    "@remixicon/react": "^4.9.0",
     "axios": "^1.6.2",
     "motion": "^12.35.0",
     "react": "^18.2.0",

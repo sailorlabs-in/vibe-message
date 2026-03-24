@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
+import { RiArrowRightLine, RiFileTextLine, RiLockLine, RiCodeLine, RiBarChartBoxLine, RiNotificationLine, RiArrowUpLine, RiFlashlightLine } from "@remixicon/react";
+
 
 export const Landing: React.FC = () => {
   // Remove the old state-based visibility transition
@@ -44,19 +46,7 @@ export const Landing: React.FC = () => {
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
               <span className="relative flex items-center justify-center">
                 Start Building Free
-                <svg
-                  className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  />
-                </svg>
+                <RiArrowRightLine size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
               </span>
             </Link>
 
@@ -64,19 +54,7 @@ export const Landing: React.FC = () => {
               to="/docs"
               className="group px-8 py-4 bg-theme-bg-muted border border-theme-border text-theme-text-primary rounded-xl font-bold text-lg backdrop-blur-md transition-all hover:bg-theme-border w-full sm:w-auto flex items-center justify-center"
             >
-              <svg
-                className="w-5 h-5 mr-2 text-theme-text-muted group-hover:text-theme-text-primary transition-colors"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
+              <RiFileTextLine size={20} className="mr-2 text-theme-text-muted group-hover:text-theme-text-primary transition-colors" />
               Explore Documentation
             </Link>
           </div>
@@ -99,19 +77,7 @@ export const Landing: React.FC = () => {
                 <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
               </div>
               <div className="mx-auto bg-theme-bg-primary rounded-md px-4 py-1.5 text-xs text-theme-text-secondary font-mono flex items-center shadow-sm">
-                <svg
-                  className="w-3 h-3 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                  />
-                </svg>
+                <RiLockLine size={12} className="mr-2" />
                 vibemessage.sailorlabs.in/api
               </div>
             </div>
@@ -199,19 +165,7 @@ export const Landing: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.1 }}
             >
               <div className="w-14 h-14 bg-theme-primary-100 rounded-xl flex items-center justify-center mb-6 text-theme-primary-600 dark:text-theme-primary-400 group-hover:scale-110 transition-transform">
-                <svg
-                  className="w-7 h-7"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-                  />
-                </svg>
+                <RiCodeLine size={28} />
               </div>
               <h4 className="text-xl font-bold text-theme-text-primary mb-3">
                 Frictionless SDK
@@ -231,19 +185,7 @@ export const Landing: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
             >
               <div className="w-14 h-14 bg-theme-primary-100 rounded-xl flex items-center justify-center mb-6 text-theme-primary-600 dark:text-theme-primary-400 group-hover:scale-110 transition-transform">
-                <svg
-                  className="w-7 h-7"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                  />
-                </svg>
+                <RiLockLine size={28} />
               </div>
               <h4 className="text-xl font-bold text-theme-text-primary mb-3">
                 Multi-Tenant Vault
@@ -264,19 +206,7 @@ export const Landing: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
             >
               <div className="w-14 h-14 bg-theme-accent-100 rounded-xl flex items-center justify-center mb-6 text-theme-accent-500 dark:text-theme-accent-400 group-hover:scale-110 transition-transform">
-                <svg
-                  className="w-7 h-7"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                  />
-                </svg>
+                <RiBarChartBoxLine size={28} />
               </div>
               <h4 className="text-xl font-bold text-theme-text-primary mb-3">
                 Telemetry Engine
@@ -296,19 +226,7 @@ export const Landing: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.4 }}
             >
               <div className="w-14 h-14 bg-theme-primary-100 rounded-xl flex items-center justify-center mb-6 text-theme-primary-600 dark:text-theme-primary-400 group-hover:scale-110 transition-transform">
-                <svg
-                  className="w-7 h-7"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                  />
-                </svg>
+                <RiNotificationLine size={28} />
               </div>
               <h4 className="text-xl font-bold text-theme-text-primary mb-3">
                 Silent Payloads
@@ -329,19 +247,7 @@ export const Landing: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.5 }}
             >
               <div className="w-14 h-14 bg-theme-accent-100 rounded-xl flex items-center justify-center mb-6 text-theme-accent-500 dark:text-theme-accent-400 group-hover:scale-110 transition-transform">
-                <svg
-                  className="w-7 h-7"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 11l5-5m0 0l5 5m-5-5v12"
-                  />
-                </svg>
+                <RiArrowUpLine size={28} />
               </div>
               <h4 className="text-xl font-bold text-theme-text-primary mb-3">
                 Precision Targeting
@@ -361,19 +267,7 @@ export const Landing: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.6 }}
             >
               <div className="w-14 h-14 bg-theme-primary-100 rounded-xl flex items-center justify-center mb-6 text-theme-primary-600 dark:text-theme-primary-400 group-hover:scale-110 transition-transform">
-                <svg
-                  className="w-7 h-7"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
+                <RiFlashlightLine size={28} />
               </div>
               <h4 className="text-xl font-bold text-theme-text-primary mb-3">
                 Hyper-Scale Core
