@@ -129,7 +129,7 @@ router.post('/unregister-device', async (req: Request, res: Response, next: Next
     });
 
     // Unregister device
-    await deviceService.unregisterDevice(appInfo.id, data.externalUserId);
+    await deviceService.unregisterDevice(appInfo.id, data.externalUserId, data.endpoint);
 
     return res.json({
       success: true,

@@ -209,9 +209,26 @@ export class NotificationClient {
   }
 
   /**
-   * Unregister device from push notifications
+   * Unregister device from push notifications.
+   * Only unregisters the current browser/device — other devices for the same user remain active.
    */
   async unregisterDevice(externalUserId: string): Promise<void> {
+    // Get current subscription endpoint for per-device unregister
+    let endpoint: string | undefined;
+
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+          endpoint = subscription.endpoint;
+          // Unsubscribe from push manager on this device
+          await subscription.unsubscribe();
+          break;
+        }
+      }
+    }
+
     const response = await fetch(`${this.baseUrl}/sdk/unregister-device`, {
       method: 'POST',
       headers: {
@@ -221,6 +238,7 @@ export class NotificationClient {
         appId: this.appId,
         payload: encryptPayload({
           externalUserId,
+          endpoint,
         }, this.publicKey),
       }),
     });
@@ -229,17 +247,6 @@ export class NotificationClient {
 
     if (!data.success) {
       throw new Error(data.message || 'Failed to unregister device');
-    }
-
-    // Unsubscribe from push manager
-    if ('serviceWorker' in navigator) {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      for (const registration of registrations) {
-        const subscription = await registration.pushManager.getSubscription();
-        if (subscription && subscription.endpoint.includes(this.appId)) {
-          await subscription.unsubscribe();
-        }
-      }
     }
   }
 }

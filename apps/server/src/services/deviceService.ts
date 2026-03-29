@@ -13,21 +13,29 @@ export const registerDevice = async (
   subscription: PushSubscription
 ): Promise<DeviceToken> => {
   const subscriptionJson = JSON.stringify(subscription);
+  const endpoint = subscription.endpoint;
 
-  // Try to update existing device token first
-  const updateResult = await query(
-    `UPDATE device_tokens 
-     SET subscription_json = $1, is_active = true, updated_at = CURRENT_TIMESTAMP
-     WHERE app_id = $2 AND external_user_id = $3
-     RETURNING *`,
-    [subscriptionJson, appId, externalUserId]
+  // 1. Check if this exact device (same endpoint) already exists for this user
+  const existingResult = await query(
+    `SELECT * FROM device_tokens 
+     WHERE app_id = $1 AND external_user_id = $2 
+     AND subscription_json::jsonb->>'endpoint' = $3`,
+    [appId, externalUserId, endpoint]
   );
 
-  if (updateResult.rows.length > 0) {
+  if (existingResult.rows.length > 0) {
+    // Update existing device — subscription keys may have rotated
+    const updateResult = await query(
+      `UPDATE device_tokens 
+       SET subscription_json = $1, is_active = true, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       RETURNING *`,
+      [subscriptionJson, existingResult.rows[0].id]
+    );
     return updateResult.rows[0];
   }
 
-  // Insert new device token
+  // 2. Insert new device token (different browser/device for same user)
   const insertResult = await query(
     `INSERT INTO device_tokens (app_id, external_user_id, subscription_json)
      VALUES ($1, $2, $3)
@@ -40,26 +48,40 @@ export const registerDevice = async (
     return insertResult.rows[0];
   }
 
-  // If we get here, there was a conflict, fetch the existing record
-  const existingResult = await query(
+  // 3. Conflict on exact same subscription_json — fetch existing
+  const conflictResult = await query(
     `SELECT * FROM device_tokens 
-     WHERE app_id = $1 AND external_user_id = $2`,
-    [appId, externalUserId]
+     WHERE app_id = $1 AND external_user_id = $2 
+     AND md5(subscription_json) = md5($3)`,
+    [appId, externalUserId, subscriptionJson]
   );
 
-  return existingResult.rows[0];
+  return conflictResult.rows[0];
 };
 
 export const unregisterDevice = async (
   appId: number,
-  externalUserId: string
+  externalUserId: string,
+  endpoint?: string
 ): Promise<void> => {
-  await query(
-    `UPDATE device_tokens 
-     SET is_active = false, updated_at = CURRENT_TIMESTAMP
-     WHERE app_id = $1 AND external_user_id = $2`,
-    [appId, externalUserId]
-  );
+  if (endpoint) {
+    // Deactivate only the specific device (matched by push endpoint)
+    await query(
+      `UPDATE device_tokens 
+       SET is_active = false, updated_at = CURRENT_TIMESTAMP
+       WHERE app_id = $1 AND external_user_id = $2 
+       AND subscription_json::jsonb->>'endpoint' = $3`,
+      [appId, externalUserId, endpoint]
+    );
+  } else {
+    // Deactivate ALL devices for this user (backward compatibility)
+    await query(
+      `UPDATE device_tokens 
+       SET is_active = false, updated_at = CURRENT_TIMESTAMP
+       WHERE app_id = $1 AND external_user_id = $2`,
+      [appId, externalUserId]
+    );
+  }
 };
 
 export const getDevicesByApp = async (

@@ -145,6 +145,7 @@ export interface RegisterDeviceRequest {
 export interface UnregisterDeviceRequest {
   appId: string;
   externalUserId: string;
+  endpoint?: string;
 }
 
 export interface SendPushRequest {

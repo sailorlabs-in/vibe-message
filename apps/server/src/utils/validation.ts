@@ -156,7 +156,7 @@ export const validateRegisterDevice = (data: any): RegisterDeviceRequest => {
 };
 
 export const validateUnregisterDevice = (data: any): UnregisterDeviceRequest => {
-  const { appId, externalUserId } = data;
+  const { appId, externalUserId, endpoint } = data;
 
   if (!appId || typeof appId !== 'string') {
     throw new ValidationError('appId is required');
@@ -166,7 +166,12 @@ export const validateUnregisterDevice = (data: any): UnregisterDeviceRequest => 
     throw new ValidationError('externalUserId is required');
   }
 
-  return { appId, externalUserId };
+  const result: UnregisterDeviceRequest = { appId, externalUserId };
+  if (endpoint && typeof endpoint === 'string') {
+    result.endpoint = endpoint;
+  }
+
+  return result;
 };
 
 export const validateSendPush = (data: any): SendPushRequest => {
