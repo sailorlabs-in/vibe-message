@@ -21,8 +21,8 @@ export const fetchAllUsers = createAsyncThunk<
   { rejectValue: string }
 >('admin/fetchAllUsers', async (status, { rejectWithValue }) => {
   try {
-    const params = status ? { status } : {};
-    const response = await ApiRequest('/admin/users', 'get', params);
+    const url = status ? `/admin/users?status=${status}` : '/admin/users';
+    const response = await ApiRequest(url, 'get');
     return response.data;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to fetch users');

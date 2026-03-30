@@ -224,6 +224,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
         toast.success("Notifications enabled!");
       } catch (error: any) {
         console.error("Failed to initialize notification client:", error);
+        console.error("Error name:", error?.name, "Message:", error?.message);
 
         // Ensure we mark it as failed so we don't end up in infinite loop if registration fails
         setIsRegistered(true); // Setting this to true prevents the effect from constantly triggering it over and over
@@ -235,7 +236,15 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({
             }
           } catch (e) {}
         }
-        if (error.message !== "Notification permission denied") {
+
+        // Suppress toast for expected/known error cases
+        const msg = error?.message || "";
+        const isPermissionDenied = msg === "Notification permission denied";
+        const isAbort = error?.name === "AbortError"; // Safari SW registration on HTTP
+        const isSecurity = error?.name === "SecurityError"; // Non-HTTPS on Safari
+        const isSwFetchError = msg.includes("unknown error occurred when fetching the script"); // Transient browser SW cache issue
+
+        if (!isPermissionDenied && !isAbort && !isSecurity && !isSwFetchError) {
           toast.error("Failed to enable notifications");
         }
       }

@@ -133,20 +133,66 @@ export class NotificationClient {
       throw new Error("Push notifications are not supported in this browser");
     }
 
-    // Request notification permission
-    const permission = await window.Notification.requestPermission();
-    if (permission !== 'granted') {
-      throw new Error('Notification permission denied');
+    // Only request permission if not already granted (avoids macOS double-prompt issues)
+    if (Notification.permission !== 'granted') {
+      const permission = await window.Notification.requestPermission();
+      if (permission !== 'granted') {
+        throw new Error('Notification permission denied');
+      }
     }
 
-    // Register service worker
+    // Register service worker with retry for macOS stale-cache issues
     const swPath = options.serviceWorkerPath || '/push-sw.js';
     const swScope = options.serviceWorkerScope || '/';
-    const registration = await navigator.serviceWorker.register(swPath, { scope: swScope });
 
-    // We do NOT await navigator.serviceWorker.ready here because if the page is outside the scope 
-    // (e.g. page is /demo-app but scope is /demo-app/), ready will hang forever.
-    // The registration object already has the pushManager.
+    let registration: ServiceWorkerRegistration;
+    try {
+      // updateViaCache: 'none' forces the browser to bypass its HTTP cache for the SW script,
+      // which fixes macOS Chrome's "unknown error occurred when fetching the script" issue
+      registration = await navigator.serviceWorker.register(swPath, {
+        scope: swScope,
+        updateViaCache: 'none',
+        type: 'classic',
+      });
+    } catch (swError: any) {
+      // On macOS, a stale/corrupt cached SW can cause "An unknown error" — 
+      // clear all old registrations and retry once
+      console.warn('Service worker registration failed, clearing stale registrations and retrying...', swError);
+      const existingRegistrations = await navigator.serviceWorker.getRegistrations();
+      for (const reg of existingRegistrations) {
+        await reg.unregister();
+      }
+      // Give the browser a moment to fully clean up before retrying
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Mac Chrome sometimes maintains a corrupted cache entry for the exact URL
+      // that even updateViaCache: 'none' doesn't bypass. Append a cache-buster:
+      const cacheBuster = swPath.includes('?') ? `&t=${Date.now()}` : `?t=${Date.now()}`;
+      
+      registration = await navigator.serviceWorker.register(swPath + cacheBuster, {
+        scope: swScope,
+        updateViaCache: 'none',
+        type: 'classic',
+      });
+    }
+
+    // Wait for the service worker to be active — macOS browsers often need this
+    // before pushManager.subscribe() will work reliably
+    if (registration.installing || registration.waiting) {
+      await new Promise<void>((resolve) => {
+        const sw = registration.installing || registration.waiting;
+        if (!sw) { resolve(); return; }
+        if (sw.state === 'activated') { resolve(); return; }
+        sw.addEventListener('statechange', function listener() {
+          if (sw.state === 'activated') {
+            sw.removeEventListener('statechange', listener);
+            resolve();
+          }
+        });
+        // Safety timeout — don't hang forever
+        setTimeout(resolve, 5000);
+      });
+    }
 
     // Get VAPID public key
     const vapidPublicKey = await this.getVapidPublicKey();
@@ -160,7 +206,7 @@ export class NotificationClient {
       });
     } catch (error: any) {
       // If there's an existing subscription with a different key, unsubscribe and retry
-      if (error.name === 'InvalidStateError' || error.message.includes('different application server key')) {
+      if (error.name === 'InvalidStateError' || error.message?.includes('different application server key')) {
         const existingSubscription = await registration.pushManager.getSubscription();
         if (existingSubscription) {
           await existingSubscription.unsubscribe();
