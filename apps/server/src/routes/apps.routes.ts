@@ -136,6 +136,22 @@ router.get('/:id/notifications', requireApproved, async (req: Request, res: Resp
   }
 });
 
+// Clear app notification history
+router.delete('/:id/notifications', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const publicAppId = req.params.id;
+    const app = await appService.getAppById(publicAppId, req.user!.userId, req.user!.role);
+    await pushService.clearAppNotifications(app.id);
+
+    res.json({
+      success: true,
+      message: 'Notification history cleared successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Get app notification logs (Analytics)
 router.get('/:id/notifications/:notificationId/logs', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
   try {

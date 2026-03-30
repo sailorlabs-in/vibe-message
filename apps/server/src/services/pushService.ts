@@ -217,3 +217,10 @@ export const getAppNotifications = async (
 
   return result.rows;
 };
+
+/**
+ * Clear all notifications for an app
+ */
+export const clearAppNotifications = async (appId: number): Promise<void> => {
+  await query('DELETE FROM notifications WHERE app_id = $1', [appId]);
+};

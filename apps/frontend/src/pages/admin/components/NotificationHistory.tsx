@@ -2,7 +2,10 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import ApiRequest from "../../../services/ApiRequest";
 import { TableSkeleton } from "../../../components/common/SkeletonLoader";
-import { RiNotificationLine } from "@remixicon/react";
+import { RiNotificationLine, RiDeleteBinLine, RiAlertLine } from "@remixicon/react";
+import { motion, AnimatePresence } from "motion/react";
+import { useAppDispatch } from "../../../store/store";
+import { clearAppNotifications } from "../../../store/slices/appsSlice";
 
 
 interface Notification {
@@ -29,6 +32,9 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
   const [selectedNotificationId, setSelectedNotificationId] = useState<number | null>(null);
   const [logs, setLogs] = useState<NotificationLog[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
+  const dispatch = useAppDispatch();
+  const [clearing, setClearing] = useState(false);
+  const [showClearConfirmModal, setShowClearConfirmModal] = useState(false);
 
   useEffect(() => {
     fetchNotifications();
@@ -43,6 +49,21 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
       toast.error("Failed to load notifications history");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleClearHistory = async () => {
+    setClearing(true);
+    try {
+      const resultAction = await dispatch(clearAppNotifications(appId));
+      if (clearAppNotifications.fulfilled.match(resultAction)) {
+        toast.success("Successfully cleared notification history for this app.");
+        fetchNotifications();
+      } else {
+        toast.error("Failed to clear notification history.");
+      }
+    } finally {
+      setClearing(false);
     }
   };
 
@@ -82,9 +103,22 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
 
   return (
     <div className="card overflow-hidden">
-      <h2 className="text-xl font-semibold mb-6 text-theme-text-primary px-2">
-        Notification History
-      </h2>
+      <div className="flex justify-between items-center mb-6 px-2">
+        <h2 className="text-xl font-semibold text-theme-text-primary">
+          Notification History
+        </h2>
+        
+        {notifications.length > 0 && (
+          <button 
+            onClick={() => setShowClearConfirmModal(true)} 
+            disabled={clearing || notifications.length === 0}
+            className="px-4 py-2 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/40 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 outline-none focus:ring-2 focus:ring-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <RiDeleteBinLine size={16} />
+            {clearing ? "Clearing..." : "Clear History"}
+          </button>
+        )}
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
@@ -198,6 +232,58 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
           </tbody>
         </table>
       </div>
+
+      {/* Custom Confirmation Modal */}
+      <AnimatePresence>
+        {showClearConfirmModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => !clearing && setShowClearConfirmModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-theme-bg-primary rounded-2xl shadow-2xl border border-theme-border overflow-hidden"
+            >
+              <div className="p-6">
+                <div className="w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4 text-red-600 dark:text-red-400 mx-auto">
+                  <RiAlertLine size={24} />
+                </div>
+                <h3 className="text-xl font-bold text-center text-theme-text-primary mb-2">
+                  Clear Notification History?
+                </h3>
+                <p className="text-center text-theme-text-secondary mb-6 text-sm">
+                  Are you sure you want to completely erase the notification history for this app? This action cannot be undone and you will lose all past delivery records and error logs.
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowClearConfirmModal(false)}
+                    disabled={clearing}
+                    className="flex-1 px-4 py-2.5 bg-theme-bg-secondary text-theme-text-primary hover:bg-theme-bg-muted rounded-xl font-medium transition-colors border border-theme-border focus:outline-none focus:ring-2 focus:ring-theme-border"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowClearConfirmModal(false);
+                      handleClearHistory();
+                    }}
+                    disabled={clearing}
+                    className="flex-1 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold transition-all shadow-lg shadow-red-600/30 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  >
+                    Yes, Clear History
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

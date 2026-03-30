@@ -109,6 +109,19 @@ export const unregisterAllAppDevices = createAsyncThunk<
   }
 });
 
+export const clearAppNotifications = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: string }
+>('apps/clearAppNotifications', async (appId, { rejectWithValue }) => {
+  try {
+    await ApiRequest(`/apps/${appId}/notifications`, 'delete');
+    return appId;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to clear notification history');
+  }
+});
+
 // Slice
 const appsSlice = createSlice({
   name: 'apps',
