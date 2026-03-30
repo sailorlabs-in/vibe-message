@@ -106,6 +106,18 @@ export const removeUser = createAsyncThunk<
   }
 });
 
+export const unregisterAllSystemDevices = createAsyncThunk<
+  void,
+  void,
+  { rejectValue: string }
+>('admin/unregisterAllSystemDevices', async (_, { rejectWithValue }) => {
+  try {
+    await ApiRequest('/admin/devices', 'delete');
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to unregister all system devices');
+  }
+});
+
 // Slice
 const adminSlice = createSlice({
   name: 'admin',
@@ -230,6 +242,20 @@ const adminSlice = createSlice({
       .addCase(removeUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to delete user';
+      });
+
+    // Unregister all system devices
+    builder
+      .addCase(unregisterAllSystemDevices.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(unregisterAllSystemDevices.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(unregisterAllSystemDevices.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to unregister devices';
       });
   },
 });

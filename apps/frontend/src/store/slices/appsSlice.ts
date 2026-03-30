@@ -96,6 +96,19 @@ export const removeApp = createAsyncThunk<
   }
 });
 
+export const unregisterAllAppDevices = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: string }
+>('apps/unregisterAllDevices', async (appId, { rejectWithValue }) => {
+  try {
+    await ApiRequest(`/apps/${appId}/subscribers`, 'delete');
+    return appId;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to unregister app devices');
+  }
+});
+
 // Slice
 const appsSlice = createSlice({
   name: 'apps',
@@ -212,6 +225,20 @@ const appsSlice = createSlice({
       .addCase(removeApp.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to delete app';
+      });
+
+    // Unregister all app devices
+    builder
+      .addCase(unregisterAllAppDevices.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(unregisterAllAppDevices.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(unregisterAllAppDevices.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to unregister devices';
       });
   },
 });

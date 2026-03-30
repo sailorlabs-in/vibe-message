@@ -1,5 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import * as userService from '../services/userService';
+import * as deviceService from '../services/deviceService';
 import {
   validateUpdateUserStatus,
   validateUpdateUserRole,
@@ -171,6 +172,20 @@ router.delete('/users/:id', async (req: Request, res: Response, next: NextFuncti
       success: true,
       message: 'User deleted successfully',
       data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Delete all devices system-wide (super admin only)
+router.delete('/devices', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await deviceService.unregisterAllDevicesSystemWide();
+
+    res.json({
+      success: true,
+      message: 'All devices unregistered globally',
     });
   } catch (error) {
     next(error);

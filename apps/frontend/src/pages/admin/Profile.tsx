@@ -9,8 +9,9 @@ import {
   changeUserPassword,
   deleteUserAccount,
 } from "../../store/slices/authSlice";
+import { unregisterAllSystemDevices } from "../../store/slices/adminSlice";
 import { systemService } from "../../services/systemService";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { RiEyeLine, RiEyeOffLine, RiLoader4Line, RiCheckboxCircleLine, RiCloseCircleLine, RiErrorWarningLine, RiNotificationLine, RiAlertLine } from "@remixicon/react";
 
 
@@ -37,6 +38,7 @@ const Profile: React.FC = () => {
 
   // Delete account
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showSystemConfirmModal, setShowSystemConfirmModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -76,6 +78,15 @@ const Profile: React.FC = () => {
       toast.success("Profile updated successfully!");
     } else {
       toast.error("Failed to update profile");
+    }
+  };
+
+  const handleUnregisterSystemWide = async () => {
+    const resultAction = await dispatch(unregisterAllSystemDevices());
+    if (unregisterAllSystemDevices.fulfilled.match(resultAction)) {
+      toast.success("Successfully unregistered all devices globally.");
+    } else {
+      toast.error("Failed to unregister devices globally.");
     }
   };
 
@@ -511,6 +522,21 @@ const Profile: React.FC = () => {
                     {retentionSaving ? "Saving..." : "Save System Settings"}
                   </button>
                 </div>
+                
+                <div className="pt-6 mt-6 border-t border-theme-border/50">
+                  <h3 className="text-sm font-semibold text-theme-error mb-2">Danger: System Actions</h3>
+                  <button
+                    onClick={() => setShowSystemConfirmModal(true)}
+                    disabled={loading}
+                    className="w-full sm:w-auto px-6 py-2.5 bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 outline-none focus:ring-2 focus:ring-red-500/50"
+                  >
+                     <RiAlertLine size={18} />
+                     Unregister All Devices (System-Wide)
+                  </button>
+                  <p className="text-xs text-theme-text-muted mt-2">
+                    This will forcibly unregister all devices across all applications. Users will need to re-register to receive push notifications.
+                  </p>
+                </div>
               </div>
             </motion.div>
           )}
@@ -576,6 +602,61 @@ const Profile: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Custom Confirmation Modal for System Wide Unregister */}
+      <AnimatePresence>
+        {showSystemConfirmModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => !loading && setShowSystemConfirmModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-theme-bg-primary rounded-2xl shadow-2xl border border-red-500/20 overflow-hidden"
+            >
+              <div className="p-6">
+                <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4 text-red-600 dark:text-red-400 mx-auto border border-red-200 dark:border-red-900/50 shadow-inner">
+                  <RiAlertLine size={32} />
+                </div>
+                <h3 className="text-2xl font-black text-center text-red-600 dark:text-red-400 mb-2 uppercase tracking-wide">
+                  Critical Warning
+                </h3>
+                <p className="text-center text-theme-text-secondary mb-6 leading-relaxed">
+                  Are you sure you want to unregister <strong className="text-theme-text-primary text-red-500">ALL DEVICES SYSTEM-WIDE?</strong> 
+                  <br className="mt-2" />
+                  <strong>EVERY user across EVERY app</strong> will immediately stop receiving notifications until they re-register!
+                </p>
+                <div className="flex gap-3 mt-8">
+                  <button
+                    onClick={() => setShowSystemConfirmModal(false)}
+                    disabled={loading}
+                    className="flex-1 px-4 py-3 bg-theme-bg-secondary text-theme-text-primary hover:bg-theme-bg-muted rounded-xl font-bold transition-colors border border-theme-border focus:outline-none focus:ring-2 focus:ring-theme-border"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowSystemConfirmModal(false);
+                      handleUnregisterSystemWide();
+                    }}
+                    disabled={loading}
+                    className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black transition-all shadow-lg shadow-red-600/30 focus:outline-none focus:ring-2 focus:ring-red-500 active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <RiAlertLine size={18} />
+                    Execute Purge
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

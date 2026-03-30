@@ -84,6 +84,22 @@ export const unregisterDevice = async (
   }
 };
 
+export const unregisterAllDevicesForApp = async (appId: number): Promise<void> => {
+  await query(
+    `UPDATE device_tokens 
+     SET is_active = false, updated_at = CURRENT_TIMESTAMP
+     WHERE app_id = $1`,
+    [appId]
+  );
+};
+
+export const unregisterAllDevicesSystemWide = async (): Promise<void> => {
+  await query(
+    `UPDATE device_tokens 
+     SET is_active = false, updated_at = CURRENT_TIMESTAMP`
+  );
+};
+
 export const getDevicesByApp = async (
   appId: number,
   externalUserIds?: string[]

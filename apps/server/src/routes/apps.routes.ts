@@ -180,6 +180,23 @@ router.get('/:id/subscribers', requireApproved, async (req: Request, res: Respon
   }
 });
 
+// Unregister all app subscribers
+router.delete('/:id/subscribers', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const publicAppId = req.params.id;
+    const app = await appService.getAppById(publicAppId, req.user!.userId, req.user!.role);
+    
+    await deviceService.unregisterAllDevicesForApp(app.id);
+
+    res.json({
+      success: true,
+      message: 'All devices unregistered successfully for this app',
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // Send push notification directly (Admin panel)
 router.post('/:id/push', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
   try {
