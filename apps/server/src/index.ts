@@ -16,6 +16,7 @@ import systemRoutes from "./routes/system.routes";
 import swaggerUi from "swagger-ui-express";
 import { specs } from "./config/swagger";
 import { startCleanupJob } from "./jobs/cleanupJob";
+import { startTimezoneSchedulerJob } from "./jobs/timezoneSchedulerJob";
 
 const app: Application = express();
 
@@ -124,6 +125,7 @@ const startServer = async () => {
       );
       // Start background cron jobs
       startCleanupJob();
+      startTimezoneSchedulerJob();
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);

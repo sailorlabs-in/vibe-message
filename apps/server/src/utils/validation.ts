@@ -122,7 +122,7 @@ export const validateUpdateApp = (data: any): UpdateAppRequest => {
 };
 
 export const validateRegisterDevice = (data: any): RegisterDeviceRequest => {
-  const { appId, publicKey, externalUserId, subscription } = data;
+  const { appId, publicKey, externalUserId, subscription, timezone } = data;
 
   if (!appId || typeof appId !== 'string') {
     throw new ValidationError('appId is required');
@@ -152,7 +152,7 @@ export const validateRegisterDevice = (data: any): RegisterDeviceRequest => {
     throw new ValidationError('subscription.keys.p256dh and auth are required');
   }
 
-  return { appId, publicKey, externalUserId, subscription };
+  return { appId, publicKey, externalUserId, subscription, timezone };
 };
 
 export const validateUnregisterDevice = (data: any): UnregisterDeviceRequest => {
@@ -175,7 +175,7 @@ export const validateUnregisterDevice = (data: any): UnregisterDeviceRequest => 
 };
 
 export const validateSendPush = (data: any): SendPushRequest => {
-  const { appId, secretKey, targets, notification } = data;
+  const { appId, secretKey, targets, notification, scheduledAtLocalTime } = data;
 
   if (!appId || typeof appId !== 'string') {
     throw new ValidationError('appId is required');
@@ -193,7 +193,13 @@ export const validateSendPush = (data: any): SendPushRequest => {
     throw new ValidationError('notification.title is required');
   }
 
-  return { appId, secretKey, targets, notification };
+  const req: SendPushRequest = { appId, secretKey, targets, notification };
+  
+  if (scheduledAtLocalTime && typeof scheduledAtLocalTime === 'string') {
+    req.scheduledAtLocalTime = scheduledAtLocalTime;
+  }
+  
+  return req;
 };
 
 export const validateUpdateUserStatus = (data: any): UpdateUserStatusRequest => {

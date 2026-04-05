@@ -97,7 +97,8 @@ router.post('/send', pushLimiter, async (req: Request, res: Response, next: Next
     const result = await pushService.sendPushNotification(
       app.id,
       data.notification,
-      targetUserIds
+      targetUserIds,
+      data.scheduledAtLocalTime
     );
 
     res.json({

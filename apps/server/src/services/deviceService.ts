@@ -10,7 +10,8 @@ import { NotFoundError } from '../utils/errors';
 export const registerDevice = async (
   appId: number,
   externalUserId: string,
-  subscription: PushSubscription
+  subscription: PushSubscription,
+  timezone: string = 'UTC'
 ): Promise<DeviceToken> => {
   const subscriptionJson = JSON.stringify(subscription);
   const endpoint = subscription.endpoint;
@@ -24,24 +25,24 @@ export const registerDevice = async (
   );
 
   if (existingResult.rows.length > 0) {
-    // Update existing device — subscription keys may have rotated
+    // Update existing device — subscription keys may have rotated, timezone might have updated
     const updateResult = await query(
       `UPDATE device_tokens 
-       SET subscription_json = $1, is_active = true, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $2
+       SET subscription_json = $1, timezone = $2, is_active = true, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $3
        RETURNING *`,
-      [subscriptionJson, existingResult.rows[0].id]
+      [subscriptionJson, timezone, existingResult.rows[0].id]
     );
     return updateResult.rows[0];
   }
 
   // 2. Insert new device token (different browser/device for same user)
   const insertResult = await query(
-    `INSERT INTO device_tokens (app_id, external_user_id, subscription_json)
-     VALUES ($1, $2, $3)
+    `INSERT INTO device_tokens (app_id, external_user_id, subscription_json, timezone)
+     VALUES ($1, $2, $3, $4)
      ON CONFLICT DO NOTHING
      RETURNING *`,
-    [appId, externalUserId, subscriptionJson]
+    [appId, externalUserId, subscriptionJson, timezone]
   );
 
   if (insertResult.rows.length > 0) {
@@ -49,11 +50,14 @@ export const registerDevice = async (
   }
 
   // 3. Conflict on exact same subscription_json — fetch existing
+  // Also update timezone if it changed
   const conflictResult = await query(
-    `SELECT * FROM device_tokens 
+    `UPDATE device_tokens 
+     SET timezone = $4, is_active = true, updated_at = CURRENT_TIMESTAMP
      WHERE app_id = $1 AND external_user_id = $2 
-     AND md5(subscription_json) = md5($3)`,
-    [appId, externalUserId, subscriptionJson]
+     AND md5(subscription_json) = md5($3)
+     RETURNING *`,
+    [appId, externalUserId, subscriptionJson, timezone]
   );
 
   return conflictResult.rows[0];

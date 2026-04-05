@@ -81,7 +81,8 @@ router.post('/register-device', async (req: Request, res: Response, next: NextFu
     const device = await deviceService.registerDevice(
       app.id,
       data.externalUserId,
-      data.subscription
+      data.subscription,
+      data.timezone
     );
 
     res.status(201).json({

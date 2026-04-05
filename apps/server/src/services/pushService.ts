@@ -92,7 +92,8 @@ const sendToDevice = async (
 export const sendPushNotification = async (
   appId: number,
   notification: NotificationPayload,
-  targetUserIds?: string[]
+  targetUserIds?: string[],
+  scheduledAtLocalTime?: string
 ): Promise<{ notificationId: number; sent: number; failed: number }> => {
   const client = await getClient();
 
@@ -101,13 +102,19 @@ export const sendPushNotification = async (
 
     // Create notification record
     const notificationResult = await client.query(
-      `INSERT INTO notifications (app_id, payload_json, is_silent)
-       VALUES ($1, $2, $3)
+      `INSERT INTO notifications (app_id, payload_json, is_silent, scheduled_at_local_time)
+       VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [appId, JSON.stringify(notification), notification.silent || false]
+      [appId, JSON.stringify(notification), notification.silent || false, scheduledAtLocalTime || null]
     );
 
     const notificationRecord: Notification = notificationResult.rows[0];
+
+    // If it's scheduled, don't send right now
+    if (scheduledAtLocalTime) {
+      await client.query('COMMIT');
+      return { notificationId: notificationRecord.id, sent: 0, failed: 0 };
+    }
 
     // Get target devices
     const devices = await getDevicesByApp(appId, targetUserIds);

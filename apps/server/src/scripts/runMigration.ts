@@ -1,64 +1,30 @@
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { pool } from '../config/database';
-import * as fs from 'fs';
-import * as path from 'path';
 
-/**
- * Run database migration to add public_key column
- */
-async function runMigration() {
-    const client = await pool.connect();
+const runMigration = async () => {
+  try {
+    console.log('🔄 Running intelligent delivery migration...');
+    
+    const migrationPath = join(__dirname, '../../sql/migration_intelligent_delivery.sql');
+    const migration = readFileSync(migrationPath, 'utf-8');
 
-    try {
-        console.log('🔄 Starting migration: Add public_key column to apps table...\n');
-
-        // Read migration SQL file
-        const migrationPath = path.join(__dirname, '../../sql/migration_add_public_key.sql');
-        const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
-
-        // Execute migration
-        await client.query('BEGIN');
-
-        // Split by semicolon and execute each statement
-        const statements = migrationSQL
-            .split(';')
-            .map(s => s.trim())
-            .filter(s => s.length > 0 && !s.startsWith('--'));
-
-        for (const statement of statements) {
-            if (statement.toUpperCase().startsWith('SELECT')) {
-                // For SELECT statements, show results
-                const result = await client.query(statement);
-                console.log('📊 Verification results:');
-                console.table(result.rows);
-            } else {
-                await client.query(statement);
-                console.log(`✅ Executed: ${statement.substring(0, 50)}...`);
-            }
-        }
-
-        await client.query('COMMIT');
-
-        console.log('\n✅ Migration completed successfully!');
-        console.log('📝 The public_key column has been added to the apps table.');
-        console.log('🔑 Existing apps have been assigned random public keys.');
-
-    } catch (error) {
-        await client.query('ROLLBACK');
-        console.error('❌ Migration failed:', error);
-        throw error;
-    } finally {
-        client.release();
-        await pool.end();
+    await pool.query(migration);
+    console.log('✅ Migration applied successfully!');
+    process.exit(0);
+  } catch (error: any) {
+    // Ignore duplicate table/column errors if they already exist
+    if (error.code === '42701') {
+      console.log('✅ Column already exists, skipping.');
+      process.exit(0);
     }
-}
+    if (error.code === '42P07') {
+      console.log('✅ Table already exists, skipping.');
+      process.exit(0);
+    }
+    console.error('❌ Migration failed:', error);
+    process.exit(1);
+  }
+};
 
-// Run migration
-runMigration()
-    .then(() => {
-        console.log('\n✨ All done!');
-        process.exit(0);
-    })
-    .catch((error) => {
-        console.error('\n💥 Migration error:', error);
-        process.exit(1);
-    });
+runMigration();
