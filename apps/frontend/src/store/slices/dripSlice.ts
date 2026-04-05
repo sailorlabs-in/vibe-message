@@ -74,12 +74,13 @@ export const fetchDripCampaign = createAsyncThunk<
 /** Save (create/replace) the drip campaign for an app */
 export const saveDripCampaign = createAsyncThunk<
   DripCampaignState,
-  { publicAppId: string; name: string; steps: DripStepPayload[] },
+  { publicAppId: string; isActive: boolean; steps: DripStepPayload[] },
   { rejectValue: string }
->('drip/saveDripCampaign', async ({ publicAppId, name, steps }, { rejectWithValue }) => {
+>('drip/saveDripCampaign', async ({ publicAppId, isActive, steps }, { rejectWithValue }) => {
   try {
     const response = await ApiRequest(`/apps/${publicAppId}/drip-campaign`, 'post', {
-      name,
+      name: 'Drip Campaign',
+      is_active: isActive,
       steps: steps.map((s) => ({
         dayDelay: s.dayDelay,
         time: s.time,

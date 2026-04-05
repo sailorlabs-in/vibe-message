@@ -54,7 +54,8 @@ export const getDripCampaign = async (
 export const saveDripCampaign = async (
   internalAppId: number,
   name: string,
-  steps: DripStepInput[]
+  steps: DripStepInput[],
+  isActive: boolean = true
 ): Promise<DripCampaignWithSteps> => {
   const client = await getClient();
   try {
@@ -69,9 +70,9 @@ export const saveDripCampaign = async (
     // Insert fresh campaign record
     const campaignResult = await client.query(
       `INSERT INTO drip_campaigns (app_id, name, is_active)
-       VALUES ($1, $2, true)
+       VALUES ($1, $2, $3)
        RETURNING *`,
-      [internalAppId, name]
+      [internalAppId, name, isActive]
     );
 
     const campaign: DripCampaign = campaignResult.rows[0];

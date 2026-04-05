@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { RiAddLine, RiTimeLine, RiDeleteBinLine, RiSave3Line, RiLoaderLine } from "@remixicon/react";
+import { RiAddLine, RiTimeLine, RiDeleteBinLine, RiSave3Line, RiLoaderLine, RiToggleLine, RiToggleFill } from "@remixicon/react";
 import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../../../store/store";
 import {
@@ -14,13 +14,13 @@ interface DripCampaignsProps {
 
 export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
   const dispatch = useAppDispatch();
-  const { steps: reduxSteps, name: reduxName, loading, saving, error } = useAppSelector(
+  const { steps: reduxSteps, is_active: reduxIsActive, loading, saving, error } = useAppSelector(
     (state) => state.drip
   );
 
-  // Local editable copies of steps and campaign name
+  // Local editable copies
   const [steps, setSteps] = useState<DripStepPayload[]>([]);
-  const [campaignName, setCampaignName] = useState("My Drip Campaign");
+  const [isActive, setIsActive] = useState(false);
 
   // Fetch from API when component mounts (or appId changes)
   useEffect(() => {
@@ -32,14 +32,14 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
     if (reduxSteps.length > 0) {
       setSteps(reduxSteps);
     } else if (!loading) {
-      // No campaign yet — set friendly defaults
+      // No campaign yet — friendly defaults
       setSteps([
         { id: "1", dayDelay: 1, time: "09:00", title: "Welcome to Vibe!", body: "Thanks for joining us." },
         { id: "2", dayDelay: 3, time: "10:00", title: "Check out this feature", body: "Did you know you can do X?" },
       ]);
     }
-    setCampaignName(reduxName || "My Drip Campaign");
-  }, [reduxSteps, reduxName, loading]);
+    setIsActive(reduxIsActive ?? false);
+  }, [reduxSteps, reduxIsActive, loading]);
 
   const addStep = () => {
     const newStep: DripStepPayload = {
@@ -61,9 +61,9 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
   };
 
   const handleSave = async () => {
-    const result = await dispatch(saveDripCampaign({ publicAppId: appId, name: campaignName, steps }));
+    const result = await dispatch(saveDripCampaign({ publicAppId: appId, isActive, steps }));
     if (saveDripCampaign.fulfilled.match(result)) {
-      toast.success("Drip campaign saved successfully!");
+      toast.success("Drip campaign saved!");
     } else {
       toast.error((result.payload as string) || "Failed to save drip campaign");
     }
@@ -81,40 +81,60 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
   return (
     <div className="card space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-start mb-6">
-        <div className="flex-1 mr-4">
-          <h2 className="text-xl font-semibold text-theme-text-primary">
-            Drip Campaigns
-          </h2>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h2 className="text-xl font-semibold text-theme-text-primary">Drip Campaign</h2>
           <p className="text-sm text-theme-text-secondary mt-1">
             Automated sequence of messages sent to new subscribers based on their signup date.
           </p>
-          {/* Campaign name editable field */}
-          <input
-            type="text"
-            value={campaignName}
-            onChange={(e) => setCampaignName(e.target.value)}
-            placeholder="Campaign name"
-            className="mt-3 w-full md:w-72 p-2 text-sm border border-theme-border rounded bg-theme-bg-primary text-theme-text-primary focus:ring-1 focus:ring-theme-primary-500 outline-none"
-          />
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="btn-primary flex items-center gap-2 px-4 py-2 disabled:opacity-50"
-        >
-          {saving ? (
-            <RiLoaderLine size={18} className="animate-spin" />
-          ) : (
-            <RiSave3Line size={18} />
-          )}
-          {saving ? "Saving..." : "Save Campaign"}
-        </button>
+
+        <div className="flex items-center gap-4">
+          {/* Active / Inactive toggle */}
+          <button
+            onClick={() => setIsActive(!isActive)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all font-medium text-sm ${
+              isActive
+                ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/20"
+                : "bg-theme-bg-secondary border-theme-border text-theme-text-secondary hover:border-theme-primary-400"
+            }`}
+            title={isActive ? "Campaign is active – click to disable" : "Campaign is inactive – click to enable"}
+          >
+            {isActive ? (
+              <RiToggleFill size={22} className="text-emerald-500" />
+            ) : (
+              <RiToggleLine size={22} />
+            )}
+            {isActive ? "Active" : "Inactive"}
+          </button>
+
+          {/* Save button */}
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="btn-primary flex items-center gap-2 px-4 py-2 disabled:opacity-50"
+          >
+            {saving ? (
+              <RiLoaderLine size={18} className="animate-spin" />
+            ) : (
+              <RiSave3Line size={18} />
+            )}
+            {saving ? "Saving..." : "Save Campaign"}
+          </button>
+        </div>
       </div>
 
       {error && (
         <div className="text-sm text-red-500 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-lg px-4 py-2">
           {error}
+        </div>
+      )}
+
+      {/* Inactive notice */}
+      {!isActive && (
+        <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-sm">
+          <RiToggleLine size={18} />
+          This drip campaign is currently <strong>inactive</strong>. Toggle it on above and save to start sending messages to new subscribers.
         </div>
       )}
 

@@ -285,21 +285,21 @@ router.get('/:id/drip-campaign', requireApproved, async (req: Request, res: Resp
 router.post('/:id/drip-campaign', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const publicAppId = req.params.id;
-    const { name, steps } = req.body;
+    const { name, steps, is_active } = req.body;
 
-    if (!name || typeof name !== 'string' || name.trim() === '') {
-      res.status(400).json({ success: false, message: 'Campaign name is required' });
-      return;
-    }
+    // name is optional – fall back to a sensible default
+    const campaignName = (typeof name === 'string' && name.trim()) ? name.trim() : 'Drip Campaign';
 
     if (!Array.isArray(steps)) {
       res.status(400).json({ success: false, message: 'steps must be an array' });
       return;
     }
 
+    const isActive = typeof is_active === 'boolean' ? is_active : true;
+
     // Verify ownership & resolve internal integer id
     const app = await appService.getAppById(publicAppId, req.user!.userId, req.user!.role);
-    const campaign = await dripService.saveDripCampaign(app.id, name.trim(), steps);
+    const campaign = await dripService.saveDripCampaign(app.id, campaignName, steps, isActive);
 
     res.status(201).json({
       success: true,

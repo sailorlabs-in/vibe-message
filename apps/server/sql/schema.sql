@@ -124,5 +124,17 @@ CREATE TABLE drip_steps (
 CREATE INDEX idx_drip_campaigns_app_id ON drip_campaigns(app_id);
 CREATE INDEX idx_drip_steps_campaign_id ON drip_steps(campaign_id);
 
+-- Drip Sent Logs (track per-device, per-step delivery to prevent duplicates)
+CREATE TABLE drip_sent_logs (
+  id SERIAL PRIMARY KEY,
+  drip_step_id    INTEGER NOT NULL REFERENCES drip_steps(id)    ON DELETE CASCADE,
+  device_token_id INTEGER NOT NULL REFERENCES device_tokens(id) ON DELETE CASCADE,
+  sent_at         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (drip_step_id, device_token_id)
+);
+
+CREATE INDEX idx_drip_sent_logs_step_id   ON drip_sent_logs(drip_step_id);
+CREATE INDEX idx_drip_sent_logs_device_id ON drip_sent_logs(device_token_id);
+
 -- Add unique constraint for device tokens to prevent duplicates
 CREATE UNIQUE INDEX idx_device_tokens_unique ON device_tokens(app_id, external_user_id, (md5(subscription_json)));
