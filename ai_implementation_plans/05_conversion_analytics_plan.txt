@@ -1,0 +1,27 @@
+# AI Implementation Task: Deep Analytics & Conversion Tracking
+
+## Objective
+Move beyond simple Click-Through Rates (CTR) and add support for User Conversion Tracking and detailed engagement Heatmaps.
+
+## Context
+Customers want to know if a notification successfully drove a revenue-driving action (like a "Purchase" or "Signup"). We want them to be able to track business events and tie them back to the last push notification clicked.
+
+## Step-by-Step Implementation Plan
+
+### Phase 1: SDK Telemetry Updates
+1. Introduce a new SDK method: `vibe.track(eventName, payload)`. E.g., `vibe.track('purchase', { value: 50 })`.
+2. When the user visits via a push notification click, our service worker or SDK needs to store a `vibe_last_click_id` in localStorage or session cookies.
+3. When `vibe.track` is fired, it looks for `vibe_last_click_id`, and sends it to the backend to attribute the conversion to that campaign.
+
+### Phase 2: Backend Attribution Models
+1. Add a `Conversions` or `Events` table holding `campaignId`, `eventName`, `value`, and `deviceId`.
+2. Build an endpoint `POST /api/v1/events` that accepts the SDK tracking payload.
+3. Verify the logic ensures a conversion is only attributed to a campaign if the click happened within a specific time window (e.g., 24 hours).
+
+### Phase 3: Dashboard Analytics UI
+1. Create a deep dashboard visualization. Under a Campaign's detail page, show "Conversions" alongside "Clicks".
+2. Add an "Engagement Heatmap" view in the general dashboard showing times of day when click rates are highest across the whole app.
+3. Implement a "Churn Report" table highlighting campaigns that had a high percentage of Unsubscribes directly afterward.
+
+## Instructions for AI
+Begin with the Data Schema integration to support "Conversions". Let's figure out how we tie user localStorage ids back to specific campaign clicks securely. Update the server endpoints, then move into updating the graphs on the `vibe-message/apps/frontend/src/pages/admin/Dashboard.tsx` to visualize the conversion data.
