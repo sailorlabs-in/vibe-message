@@ -56,6 +56,10 @@ CREATE TABLE device_tokens (
   subscription_json TEXT NOT NULL,
   timezone VARCHAR(100) DEFAULT 'UTC',
   is_active BOOLEAN DEFAULT true,
+  -- drip_anchor_date: set once at first registration; never overwritten on re-login.
+  -- The drip scheduler uses this as the "day 0" reference so the campaign clock
+  -- is never reset when a user logs out and back in.
+  drip_anchor_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -105,8 +105,10 @@ const runDripScheduler = async () => {
       WHERE  dt.app_id    = $1
         AND  dt.is_active = true
 
-        -- The device was created at least delay_days ago
-        AND  (dt.created_at + ($2 || ' days')::interval) <= NOW()
+        -- Use drip_anchor_date (not created_at) so the delay clock is never
+        -- reset when a user logs out and back in. drip_anchor_date is set once
+        -- at first registration and preserved across all subsequent re-logins.
+        AND  (COALESCE(dt.drip_anchor_date, dt.created_at) + ($2 || ' days')::interval) <= NOW()
 
         -- The device's local clock has reached or passed the step's fire time today
         AND  (CURRENT_TIMESTAMP AT TIME ZONE dt.timezone)::time >= $3::time

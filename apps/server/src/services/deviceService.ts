@@ -38,8 +38,8 @@ export const registerDevice = async (
 
   // 2. Insert new device token (different browser/device for same user)
   const insertResult = await query(
-    `INSERT INTO device_tokens (app_id, external_user_id, subscription_json, timezone)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO device_tokens (app_id, external_user_id, subscription_json, timezone, drip_anchor_date)
+     VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
      ON CONFLICT DO NOTHING
      RETURNING *`,
     [appId, externalUserId, subscriptionJson, timezone]
