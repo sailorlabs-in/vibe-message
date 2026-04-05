@@ -3,6 +3,7 @@ import * as appService from '../services/appService';
 import * as userService from '../services/userService';
 import * as pushService from '../services/pushService';
 import * as deviceService from '../services/deviceService';
+import * as dripService from '../services/dripService';
 import { validateCreateApp, validateUpdateApp } from '../utils/validation';
 import { authMiddleware } from '../middleware/auth';
 import { requireApproved } from '../middleware/roleCheck';
@@ -255,6 +256,54 @@ router.get('/user/warnings', async (req: Request, res: Response, next: NextFunct
     res.json({
       success: true,
       data: warnings,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ── Drip Campaigns ──────────────────────────────────────────────────────────
+
+// GET /:id/drip-campaign  →  fetch active drip campaign + steps for an app
+router.get('/:id/drip-campaign', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const publicAppId = req.params.id;
+    // Verify ownership & resolve internal integer id
+    const app = await appService.getAppById(publicAppId, req.user!.userId, req.user!.role);
+    const campaign = await dripService.getDripCampaign(app.id);
+
+    res.json({
+      success: true,
+      data: campaign,  // null when no campaign exists yet
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /:id/drip-campaign  →  save (replace) the drip campaign + steps for an app
+router.post('/:id/drip-campaign', requireApproved, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const publicAppId = req.params.id;
+    const { name, steps } = req.body;
+
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      res.status(400).json({ success: false, message: 'Campaign name is required' });
+      return;
+    }
+
+    if (!Array.isArray(steps)) {
+      res.status(400).json({ success: false, message: 'steps must be an array' });
+      return;
+    }
+
+    // Verify ownership & resolve internal integer id
+    const app = await appService.getAppById(publicAppId, req.user!.userId, req.user!.role);
+    const campaign = await dripService.saveDripCampaign(app.id, name.trim(), steps);
+
+    res.status(201).json({
+      success: true,
+      data: campaign,
     });
   } catch (error) {
     next(error);
