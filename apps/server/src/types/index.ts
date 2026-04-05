@@ -53,6 +53,7 @@ export interface DeviceToken {
   app_id: number;
   external_user_id: string;
   subscription_json: string;
+  timezone: string;
   is_active: boolean;
   created_at: Date;
   updated_at: Date;
@@ -72,6 +73,7 @@ export interface Notification {
   app_id: number;
   payload_json: string;
   is_silent: boolean;
+  scheduled_at_local_time?: string;
   created_by: number | null;
   created_at: Date;
 }
@@ -103,6 +105,26 @@ export interface Warning {
   user_id: number;
   message: string;
   created_by: number;
+  created_at: Date;
+}
+
+// Drip Campaign types
+export interface DripCampaign {
+  id: number;
+  app_id: number;
+  name: string;
+  is_active: boolean;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface DripStep {
+  id: number;
+  campaign_id: number;
+  step_number: number;
+  delay_days: number;
+  notification_payload_json: string;
+  scheduled_at_local_time?: string;
   created_at: Date;
 }
 
@@ -140,6 +162,7 @@ export interface RegisterDeviceRequest {
   publicKey: string;
   externalUserId: string;
   subscription: PushSubscription;
+  timezone?: string;
 }
 
 export interface UnregisterDeviceRequest {
@@ -156,6 +179,7 @@ export interface SendPushRequest {
     all?: boolean;
   };
   notification: NotificationPayload;
+  scheduledAtLocalTime?: string;
 }
 
 export interface UpdateUserStatusRequest {

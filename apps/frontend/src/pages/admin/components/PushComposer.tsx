@@ -18,6 +18,8 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
   const [clickAction, setClickAction] = useState("");
   const [targetType, setTargetType] = useState<"all" | "specific">("all");
   const [userIds, setUserIds] = useState("");
+  const [deliveryMode, setDeliveryMode] = useState<"immediate" | "scheduled">("immediate");
+  const [scheduledTime, setScheduledTime] = useState("09:00");
   const { selectedApp } = useAppSelector((state) => state.apps);
   const appName = selectedApp?.name || "Vibe Message";
 
@@ -50,16 +52,26 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
       payload.targets = { externalUserIds: ids };
     }
 
+    if (deliveryMode === "scheduled") {
+      if (!scheduledTime) {
+        toast.error("Scheduled time is required");
+        return;
+      }
+      payload.scheduledAtLocalTime = `${scheduledTime}:00`;
+    }
+
     try {
       setLoading(true);
       const response = await ApiRequest(`/apps/${appId}/push`, "post", payload);
-      toast.success(response.data?.message || "Push notification sent successfully");
+      toast.success(response.data?.message || "Push notification configured successfully");
       // Reset form on success
       setTitle("");
       setBody("");
       setIcon("");
       setClickAction("");
       setUserIds("");
+      setDeliveryMode("immediate");
+      setScheduledTime("09:00");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to send push notification");
     } finally {
@@ -132,6 +144,54 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
 
             <div className="space-y-4 border-t border-theme-border pt-6">
               <h3 className="text-sm font-semibold text-theme-text-secondary uppercase tracking-wider mb-2">
+                Delivery Time
+              </h3>
+              <div className="flex gap-4 mb-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="deliveryMode"
+                    value="immediate"
+                    checked={deliveryMode === "immediate"}
+                    onChange={() => setDeliveryMode("immediate")}
+                    className="text-theme-primary-500 focus:ring-theme-primary-500"
+                  />
+                  <span className="text-sm text-theme-text-primary">Send Immediately</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="deliveryMode"
+                    value="scheduled"
+                    checked={deliveryMode === "scheduled"}
+                    onChange={() => setDeliveryMode("scheduled")}
+                    className="text-theme-primary-500 focus:ring-theme-primary-500"
+                  />
+                  <span className="text-sm text-theme-text-primary">User's Local Timezone</span>
+                </label>
+              </div>
+
+              {deliveryMode === "scheduled" && (
+                <div className="animate-in fade-in slide-in-from-top-2">
+                  <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+                    Local Time <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="time"
+                    value={scheduledTime}
+                    onChange={(e) => setScheduledTime(e.target.value)}
+                    className="input w-full max-w-xs"
+                    required
+                  />
+                  <p className="text-xs text-theme-text-secondary mt-2">
+                    Message will be sent when the user's local clock reaches this time.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4 border-t border-theme-border pt-6">
+              <h3 className="text-sm font-semibold text-theme-text-secondary uppercase tracking-wider mb-2">
                 Audience
               </h3>
             <div>
@@ -183,7 +243,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
             </div>
             
             <div className="pt-6 border-t border-theme-border">
-               <button
+                 <button
                   type="submit"
                   disabled={loading}
                   className="w-full btn-primary py-3 px-4 shadow-lg shadow-theme-primary-500/20"
@@ -191,10 +251,10 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
                       <RiLoader4Line size={20} className="animate-spin" />
-                      Sending...
+                      {deliveryMode === "scheduled" ? "Scheduling..." : "Sending..."}
                     </span>
                   ) : (
-                    "Send Notification"
+                    deliveryMode === "scheduled" ? "Schedule Notification" : "Send Notification"
                   )}
                 </button>
             </div>

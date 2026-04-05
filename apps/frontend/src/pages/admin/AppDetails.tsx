@@ -17,6 +17,7 @@ import { AppDetailsSkeleton } from "../../components/common/SkeletonLoader";
 import { PushComposer } from "./components/PushComposer";
 import { NotificationHistory } from "./components/NotificationHistory";
 import { Subscribers } from "./components/Subscribers";
+import { DripCampaigns } from "./components/DripCampaigns";
 import { RiCheckboxCircleLine, RiCloseCircleLine, RiLockLine } from "@remixicon/react";
 
 export const AppDetails: React.FC = () => {
@@ -29,7 +30,7 @@ export const AppDetails: React.FC = () => {
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'subscribers' | 'push' | 'history'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'subscribers' | 'push' | 'drip' | 'history'>('overview');
   const [globalRetention, setGlobalRetention] = useState<number>(14);
   const { user } = useAppSelector((state) => state.auth);
 
@@ -347,6 +348,7 @@ const result = await vibe.notification({
           { id: 'overview', label: 'Overview' },
           { id: 'subscribers', label: 'Subscribers' },
           { id: 'push', label: 'Send Push' },
+          { id: 'drip', label: 'Drip Campaigns' },
           { id: 'history', label: 'History' }
         ].map((tab) => (
           <button
@@ -487,6 +489,12 @@ const result = await vibe.notification({
       {activeTab === 'push' && (
         <motion.div variants={fadeUpVariants}>
           <PushComposer appId={app.public_app_id} />
+        </motion.div>
+      )}
+
+      {activeTab === 'drip' && (
+        <motion.div variants={fadeUpVariants}>
+          <DripCampaigns appId={app.public_app_id} />
         </motion.div>
       )}
 

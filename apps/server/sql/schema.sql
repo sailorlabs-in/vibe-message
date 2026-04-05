@@ -54,6 +54,7 @@ CREATE TABLE device_tokens (
   app_id INTEGER REFERENCES apps(id) ON DELETE CASCADE,
   external_user_id VARCHAR(255) NOT NULL,
   subscription_json TEXT NOT NULL,
+  timezone VARCHAR(100) DEFAULT 'UTC',
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -65,6 +66,7 @@ CREATE TABLE notifications (
   app_id INTEGER REFERENCES apps(id) ON DELETE CASCADE,
   payload_json TEXT NOT NULL,
   is_silent BOOLEAN DEFAULT false,
+  scheduled_at_local_time TIME,
   created_by INTEGER REFERENCES users(id),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -97,6 +99,30 @@ CREATE INDEX idx_notifications_app_id ON notifications(app_id);
 CREATE INDEX idx_notification_logs_notification_id ON notification_logs(notification_id);
 CREATE INDEX idx_notification_logs_device_token_id ON notification_logs(device_token_id);
 CREATE INDEX idx_warnings_user_id ON warnings(user_id);
+
+-- Drip Campaigns
+CREATE TABLE drip_campaigns (
+  id SERIAL PRIMARY KEY,
+  app_id INTEGER REFERENCES apps(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Drip Steps
+CREATE TABLE drip_steps (
+  id SERIAL PRIMARY KEY,
+  campaign_id INTEGER REFERENCES drip_campaigns(id) ON DELETE CASCADE,
+  step_number INTEGER NOT NULL,
+  delay_days INTEGER NOT NULL DEFAULT 0,
+  notification_payload_json TEXT NOT NULL,
+  scheduled_at_local_time TIME,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_drip_campaigns_app_id ON drip_campaigns(app_id);
+CREATE INDEX idx_drip_steps_campaign_id ON drip_steps(campaign_id);
 
 -- Add unique constraint for device tokens to prevent duplicates
 CREATE UNIQUE INDEX idx_device_tokens_unique ON device_tokens(app_id, external_user_id, (md5(subscription_json)));

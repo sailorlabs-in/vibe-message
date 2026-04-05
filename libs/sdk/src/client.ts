@@ -231,6 +231,9 @@ export class NotificationClient {
       },
     };
 
+    // Record timezone
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+
     // Register device with backend
     const response = await fetch(`${this.baseUrl}/sdk/register-device`, {
       method: 'POST',
@@ -243,6 +246,7 @@ export class NotificationClient {
           publicKey: this.publicKey,
           externalUserId: options.externalUserId,
           subscription: subscriptionObject,
+          timezone,
         }, this.publicKey),
       }),
     });
