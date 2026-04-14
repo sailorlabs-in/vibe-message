@@ -366,7 +366,7 @@ const result = await vibe.notification({
             <div className="flex space-x-2">
               <input
                 value={app.public_app_id}
-                readOnly
+                disabled
                 className="input flex-1 font-mono text-sm bg-gray-50 dark:bg-theme-bg-secondary dark:text-theme-text-primary dark:border-theme-border"
               />
               <CopyButton text={app.public_app_id} />
@@ -379,7 +379,7 @@ const result = await vibe.notification({
             <div className="flex space-x-2">
               <input
                 value={app.public_key}
-                readOnly
+                disabled
                 className="input flex-1 font-mono text-sm bg-gray-50 dark:bg-theme-bg-secondary dark:text-theme-text-primary dark:border-theme-border"
               />
               <CopyButton text={app.public_key} />

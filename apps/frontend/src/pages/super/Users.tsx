@@ -176,7 +176,7 @@ export const Users: React.FC = () => {
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="card p-0 overflow-hidden min-h-[calc(100dvh-340px)]"
+        className="card-2 p-0 overflow-hidden min-h-[calc(100dvh-340px)]"
       >
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
@@ -204,7 +204,7 @@ export const Users: React.FC = () => {
                 users.map((user, idx) => (
                   <tr
                     key={user.id}
-                    className={`border-b border-theme-border/50 hover:bg-black/5 dark:hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "" : "bg-black/[0.02] dark:bg-white/[0.02]"}`}
+                    className={`border-b border-slate-200/50 dark:border-slate-500/50 hover:bg-black/5 dark:hover:bg-white/5 transition-colors ${idx % 2 === 0 ? "" : "bg-black/[0.02] dark:bg-white/[0.02]"}`}
                   >
                     {/* Name */}
                     <td className="py-4 px-5">

@@ -58,7 +58,7 @@ const FloatingInput = ({
       required={required}
       minLength={minLength}
       placeholder={label}
-      className={`w-full px-5 py-4 ${rightSlot ? "pr-12" : ""} bg-black/5 dark:bg-white/5 text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all placeholder-transparent peer disabled:opacity-60 disabled:cursor-not-allowed`}
+      className={`w-full px-5 py-4 ${rightSlot ? "pr-12" : ""} bg-white dark:bg-slate-800 text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all placeholder-transparent peer disabled:opacity-60 disabled:cursor-not-allowed`}
     />
     {/* Label — always floated when disabled (disabled inputs always show a value) */}
     <label
@@ -73,7 +73,7 @@ const FloatingInput = ({
       {label}
     </label>
     {rightSlot && (
-      <div className="absolute right-4 top-1/2 -translate-y-1/2">{rightSlot}</div>
+      <div className="absolute right-4 top-5">{rightSlot}</div>
     )}
   </div>
 );
@@ -95,7 +95,7 @@ const SectionCard = ({
     className={`rounded-3xl border p-8 backdrop-blur-2xl shadow-sm ${
       danger
         ? "bg-red-500/5 border-red-500/20"
-        : "bg-black/5 dark:bg-white/5 border-theme-border"
+        : "bg-white/20 dark:bg-white/5 border-theme-border"
     }`}
   >
     <div className="flex items-center gap-3 mb-6 pb-5 border-b border-theme-border/60">
@@ -388,7 +388,7 @@ const Profile: React.FC = () => {
 
               {/* Enable prompt */}
               {permissionStatus !== "granted" && (
-                <div className="bg-black/5 dark:bg-white/5 rounded-2xl p-5 border border-dashed border-theme-border flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-dashed border-theme-border flex flex-col sm:flex-row gap-4 items-center justify-between">
                   <p className="text-sm text-theme-text-primary">
                     {permissionStatus === "denied"
                       ? "Notifications are blocked in your browser. Manually allow them from the address bar."
