@@ -412,7 +412,7 @@ export const Landing: React.FC = () => {
                   <h3 className="text-2xl font-display font-bold text-theme-text-primary mb-3">
                     Telemetry Engine
                   </h3>
-                  <p className="text-base text-theme-text-secondary leading-relaxed max-w-sm">
+                  <p className="text-base text-theme-text-secondary leading-relaxed">
                     Granular, real-time analytics. Monitor delivery status,
                     manage device registries, and track notification health
                     instantly from the integrated Admin Dashboard.
@@ -441,7 +441,7 @@ export const Landing: React.FC = () => {
                   <h3 className="text-2xl font-display font-bold text-theme-text-primary mb-3">
                     Precision Targeting
                   </h3>
-                  <p className="text-base text-theme-text-secondary leading-relaxed max-w-sm">
+                  <p className="text-base text-theme-text-secondary leading-relaxed">
                     Send rich graphical notifications directly to user screens,
                     or dispatch data-only silent background pushes to sync local
                     app states seamlessly.
