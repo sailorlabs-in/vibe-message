@@ -77,7 +77,7 @@ export const Landing: React.FC = () => {
 
                 <Link
                   to="/docs"
-                  className="group px-8 py-4 bg-theme-bg-secondary border border-theme-border text-theme-text-primary rounded-xl font-bold text-lg transition-all hover:bg-theme-bg-muted w-full sm:w-auto flex items-center justify-center shadow-sm"
+                  className="z-10 group px-8 py-4 bg-theme-bg-secondary border border-theme-border text-theme-text-primary rounded-xl font-bold text-lg transition-all hover:bg-theme-bg-muted w-full sm:w-auto flex items-center justify-center shadow-sm"
                 >
                   <RiTerminalBoxLine
                     size={20}
@@ -112,40 +112,31 @@ export const Landing: React.FC = () => {
                       <span className="text-[#c678dd]">import</span> {"{"}{" "}
                       initServerClient {"}"}{" "}
                       <span className="text-[#c678dd]">from</span>{" "}
-                      <span className="text-[#98c379]">
-                        'vibe-message'
-                      </span>
+                      <span className="text-[#98c379]">'vibe-message'</span>
                       ;
                       <br />
                       <br />
                       <span className="text-[#c678dd]">const</span> vibe ={" "}
-                      <span className="text-[#61afef]">initServerClient</span>
-                      ({"{"}
+                      <span className="text-[#61afef]">initServerClient</span>(
+                      {"{"}
                       <br />
                       &nbsp;&nbsp;appId:{" "}
-                      <span className="text-[#98c379]">
-                        'your-app-id'
-                      </span>
+                      <span className="text-[#98c379]">'your-app-id'</span>
                       ,<br />
                       &nbsp;&nbsp;secretKey:{" "}
-                      <span className="text-[#98c379]">
-                        'your-secret-key'
-                      </span>
+                      <span className="text-[#98c379]">'your-secret-key'</span>
                       <br />
                       {"}"});
                       <br />
                       <br />
                       <span className="text-[#c678dd]">const</span> result ={" "}
-                      <span className="text-[#c678dd]">await</span>{" "}
-                      vibe.<span className="text-[#61afef]">notification</span>
-                      ({"{"}
+                      <span className="text-[#c678dd]">await</span> vibe.
+                      <span className="text-[#61afef]">notification</span>({"{"}
                       <br />
                       &nbsp;&nbsp;notificationData: {"{"}
                       <br />
                       &nbsp;&nbsp;&nbsp;&nbsp;title:{" "}
-                      <span className="text-[#98c379]">
-                        'New Content!'
-                      </span>
+                      <span className="text-[#98c379]">'New Content!'</span>
                       ,<br />
                       &nbsp;&nbsp;&nbsp;&nbsp;body:{" "}
                       <span className="text-[#98c379]">
@@ -164,9 +155,7 @@ export const Landing: React.FC = () => {
                       ,<br />
                       &nbsp;&nbsp;{"}"},<br />
                       &nbsp;&nbsp;externalUsers: [
-                      <span className="text-[#98c379]">
-                        'user-1'
-                      </span>
+                      <span className="text-[#98c379]">'user-1'</span>
                       ]
                       <br />
                       {"}"});
@@ -228,7 +217,7 @@ export const Landing: React.FC = () => {
         {/* Logo Cloud Section */}
         <section className="py-12 border-y border-theme-border bg-black/5 dark:bg-white/5 backdrop-blur-sm overflow-hidden">
           <div className="max-w-7xl mx-auto px-4 text-center">
-            <motion.p 
+            <motion.p
               className="text-sm font-medium text-theme-text-muted mb-8 uppercase tracking-widest"
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -236,27 +225,67 @@ export const Landing: React.FC = () => {
             >
               Built with the modern web stack
             </motion.p>
-            <motion.div 
+            <motion.div
               className="flex flex-wrap justify-center gap-10 opacity-70 hover:opacity-100 grayscale hover:grayscale-0 transition-opacity transition-filters duration-500"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-50px" }}
               variants={{
                 visible: {
-                  transition: { staggerChildren: 0.15 }
-                }
+                  transition: { staggerChildren: 0.15 },
+                },
               }}
             >
-              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="flex items-center space-x-2 text-xl font-bold font-display">
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { type: "spring", stiffness: 100 },
+                  },
+                }}
+                className="flex items-center space-x-2 text-xl font-bold font-display"
+              >
                 <RiTerminalBoxLine /> <span>Node.js</span>
               </motion.div>
-              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="flex items-center space-x-2 text-xl font-bold font-display">
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { type: "spring", stiffness: 100 },
+                  },
+                }}
+                className="flex items-center space-x-2 text-xl font-bold font-display"
+              >
                 <RiCodeLine /> <span>React</span>
               </motion.div>
-              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="flex items-center space-x-2 text-xl font-bold font-display">
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { type: "spring", stiffness: 100 },
+                  },
+                }}
+                className="flex items-center space-x-2 text-xl font-bold font-display"
+              >
                 <RiLockLine /> <span>PostgreSQL</span>
               </motion.div>
-              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="flex items-center space-x-2 text-xl font-bold font-display">
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { type: "spring", stiffness: 100 },
+                  },
+                }}
+                className="flex items-center space-x-2 text-xl font-bold font-display"
+              >
                 <RiGlobalLine /> <span>Service Workers</span>
               </motion.div>
             </motion.div>
