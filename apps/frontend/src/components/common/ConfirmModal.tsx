@@ -9,7 +9,7 @@ interface ConfirmModalProps {
   onConfirm: () => void;
   loading?: boolean;
   title: string;
-  description: string;
+  description: React.ReactNode;
   confirmLabel?: string;
   confirmingLabel?: string;
   icon?: React.ReactNode;
