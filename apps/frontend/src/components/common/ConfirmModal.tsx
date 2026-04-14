@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from "react";
 import ReactDOM from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
-import { RiAlertLine, RiDeleteBinLine } from "@remixicon/react";
+import { RiAlertLine } from "@remixicon/react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
