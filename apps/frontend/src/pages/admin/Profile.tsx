@@ -11,6 +11,7 @@ import {
 } from "../../store/slices/authSlice";
 import { unregisterAllSystemDevices } from "../../store/slices/adminSlice";
 import { systemService } from "../../services/systemService";
+import { ConfirmModal } from "../../components/common/ConfirmModal";
 import { motion, AnimatePresence } from "motion/react";
 import {
   RiEyeLine,
@@ -544,57 +545,21 @@ const Profile: React.FC = () => {
       </div>
 
       {/* ── System-Wide Unregister Confirmation Modal ── */}
-      <AnimatePresence>
-        {showSystemConfirmModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-              onClick={() => !loading && setShowSystemConfirmModal(false)}
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-theme-bg-primary rounded-3xl shadow-2xl border border-red-500/20 p-8 overflow-hidden"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center mb-5 mx-auto">
-                <RiAlertLine size={32} />
-              </div>
-              <h3 className="text-2xl font-display font-black text-center text-red-600 dark:text-red-400 mb-3 uppercase tracking-wide">
-                Critical Warning
-              </h3>
-              <p className="text-center text-theme-text-secondary mb-6 leading-relaxed">
-                Are you sure you want to unregister{" "}
-                <strong className="text-red-500">ALL DEVICES SYSTEM-WIDE?</strong>
-                <br />
-                <strong>Every user across every app</strong> will stop receiving notifications until they re-register!
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowSystemConfirmModal(false)}
-                  disabled={loading}
-                  className="btn-secondary flex-1"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    setShowSystemConfirmModal(false);
-                    handleUnregisterSystemWide();
-                  }}
-                  disabled={loading}
-                  className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
-                >
-                  <RiAlertLine size={18} /> Execute Purge
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      <ConfirmModal
+        isOpen={showSystemConfirmModal}
+        onClose={() => !loading && setShowSystemConfirmModal(false)}
+        onConfirm={() => {
+          setShowSystemConfirmModal(false);
+          handleUnregisterSystemWide();
+        }}
+        loading={loading}
+        title="Critical Warning"
+        description={<>Are you sure you want to unregister <strong className="text-red-500 font-bold tracking-wide">ALL DEVICES SYSTEM-WIDE?</strong><br/><br/>Every user across every app will stop receiving notifications until they re-register!</>}
+        confirmLabel="Execute Purge"
+        confirmingLabel="Purging..."
+        icon={<RiAlertLine size={28} />}
+        variant="danger"
+      />
     </motion.div>
   );
 };
