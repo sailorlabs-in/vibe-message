@@ -31,7 +31,7 @@ const AppContent: React.FC = () => {
     <BrowserRouter>
       <ScrollToTop />
       <AnimatedBackground />
-      <div className="min-h-screen transition-colors duration-300 pt-[120px] relative z-0">
+      <div className="min-h-screen transition-colors duration-300 pt-[100px] relative z-0">
         <Header />
         <Routes>
           {/* Public routes */}

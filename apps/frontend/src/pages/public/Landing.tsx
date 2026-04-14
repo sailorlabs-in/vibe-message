@@ -1,513 +1,835 @@
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
-import { RiArrowRightLine, RiFileTextLine, RiLockLine, RiCodeLine, RiBarChartBoxLine, RiNotificationLine, RiArrowUpLine, RiFlashlightLine } from "@remixicon/react";
-
+import {
+  RiArrowRightLine,
+  RiCodeLine,
+  RiBarChartBoxLine,
+  RiArrowUpLine,
+  RiFlashlightLine,
+  RiTerminalBoxLine,
+  RiLockLine,
+  RiSpeedUpLine,
+  RiShieldUserLine,
+  RiPlugLine,
+  RiSmartphoneLine,
+  RiGlobalLine,
+  RiCheckboxCircleLine,
+} from "@remixicon/react";
+import { useRef } from "react";
 
 export const Landing: React.FC = () => {
-  // Remove the old state-based visibility transition
-  // We'll use framer-motion instead
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="min-h-screen text-theme-text-primary selection:bg-theme-primary-500/30 font-sans overflow-x-hidden transition-colors duration-300">
-      {/* Background is now handled globally in App.tsx */}
+    <div className="min-h-screen text-theme-text-primary overflow-x-hidden font-sans mt-[-120px]">
+      {/* Background Effect */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-theme-primary-500 opacity-10 blur-[120px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-theme-accent-500 opacity-10 blur-[120px]"></div>
+        {/* Subtle grid background */}
+      </div>
 
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-        >
-          <div className="inline-flex items-center space-x-2 bg-theme-primary-500/10 border border-theme-primary-500/20 dark:border-theme-primary-500/5 rounded-full px-4 py-2 mb-8 backdrop-blur-sm cursor-default hover:bg-theme-primary-500/20 transition-all">
-            <span className="flex h-2 w-2 rounded-full bg-theme-primary-500 animate-pulse border border-theme-primary-400"></span>
-            <span className="text-sm font-medium text-theme-primary-600 dark:text-theme-primary-400">
-              Vibe Message Engine v1.0 is live
-            </span>
-          </div>
-
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-tight">
-            <span className="block text-theme-text-primary">Next-Gen Push</span>
-            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-theme-primary-600 dark:from-theme-primary-500 via-theme-accent-500 dark:via-theme-accent-400 to-theme-primary-600 dark:to-theme-primary-400">
-              Notifications Infrastructure.
-            </span>
-          </h1>
-
-          <p className="text-lg md:text-xl text-theme-text-secondary max-w-3xl mx-auto mb-12 leading-relaxed">
-            A powerful, enterprise-grade notification backend designed for
-            modern web applications. Deliver instant, reliable messages with
-            absolute precision and security.
-          </p>
-
-          <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
-            <Link
-              to="/signup"
-              className="group relative px-8 py-4 bg-theme-primary-600 text-white rounded-xl font-bold text-lg overflow-hidden transition-all hover:scale-105 hover:shadow-[0_0_40px_-10px_rgba(139,92,246,0.6)] w-full sm:w-auto"
+      <div className="relative z-10 w-full" ref={scrollRef}>
+        {/* Hero Section */}
+        <div className="relative min-h-[calc(100dvh-160px)] ">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+          <section className="pt-32 pb-20 lg:pt-44 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             >
-              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-in-out"></div>
-              <span className="relative flex items-center justify-center">
-                Start Building Free
-                <RiArrowRightLine size={20} className="ml-2 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </Link>
-
-            <Link
-              to="/docs"
-              className="group px-8 py-4 bg-theme-bg-muted border border-theme-border text-theme-text-primary rounded-xl font-bold text-lg backdrop-blur-md transition-all hover:bg-theme-border w-full sm:w-auto flex items-center justify-center"
-            >
-              <RiFileTextLine size={20} className="mr-2 text-theme-text-muted group-hover:text-theme-text-primary transition-colors" />
-              Explore Documentation
-            </Link>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* Dashboard Preview / Mockup Section */}
-      <section className="relative px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-32">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <div className="relative rounded-2xl overflow-hidden bg-theme-bg-secondary border border-theme-border shadow-2xl shadow-theme-primary-500/10 dark:shadow-theme-primary-500/5">
-            <div className="flex items-center px-4 py-3 bg-theme-bg-muted border-b border-theme-border">
-              <div className="flex space-x-2">
-                <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
-                <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
-                <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+              {/* Tag Badge */}
+              <div className="inline-flex items-center space-x-2 bg-theme-bg-secondary border border-theme-border rounded-full px-4 py-2 mb-8 shadow-sm hover:border-theme-primary-500 transition-colors">
+                <span className="text-sm font-medium text-theme-text-primary">
+                  Vibe Message Engine 1.0 is officially Live
+                </span>
               </div>
-              <div className="mx-auto bg-theme-bg-primary rounded-md px-4 py-1.5 text-xs text-theme-text-secondary font-mono flex items-center shadow-sm">
-                <RiLockLine size={12} className="mr-2" />
-                vibemessage.sailorlabs.in/api
+
+              <h1 className="text-5xl md:text-7xl font-display font-extrabold tracking-tight mb-8 leading-tight">
+                <span className="block text-theme-text-primary">
+                  Next-Gen Push
+                </span>
+                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-theme-primary-500 via-theme-accent-500 to-theme-primary-500 bg-[length:200%_auto] animate-gradient">
+                  Infrastructure.
+                </span>
+              </h1>
+
+              <p className="text-lg md:text-xl text-theme-text-secondary mb-10 leading-relaxed max-w-lg">
+                The enterprise-grade notification backend built for modern web
+                applications. Deliver instant, reliable messages globally with
+                absolute precision and unmatched security.
+              </p>
+
+              <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
+                <Link
+                  to="/signup"
+                  className="group bg-theme-primary-500 dark:bg-theme-primary-600 text-white hover:bg-theme-primary-600 relative px-8 py-4 rounded-xl font-bold text-lg overflow-hidden transition-all hover:scale-105 shadow-lg w-full sm:w-auto text-center hover:opacity-90"
+                >
+                  <span className="relative flex items-center justify-center">
+                    Start Building Free
+                    <RiArrowRightLine
+                      size={20}
+                      className="ml-2 group-hover:translate-x-1 transition-transform"
+                    />
+                  </span>
+                </Link>
+
+                <Link
+                  to="/docs"
+                  className="group px-8 py-4 bg-theme-bg-secondary border border-theme-border text-theme-text-primary rounded-xl font-bold text-lg transition-all hover:bg-theme-bg-muted w-full sm:w-auto flex items-center justify-center shadow-sm"
+                >
+                  <RiTerminalBoxLine
+                    size={20}
+                    className="mr-2 text-theme-text-muted group-hover:text-theme-text-primary transition-colors"
+                  />
+                  Explore Documention
+                </Link>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className="hidden lg:block relative"
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              {/* Developer IDE / Code Block */}
+              <div className="relative rounded-2xl overflow-hidden bg-[#0F172A] border border-theme-border shadow-2xl">
+                <div className="flex items-center px-4 py-3 bg-[#1E293B] border-b border-black/20">
+                  <div className="flex space-x-2">
+                    <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
+                    <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
+                    <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+                  </div>
+                  <div className="mx-auto bg-black/20 rounded px-3 py-1 text-xs text-slate-400 font-mono">
+                    api/broadcast.ts
+                  </div>
+                </div>
+                <div className="p-6 overflow-x-auto text-sm font-mono text-slate-300 leading-relaxed">
+                  <pre>
+                    <code>
+                      <span className="text-[#c678dd]">import</span> {"{"}{" "}
+                      initServerClient {"}"}{" "}
+                      <span className="text-[#c678dd]">from</span>{" "}
+                      <span className="text-[#98c379]">
+                        'vibe-message'
+                      </span>
+                      ;
+                      <br />
+                      <br />
+                      <span className="text-[#c678dd]">const</span> vibe ={" "}
+                      <span className="text-[#61afef]">initServerClient</span>
+                      ({"{"}
+                      <br />
+                      &nbsp;&nbsp;appId:{" "}
+                      <span className="text-[#98c379]">
+                        'your-app-id'
+                      </span>
+                      ,<br />
+                      &nbsp;&nbsp;secretKey:{" "}
+                      <span className="text-[#98c379]">
+                        'your-secret-key'
+                      </span>
+                      <br />
+                      {"}"});
+                      <br />
+                      <br />
+                      <span className="text-[#c678dd]">const</span> result ={" "}
+                      <span className="text-[#c678dd]">await</span>{" "}
+                      vibe.<span className="text-[#61afef]">notification</span>
+                      ({"{"}
+                      <br />
+                      &nbsp;&nbsp;notificationData: {"{"}
+                      <br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;title:{" "}
+                      <span className="text-[#98c379]">
+                        'New Content!'
+                      </span>
+                      ,<br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;body:{" "}
+                      <span className="text-[#98c379]">
+                        'Someone liked your post.'
+                      </span>
+                      ,<br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;icon:{" "}
+                      <span className="text-[#98c379]">
+                        'https://yoursite.com/icon.png'
+                      </span>
+                      ,<br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;click_action:{" "}
+                      <span className="text-[#98c379]">
+                        'https://yoursite.com/dashboard'
+                      </span>
+                      ,<br />
+                      &nbsp;&nbsp;{"}"},<br />
+                      &nbsp;&nbsp;externalUsers: [
+                      <span className="text-[#98c379]">
+                        'user-1'
+                      </span>
+                      ]
+                      <br />
+                      {"}"});
+                    </code>
+                  </pre>
+                </div>
+              </div>
+
+              {/* Floating Elements Collection */}
+              <motion.div
+                className="absolute -bottom-6 -left-10 bg-theme-bg-secondary border border-theme-border rounded-xl p-4 shadow-xl flex items-center space-x-4 backdrop-blur-xl"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.8 }}
+              >
+                <div className="w-10 h-10 border border-theme-border rounded-full relative flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-0 bg-theme-success opacity-10"></div>
+                  <RiArrowUpLine
+                    size={20}
+                    className="text-theme-success z-10"
+                  />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-theme-text-primary">
+                    99.99%
+                  </div>
+                  <div className="text-xs text-theme-text-muted">
+                    Delivery Rate
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="absolute -top-8 -right-8 bg-theme-bg-secondary border border-theme-border rounded-xl p-4 shadow-xl flex items-center space-x-4 backdrop-blur-xl"
+                initial={{ x: 20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 1 }}
+              >
+                <div className="w-10 h-10 border border-theme-border rounded-full relative flex items-center justify-center overflow-hidden">
+                  <div className="absolute inset-0 bg-theme-primary-500 opacity-10"></div>
+                  <RiCodeLine
+                    size={20}
+                    className="text-theme-primary-500 z-10"
+                  />
+                </div>
+                <div>
+                  <div className="text-sm font-bold text-theme-text-primary">
+                    &lt; 5 mins
+                  </div>
+                  <div className="text-xs text-theme-text-muted">
+                    Integration Time
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          </section>
+        </div>
+
+        {/* Logo Cloud Section */}
+        <section className="py-12 border-y border-theme-border bg-black/5 dark:bg-white/5 backdrop-blur-sm overflow-hidden">
+          <div className="max-w-7xl mx-auto px-4 text-center">
+            <motion.p 
+              className="text-sm font-medium text-theme-text-muted mb-8 uppercase tracking-widest"
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              Built with the modern web stack
+            </motion.p>
+            <motion.div 
+              className="flex flex-wrap justify-center gap-10 opacity-70 hover:opacity-100 grayscale hover:grayscale-0 transition-opacity transition-filters duration-500"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-50px" }}
+              variants={{
+                visible: {
+                  transition: { staggerChildren: 0.15 }
+                }
+              }}
+            >
+              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="flex items-center space-x-2 text-xl font-bold font-display">
+                <RiTerminalBoxLine /> <span>Node.js</span>
+              </motion.div>
+              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="flex items-center space-x-2 text-xl font-bold font-display">
+                <RiCodeLine /> <span>React</span>
+              </motion.div>
+              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="flex items-center space-x-2 text-xl font-bold font-display">
+                <RiLockLine /> <span>PostgreSQL</span>
+              </motion.div>
+              <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 100 } } }} className="flex items-center space-x-2 text-xl font-bold font-display">
+                <RiGlobalLine /> <span>Service Workers</span>
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Bento Grid Showcase */}
+        <section className="py-24 relative" id="features">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              className="mb-16 max-w-3xl"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-sm font-bold tracking-widest text-theme-primary-500 uppercase mb-3">
+                Enterprise Infrastructure
+              </h2>
+              <h3 className="text-4xl md:text-5xl font-display font-bold mb-6 text-theme-text-primary">
+                Everything you need to scale globally.
+              </h3>
+              <p className="text-xl text-theme-text-secondary leading-relaxed">
+                We handle the complex infrastructure of push notifications—from
+                token management, vendor routing, to payload encryption—so you
+                can focus entirely on building your product.
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 auto-rows-[240px]">
+              {/* Card 1 - Large Feature */}
+              <motion.div
+                className="col-span-1 md:col-span-2 lg:col-span-2 row-span-2 relative rounded-3xl bg-theme-bg-secondary border border-theme-border p-8 overflow-hidden group hover:border-[#A78BFA] transition-colors duration-300 shadow-sm hover:shadow-md"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
+              >
+                <div className="absolute -top-10 -right-10 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <RiFlashlightLine size={200} />
+                </div>
+                <div className="relative h-full flex flex-col justify-end z-10">
+                  <div className="w-14 h-14 relative rounded-2xl flex items-center justify-center mb-6">
+                    <div className="absolute inset-0 bg-theme-primary-500 opacity-10 rounded-2xl"></div>
+                    <RiFlashlightLine
+                      size={28}
+                      className="text-theme-primary-500 z-10"
+                    />
+                  </div>
+                  <h3 className="text-3xl font-display font-bold text-theme-text-primary mb-3">
+                    Hyper-Scale Core
+                  </h3>
+                  <p className="text-theme-text-secondary text-lg leading-relaxed">
+                    Built natively on heavily optimized PostgreSQL and event
+                    queues. Capable of processing hundreds of thousands of
+                    concurrent notification dispatch requests without breaking a
+                    sweat. Guaranteed delivery integrity.
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Card 2 - Stats / Realtime */}
+              <motion.div
+                className="col-span-1 md:col-span-1 lg:col-span-2 relative rounded-3xl bg-theme-bg-secondary border border-theme-border p-8 flex flex-col justify-center overflow-hidden group hover:border-[#10B981] transition-colors duration-300 shadow-sm hover:shadow-md"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+              >
+                <div className="flex items-end space-x-4 mb-3">
+                  <span className="text-6xl font-display font-bold text-theme-text-primary group-hover:text-theme-accent-500 transition-colors">
+                    42
+                  </span>
+                  <span className="text-xl text-theme-text-muted pb-1 font-mono">
+                    ms
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-theme-text-primary mb-2">
+                  Lightning Fast Latency
+                </h3>
+                <p className="text-sm text-theme-text-secondary">
+                  From API network receipt to physical device wake up protocol.
+                </p>
+              </motion.div>
+
+              {/* Card 3 - Small Feature Security */}
+              <motion.div
+                className="col-span-1 rounded-3xl bg-theme-bg-secondary border border-theme-border p-6 flex flex-col hover:border-[#A78BFA] transition-colors duration-300 shadow-sm hover:shadow-md"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
+              >
+                <div className="w-10 h-10 relative flex items-center justify-center mb-auto rounded-lg">
+                  <div className="absolute inset-0 bg-theme-primary-500 opacity-10 rounded-lg"></div>
+                  <RiShieldUserLine
+                    size={24}
+                    className="text-theme-primary-500 z-10"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-bold text-theme-text-primary mb-1 text-lg">
+                    Multi-Tenant Vault
+                  </h3>
+                  <p className="text-sm text-theme-text-secondary">
+                    Strict data isolation with app-scoped environment keys.
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Card 4 - Small Feature SDK */}
+              <motion.div
+                className="col-span-1 rounded-3xl bg-theme-bg-secondary border border-theme-border p-6 flex flex-col hover:border-[#A78BFA] transition-colors duration-300 shadow-sm hover:shadow-md"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
+              >
+                <div className="w-10 h-10 relative flex items-center justify-center mb-auto rounded-lg">
+                  <div className="absolute inset-0 bg-theme-primary-500 opacity-10 rounded-lg"></div>
+                  <RiPlugLine
+                    size={24}
+                    className="text-theme-primary-500 z-10"
+                  />
+                </div>
+                <div>
+                  <h3 className="font-bold text-theme-text-primary mb-1 text-lg">
+                    Frictionless SDK
+                  </h3>
+                  <p className="text-sm text-theme-text-secondary">
+                    Pre-built clients handling tokens and service workers.
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Card 5 - Medium Feature Analytics */}
+              <motion.div
+                className="col-span-1 md:col-span-2 lg:col-span-2 relative rounded-3xl bg-theme-bg-secondary border border-theme-border p-8 flex flex-col justify-end group hover:border-[#A78BFA] transition-colors duration-300 overflow-hidden shadow-sm hover:shadow-md"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
+              >
+                <div className="mb-auto">
+                  <div className="w-12 h-12 relative flex items-center justify-center rounded-xl">
+                    <div className="absolute inset-0 bg-theme-primary-500 opacity-10 rounded-xl"></div>
+                    <RiBarChartBoxLine
+                      size={24}
+                      className="text-theme-primary-500 z-10"
+                    />
+                  </div>
+                </div>
+                <div className="mt-2 relative z-10">
+                  <h3 className="text-2xl font-display font-bold text-theme-text-primary mb-3">
+                    Telemetry Engine
+                  </h3>
+                  <p className="text-base text-theme-text-secondary leading-relaxed max-w-sm">
+                    Granular, real-time analytics. Monitor delivery status,
+                    manage device registries, and track notification health
+                    instantly from the integrated Admin Dashboard.
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Card 6 - Medium Feature Audience */}
+              <motion.div
+                className="col-span-1 md:col-span-1 lg:col-span-2 relative rounded-3xl bg-theme-bg-secondary border border-theme-border p-8 flex flex-col justify-end group hover:border-[#10B981] transition-colors duration-300 overflow-hidden shadow-sm hover:shadow-md"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6 }}
+              >
+                <div className="mb-auto flex space-x-4">
+                  <div className="w-12 h-12 relative flex items-center justify-center rounded-xl">
+                    <div className="absolute inset-0 bg-theme-accent-500 opacity-10 rounded-xl"></div>
+                    <RiSmartphoneLine
+                      size={24}
+                      className="text-theme-accent-500 z-10"
+                    />
+                  </div>
+                </div>
+                <div className="mt-2 relative z-10">
+                  <h3 className="text-2xl font-display font-bold text-theme-text-primary mb-3">
+                    Precision Targeting
+                  </h3>
+                  <p className="text-base text-theme-text-secondary leading-relaxed max-w-sm">
+                    Send rich graphical notifications directly to user screens,
+                    or dispatch data-only silent background pushes to sync local
+                    app states seamlessly.
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Workflow / How it Works Section */}
+        <section className="py-24 bg-black/5 dark:bg-white/5 relative border-t border-theme-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              className="text-center max-w-3xl mx-auto mb-20"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-3xl md:text-5xl font-display font-bold mb-6 text-theme-text-primary">
+                From zero to shipped in{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-theme-primary-500 to-theme-accent-500">
+                  minutes.
+                </span>
+              </h2>
+              <p className="text-xl text-theme-text-secondary">
+                We've abstracted the ridiculous complexities of VAPID keys and
+                browser compatibility into four beautifully simple steps.
+              </p>
+            </motion.div>
+
+            <div className="relative">
+              {/* Connecting Line */}
+              <div className="hidden md:block absolute top-1/2 left-0 w-full h-px bg-theme-border -translate-y-1/2 z-0"></div>
+
+              <div className="grid md:grid-cols-4 gap-8 relative z-10">
+                {/* Step 1 */}
+                <motion.div
+                  className="bg-theme-bg-secondary border border-theme-border rounded-2xl p-6 shadow-sm relative"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <div className="w-12 h-12 bg-theme-bg-primary border border-theme-border rounded-full flex items-center justify-center font-bold text-theme-primary-500 text-xl font-display mb-6 shadow-sm mx-auto md:mx-0">
+                    1
+                  </div>
+                  <h3 className="text-xl font-bold text-theme-text-primary mb-3 text-center md:text-left">
+                    Initialize Vault
+                  </h3>
+                  <p className="text-theme-text-secondary text-sm leading-relaxed text-center md:text-left">
+                    Register an account on the secure platform. Generating your
+                    distinct App ID and isolated database tenant automatically.
+                  </p>
+                </motion.div>
+
+                {/* Step 2 */}
+                <motion.div
+                  className="bg-theme-bg-secondary border border-theme-border rounded-2xl p-6 shadow-sm relative"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <div className="w-12 h-12 bg-theme-bg-primary border border-theme-border rounded-full flex items-center justify-center font-bold text-theme-primary-500 text-xl font-display mb-6 shadow-sm mx-auto md:mx-0">
+                    2
+                  </div>
+                  <h3 className="text-xl font-bold text-theme-text-primary mb-3 text-center md:text-left">
+                    Generate Keys
+                  </h3>
+                  <p className="text-theme-text-secondary text-sm leading-relaxed text-center md:text-left">
+                    Provision strictly encrypted VAPID key pairs and API Secret
+                    keys needed to authenticate API payloads.
+                  </p>
+                </motion.div>
+
+                {/* Step 3 */}
+                <motion.div
+                  className="bg-theme-bg-secondary border border-theme-border rounded-2xl p-6 shadow-sm relative"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <div className="w-12 h-12 bg-theme-bg-primary border border-theme-border rounded-full flex items-center justify-center font-bold text-theme-primary-500 text-xl font-display mb-6 shadow-sm mx-auto md:mx-0">
+                    3
+                  </div>
+                  <h3 className="text-xl font-bold text-theme-text-primary mb-3 text-center md:text-left">
+                    Embed JS SDK
+                  </h3>
+                  <p className="text-theme-text-secondary text-sm leading-relaxed text-center md:text-left">
+                    Drop the frontend client wrapper into your React or Vue app.
+                    We automatically handle service worker initialization and
+                    browser dialogues.
+                  </p>
+                </motion.div>
+
+                {/* Step 4 */}
+                <motion.div
+                  className="bg-theme-bg-secondary border border-theme-border rounded-2xl p-6 shadow-sm relative"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <div className="w-12 h-12 bg-theme-bg-primary border border-theme-border rounded-full flex items-center justify-center font-bold text-theme-primary-500 text-xl font-display mb-6 shadow-sm mx-auto md:mx-0">
+                    4
+                  </div>
+                  <h3 className="text-xl font-bold text-theme-text-primary mb-3 text-center md:text-left">
+                    Trigger API
+                  </h3>
+                  <p className="text-theme-text-secondary text-sm leading-relaxed text-center md:text-left">
+                    Invoke our Node.js REST API directly from your backend
+                    routines. The engine routes and guarantees delivery globally
+                    in milliseconds.
+                  </p>
+                </motion.div>
               </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 lg:p-10 bg-theme-bg-primary">
-              <div className="col-span-1 border border-theme-border bg-theme-bg-secondary rounded-xl p-6 shadow-sm">
-                <div className="text-theme-text-muted text-sm font-medium mb-1">
-                  Total Sent
-                </div>
-                <div className="text-4xl font-bold text-theme-text-primary mb-4">
-                  124.5K
-                </div>
-                <div className="h-2 bg-theme-bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-theme-primary-500 w-3/4"></div>
-                </div>
-                <div className="mt-2 text-xs text-theme-primary-600 dark:text-theme-primary-400 font-medium">
-                  +12.5% this week
-                </div>
-              </div>
-              <div className="col-span-1 border border-theme-border bg-theme-bg-secondary rounded-xl p-6 shadow-sm">
-                <div className="text-theme-text-muted text-sm font-medium mb-1">
-                  Delivery Rate
-                </div>
-                <div className="text-4xl font-bold text-theme-text-primary mb-4">
-                  99.8%
-                </div>
-                <div className="h-2 bg-theme-bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-theme-success w-[99%]"></div>
-                </div>
-                <div className="mt-2 text-xs text-theme-success font-medium">
-                  Industry leading
-                </div>
-              </div>
-              <div className="col-span-1 border border-theme-border bg-theme-bg-secondary rounded-xl p-6 shadow-sm">
-                <div className="text-theme-text-muted text-sm font-medium mb-1">
-                  Avg Latency
-                </div>
-                <div className="text-4xl font-bold text-theme-text-primary mb-4">
-                  42ms
-                </div>
-                <div className="h-2 bg-theme-bg-muted rounded-full overflow-hidden">
-                  <div className="h-full bg-theme-accent-500 w-1/4"></div>
-                </div>
-                <div className="mt-2 text-xs text-theme-accent-500 font-medium">
-                  Lightning fast
-                </div>
-              </div>
-            </div>
-
-            <div className="absolute inset-0 bg-gradient-to-t from-theme-bg-primary via-transparent to-transparent pointer-events-none opacity-50 dark:opacity-100"></div>
           </div>
-        </motion.div>
-      </section>
+        </section>
 
-      {/* Features Grid */}
-      <section className="py-24 relative overflow-hidden bg-theme-bg-secondary border-t border-theme-border">
-        <div className="absolute top-0 w-full h-px bg-gradient-to-r from-transparent via-theme-border to-transparent"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Use Cases Section */}
+        <section className="py-24 border-t border-theme-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col lg:flex-row items-center gap-16">
+              <motion.div
+                className="w-full lg:w-1/2"
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+              >
+                <div className="relative p-8 rounded-3xl bg-theme-bg-secondary border border-theme-border shadow-xl">
+                  {/* Decorative Mockup */}
+                  <div className="w-full bg-theme-bg-primary rounded-xl border border-theme-border overflow-hidden shadow-inner">
+                    <div className="border-b border-theme-border p-3 flex items-center bg-black/5 dark:bg-white/5">
+                      <RiSpeedUpLine
+                        size={18}
+                        className="text-theme-text-muted mr-2"
+                      />
+                      <span className="text-xs font-mono text-theme-text-muted">
+                        Broadcast Traffic Monitor
+                      </span>
+                    </div>
+                    <div className="p-4 space-y-3">
+                      <div className="flex items-center justify-between p-3 rounded bg-theme-bg-secondary border border-theme-border">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 rounded-full bg-theme-primary-500/10 flex items-center justify-center mr-3">
+                            <RiCheckboxCircleLine
+                              size={16}
+                              className="text-theme-primary-500"
+                            />
+                          </div>
+                          <div className="text-sm font-medium">
+                            Order Dispatched
+                          </div>
+                        </div>
+                        <div className="text-xs text-theme-text-muted">
+                          Just now
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded bg-theme-bg-secondary border border-theme-border">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 rounded-full bg-theme-accent-500/10 flex items-center justify-center mr-3">
+                            <RiCheckboxCircleLine
+                              size={16}
+                              className="text-theme-accent-500"
+                            />
+                          </div>
+                          <div className="text-sm font-medium">
+                            System Alert
+                          </div>
+                        </div>
+                        <div className="text-xs text-theme-text-muted">
+                          12s ago
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded bg-theme-bg-secondary border border-theme-border opacity-50">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 rounded-full bg-theme-primary-500/10 flex items-center justify-center mr-3">
+                            <RiCheckboxCircleLine
+                              size={16}
+                              className="text-theme-text-muted"
+                            />
+                          </div>
+                          <div className="text-sm font-medium">User Login</div>
+                        </div>
+                        <div className="text-xs text-theme-text-muted">
+                          1m ago
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="w-full lg:w-1/2"
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+              >
+                <h2 className="text-3xl md:text-5xl font-display font-bold mb-6 text-theme-text-primary">
+                  Versatile delivery for any product logic.
+                </h2>
+                <div className="space-y-6 mt-10">
+                  <div className="flex items-start">
+                    <div className="w-10 h-10 mt-1 rounded-full bg-theme-bg-secondary border border-theme-border flex items-center justify-center flex-shrink-0 mr-4">
+                      <div className="w-2 h-2 rounded-full bg-theme-primary-500"></div>
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold text-theme-text-primary mb-2">
+                        Transactional Alerts
+                      </h4>
+                      <p className="text-theme-text-secondary leading-relaxed">
+                        Instantly reach mobile and desktop devices with critical
+                        updates like payment receipts, shipping statuses, or
+                        two-factor authentication prompts.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start">
+                    <div className="w-10 h-10 mt-1 rounded-full bg-theme-bg-secondary border border-theme-border flex items-center justify-center flex-shrink-0 mr-4">
+                      <div className="w-2 h-2 rounded-full bg-theme-accent-500"></div>
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold text-theme-text-primary mb-2">
+                        Silent Background Sync
+                      </h4>
+                      <p className="text-theme-text-secondary leading-relaxed">
+                        Deliver invisible data payloads that trigger your
+                        front-end application to silently re-fetch API data or
+                        update local state without notifying the user.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start">
+                    <div className="w-10 h-10 mt-1 rounded-full bg-theme-bg-secondary border border-theme-border flex items-center justify-center flex-shrink-0 mr-4">
+                      <div className="w-2 h-2 rounded-full bg-theme-primary-500"></div>
+                    </div>
+                    <div>
+                      <h4 className="text-xl font-bold text-theme-text-primary mb-2">
+                        Marketing Broadcasts
+                      </h4>
+                      <p className="text-theme-text-secondary leading-relaxed">
+                        Target custom groups and segments with feature releases,
+                        promotional campaigns, and rich media announcements with
+                        actionable tap links.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="relative py-32 overflow-hidden border-t border-theme-border bg-black/5 dark:bg-white/5">
           <motion.div
-            className="text-center max-w-3xl mx-auto mb-20"
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-sm font-bold tracking-widest text-theme-primary-600 dark:text-theme-primary-400 uppercase mb-3">
-              Enterprise Grade
+            <h2 className="text-4xl md:text-5xl font-display font-bold mb-6 text-theme-text-primary">
+              Ready to ship faster?
             </h2>
-            <h3 className="text-3xl md:text-5xl font-bold mb-6 text-theme-text-primary">
-              Everything you need to deliver.
-            </h3>
-            <p className="text-theme-text-secondary text-lg">
-              We've handled the complex infrastructure so you can focus on
-              building your application's core product.
+            <p className="text-xl text-theme-text-secondary mb-10 max-w-2xl mx-auto">
+              Join development teams building the next generation of highly
+              interactive, real-time web applications.
             </p>
+            <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
+              <Link
+                to="/signup"
+                className="px-8 py-4 bg-theme-primary-500 dark:bg-theme-primary-600 text-white hover:bg-theme-primary-600 text-white rounded-xl font-bold text-lg hover:opacity-90 transition-opacity w-full sm:w-auto shadow-lg flex items-center justify-center"
+              >
+                Create Hub Account
+                <RiArrowRightLine size={18} className="ml-2" />
+              </Link>
+              <Link
+                to="/docs"
+                className="px-8 py-4 border border-theme-border bg-theme-bg-primary text-theme-text-primary rounded-xl font-bold text-lg hover:bg-theme-bg-muted transition-colors w-full sm:w-auto"
+              >
+                Read Specification
+              </Link>
+            </div>
           </motion.div>
+        </section>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <motion.div
-              className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <div className="w-14 h-14 bg-theme-primary-100 rounded-xl flex items-center justify-center mb-6 text-theme-primary-600 dark:text-theme-primary-400 group-hover:scale-110 transition-transform">
-                <RiCodeLine size={28} />
-              </div>
-              <h4 className="text-xl font-bold text-theme-text-primary mb-3">
-                Frictionless SDK
-              </h4>
-              <p className="text-theme-text-secondary leading-relaxed">
-                Plug-and-play JavaScript SDK alongside a robust REST API. From
-                zero to your first push notification in under 5 minutes.
-              </p>
-            </motion.div>
-
-            {/* Feature 2 */}
-            <motion.div
-              className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <div className="w-14 h-14 bg-theme-primary-100 rounded-xl flex items-center justify-center mb-6 text-theme-primary-600 dark:text-theme-primary-400 group-hover:scale-110 transition-transform">
-                <RiLockLine size={28} />
-              </div>
-              <h4 className="text-xl font-bold text-theme-text-primary mb-3">
-                Multi-Tenant Vault
-              </h4>
-              <p className="text-theme-text-secondary leading-relaxed">
-                App-scoped environments with rotating secret keys. Backed by a
-                strict super-admin approval workflow to guarantee absolute
-                security.
-              </p>
-            </motion.div>
-
-            {/* Feature 3 */}
-            <motion.div
-              className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <div className="w-14 h-14 bg-theme-accent-100 rounded-xl flex items-center justify-center mb-6 text-theme-accent-500 dark:text-theme-accent-400 group-hover:scale-110 transition-transform">
-                <RiBarChartBoxLine size={28} />
-              </div>
-              <h4 className="text-xl font-bold text-theme-text-primary mb-3">
-                Telemetry Engine
-              </h4>
-              <p className="text-theme-text-secondary leading-relaxed">
-                Granular, real-time analytics. Monitor delivery status, manage
-                device registries, and track notification health instantly.
-              </p>
-            </motion.div>
-
-            {/* Feature 4 */}
-            <motion.div
-              className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <div className="w-14 h-14 bg-theme-primary-100 rounded-xl flex items-center justify-center mb-6 text-theme-primary-600 dark:text-theme-primary-400 group-hover:scale-110 transition-transform">
-                <RiNotificationLine size={28} />
-              </div>
-              <h4 className="text-xl font-bold text-theme-text-primary mb-3">
-                Silent Payloads
-              </h4>
-              <p className="text-theme-text-secondary leading-relaxed">
-                Send rich graphical notifications to engage users, or dispatch
-                data-only silent pushes to sync application state in the
-                background.
-              </p>
-            </motion.div>
-
-            {/* Feature 5 */}
-            <motion.div
-              className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-            >
-              <div className="w-14 h-14 bg-theme-accent-100 rounded-xl flex items-center justify-center mb-6 text-theme-accent-500 dark:text-theme-accent-400 group-hover:scale-110 transition-transform">
-                <RiArrowUpLine size={28} />
-              </div>
-              <h4 className="text-xl font-bold text-theme-text-primary mb-3">
-                Precision Targeting
-              </h4>
-              <p className="text-theme-text-secondary leading-relaxed">
-                Hyper-specific routing. Broadcast globally to millions, or
-                target individual devices and custom user-groups seamlessly.
-              </p>
-            </motion.div>
-
-            {/* Feature 6 */}
-            <motion.div
-              className="group bg-theme-bg-primary border border-theme-border rounded-2xl p-8 hover:bg-theme-bg-secondary hover:border-theme-primary-500/50 hover:shadow-lg transition-all duration-300"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-            >
-              <div className="w-14 h-14 bg-theme-primary-100 rounded-xl flex items-center justify-center mb-6 text-theme-primary-600 dark:text-theme-primary-400 group-hover:scale-110 transition-transform">
-                <RiFlashlightLine size={28} />
-              </div>
-              <h4 className="text-xl font-bold text-theme-text-primary mb-3">
-                Hyper-Scale Core
-              </h4>
-              <p className="text-theme-text-secondary leading-relaxed">
-                Architected on Node.js and heavily optimized PostgreSQL. Built
-                specifically to handle immense throughput without bottlenecking.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Workflow Steps */}
-      <section className="py-24 bg-theme-bg-primary relative border-t border-theme-border overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <h2 className="text-3xl md:text-4xl font-bold mb-8 text-theme-text-primary">
-                From setup to deployment in{" "}
-                <span className="text-theme-primary-500 dark:text-theme-primary-400">
-                  four steps.
-                </span>
-              </h2>
-
-              <div className="space-y-8">
-                <div className="flex">
-                  <div className="flex flex-col items-center mr-6 flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-theme-primary-600 flex items-center justify-center font-bold text-white shadow-lg shadow-theme-primary-500/30 z-10">
-                      1
-                    </div>
-                    <div className="w-px h-full bg-theme-border my-2"></div>
+        {/* Advanced Footer */}
+        <footer className="bg-theme-bg-primary pt-16 pb-8 border-t border-theme-border">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
+              <div className="col-span-2 lg:col-span-2">
+                <div className="flex items-center space-x-2 mb-6 text-lg font-display font-bold">
+                  <div className="w-6 h-6 bg-theme-primary-500 rounded flex items-center justify-center">
+                    <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
                   </div>
-                  <div className="pb-8">
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-2">
-                      Initialize Account
-                    </h3>
-                    <p className="text-theme-text-secondary">
-                      Register on the platform. Enterprise access is manually
-                      verified by super-admins to ensure network integrity.
-                    </p>
-                  </div>
+                  <span>Vibe Message</span>
                 </div>
-
-                <div className="flex">
-                  <div className="flex flex-col items-center mr-6 flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-theme-primary-600 flex items-center justify-center font-bold text-white shadow-lg shadow-theme-primary-500/30 z-10">
-                      2
-                    </div>
-                    <div className="w-px h-full bg-theme-border my-2"></div>
-                  </div>
-                  <div className="pb-8">
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-2">
-                      Generate Credentials
-                    </h3>
-                    <p className="text-theme-text-secondary">
-                      Create your App instance to provision securely encrypted
-                      App IDs and API Secret Keys.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex">
-                  <div className="flex flex-col items-center mr-6 flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-theme-primary-600 flex items-center justify-center font-bold text-white shadow-lg shadow-theme-primary-500/30 z-10">
-                      3
-                    </div>
-                    <div className="w-px h-full bg-theme-border my-2"></div>
-                  </div>
-                  <div className="pb-8">
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-2">
-                      Install Client SDK
-                    </h3>
-                    <p className="text-theme-text-secondary">
-                      Drop the JS SDK into your frontend code. We handle service
-                      workers and token registration automatically.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex">
-                  <div className="flex flex-col items-center mr-6 flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-theme-primary-600 flex items-center justify-center font-bold text-white shadow-lg shadow-theme-primary-500/30 z-10">
-                      4
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-xl font-bold text-theme-text-primary mb-2">
-                      Trigger Payloads
-                    </h3>
-                    <p className="text-theme-text-secondary">
-                      Invoke the REST API from your backend servers to instantly
-                      route push notifications globally.
-                    </p>
-                  </div>
+                <p className="text-theme-text-secondary mb-6 max-w-xs leading-relaxed">
+                  Enterprise push notification engine architected to empower
+                  developers building realtime network applications.
+                </p>
+                <div className="flex space-x-4">
+                  <a
+                    href="mailto:service@sailorlabs.in"
+                    className="text-theme-text-muted hover:text-theme-text-primary transition-colors text-sm font-medium"
+                  >
+                    Contact Support
+                  </a>
                 </div>
               </div>
-            </motion.div>
 
-            <motion.div
-              className="relative"
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-            >
-              <div className="absolute -inset-4 bg-gradient-to-r from-theme-primary-500 to-theme-accent-500 rounded-2xl blur-lg opacity-20"></div>
-              <div className="relative bg-theme-bg-secondary border border-theme-border rounded-xl p-6 shadow-2xl">
-                <div className="flex items-center space-x-2 mb-4 b-border-white/10 pb-4 border-b border-theme-border">
-                  <div className="text-theme-text-muted font-mono text-sm">
-                    bash
-                  </div>
-                </div>
-                <pre className="font-mono text-sm overflow-x-auto text-theme-text-secondary">
-                  <code>
-                    <span className="text-theme-accent-500 opacity-90">
-                      POST
-                    </span>{" "}
-                    <span className="text-theme-success dark:text-theme-success">
-                      /api/v1/messages/send
-                    </span>
-                    <br />
-                    <br />
-                    <span className="text-theme-text-primary">Headers:</span>
-                    <br />
-                    Authorization: Bearer sk_live_...
-                    <br />
-                    <br />
-                    <span className="text-theme-text-primary">Body:</span>
-                    <br />
-                    {"{"}
-                    <br />
-                    &nbsp;&nbsp;
-                    <span className="text-theme-primary-500">
-                      "target"
-                    </span>:{" "}
-                    <span className="text-theme-warning opacity-90">
-                      "usr_12345"
-                    </span>
-                    ,<br />
-                    &nbsp;&nbsp;
-                    <span className="text-theme-primary-500">
-                      "notification"
-                    </span>
-                    : {"{"}
-                    <br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <span className="text-theme-primary-500">
-                      "title"
-                    </span>:{" "}
-                    <span className="text-theme-warning opacity-90">
-                      "Payment Received"
-                    </span>
-                    ,<br />
-                    &nbsp;&nbsp;&nbsp;&nbsp;
-                    <span className="text-theme-primary-500">"body"</span>:{" "}
-                    <span className="text-theme-warning opacity-90">
-                      "You have received $500.00"
-                    </span>
-                    <br />
-                    &nbsp;&nbsp;{"}"}
-                    <br />
-                    {"}"}
-                  </code>
-                </pre>
+              <div>
+                <h4 className="font-bold text-theme-text-primary mb-4">
+                  Product
+                </h4>
+                <ul className="space-y-3 text-sm text-theme-text-secondary">
+                  <li>
+                    <Link
+                      to="/login"
+                      className="hover:text-theme-primary-500 transition-colors"
+                    >
+                      Dashboard Login
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/signup"
+                      className="hover:text-theme-primary-500 transition-colors"
+                    >
+                      Create Account
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/docs"
+                      className="hover:text-theme-primary-500 transition-colors"
+                    >
+                      Documentation
+                    </Link>
+                  </li>
+                </ul>
               </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
 
-      {/* CTA Section */}
-      <section className="relative py-24 overflow-hidden bg-theme-primary-500/10 dark:bg-theme-bg-secondary">
-        <div className="absolute inset-0 bg-theme-primary-500 mix-blend-multiply opacity-5 dark:opacity-20 pointer-events-none"></div>
-        <div className="absolute bottom-0 w-full h-px bg-gradient-to-r from-transparent via-theme-border to-transparent"></div>
+              <div>
+                <h4 className="font-bold text-theme-text-primary mb-4">
+                  Legal
+                </h4>
+                <ul className="space-y-3 text-sm text-theme-text-secondary">
+                  <li>
+                    <Link
+                      to="/terms-of-service"
+                      className="hover:text-theme-primary-500 transition-colors"
+                    >
+                      Terms of Service
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/license"
+                      className="hover:text-theme-primary-500 transition-colors"
+                    >
+                      License Agreement
+                    </Link>
+                  </li>
+                </ul>
+              </div>
+            </div>
 
-        <motion.div
-          className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10"
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-theme-text-primary">
-            Build the future of communication.
-          </h2>
-          <p className="text-xl text-theme-text-secondary mb-10 max-w-2xl mx-auto">
-            Stop worrying about device tokens and delivery rates. Start scaling
-            your application today.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
-            <Link
-              to="/signup"
-              className="btn-primary px-8 py-4 text-lg hover:scale-105 transition-transform w-full sm:w-auto shadow-xl shadow-theme-primary-500/20"
-            >
-              Create Hub Account
-            </Link>
-            <Link
-              to="/docs"
-              className="btn-secondary px-8 py-4 text-lg hover:bg-theme-bg-muted transition-all w-full sm:w-auto"
-            >
-              Read Documentation
-            </Link>
+            <div className="pt-8 border-t border-theme-border flex flex-col md:flex-row justify-between items-center text-sm text-theme-text-muted">
+              <div className="mb-4 md:mb-0">
+                &copy; {new Date().getFullYear()} SailorLabs.in All rights
+                reserved.
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 rounded-full bg-theme-success"></div>
+                <span>All backend services operational</span>
+              </div>
+            </div>
           </div>
-        </motion.div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-theme-bg-secondary py-12 border-t border-theme-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center text-sm text-theme-text-secondary">
-          <div className="mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} Vibe Message. All rights reserved.
-          </div>
-          <div className="flex space-x-6">
-            <Link
-              to="/terms-of-service"
-              className="hover:text-theme-text-primary transition-colors"
-            >
-              Terms
-            </Link>
-            <Link
-              to="/license"
-              className="hover:text-theme-text-primary transition-colors"
-            >
-              License
-            </Link>
-            <a
-              href="mailto:service@sailorlabs.in"
-              className="hover:text-theme-text-primary transition-colors"
-            >
-              Contact
-            </a>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 };

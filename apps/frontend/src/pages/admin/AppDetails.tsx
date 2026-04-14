@@ -18,7 +18,8 @@ import { PushComposer } from "./components/PushComposer";
 import { NotificationHistory } from "./components/NotificationHistory";
 import { Subscribers } from "./components/Subscribers";
 import { DripCampaigns } from "./components/DripCampaigns";
-import { RiCheckboxCircleLine, RiCloseCircleLine, RiLockLine } from "@remixicon/react";
+import { RiCheckboxCircleLine, RiCloseCircleLine, RiLockLine, RiDeleteBinLine } from "@remixicon/react";
+import { ConfirmModal } from "../../components/common/ConfirmModal";
 
 export const AppDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -265,40 +266,26 @@ const result = await vibe.notification({
             </button>
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
+              className="btn-danger flex items-center gap-1.5 text-sm"
             >
+              <RiDeleteBinLine size={16} />
               Delete
             </button>
           </div>
         )}
       </motion.div>
 
-      {showDeleteConfirm && (
-        <div className="bg-red-50 dark:bg-red-900/10 border-2 border-red-300 dark:border-red-800/30 rounded-lg p-5 mb-6">
-          <h3 className="text-red-800 dark:text-red-400 font-semibold mb-2">
-            Delete App?
-          </h3>
-          <p className="text-red-700 dark:text-red-300 mb-4">
-            This will permanently delete this app and all associated devices and
-            notifications. This action cannot be undone.
-          </p>
-          <div className="flex gap-3">
-            <button
-              onClick={handleDelete}
-              disabled={loading}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition disabled:opacity-50"
-            >
-              {loading ? "Deleting..." : "Yes, Delete App"}
-            </button>
-            <button
-              onClick={() => setShowDeleteConfirm(false)}
-              className="btn-secondary"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Delete App Confirmation */}
+      <ConfirmModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={handleDelete}
+        loading={loading}
+        title="Delete App?"
+        description="This will permanently delete this app and all associated devices and notifications. This action cannot be undone."
+        confirmLabel="Yes, Delete App"
+        confirmingLabel="Deleting..."
+      />
 
       <motion.div
         variants={fadeUpVariants}

@@ -12,9 +12,111 @@ import {
 import { unregisterAllSystemDevices } from "../../store/slices/adminSlice";
 import { systemService } from "../../services/systemService";
 import { motion, AnimatePresence } from "motion/react";
-import { RiEyeLine, RiEyeOffLine, RiLoader4Line, RiCheckboxCircleLine, RiCloseCircleLine, RiErrorWarningLine, RiNotificationLine, RiAlertLine } from "@remixicon/react";
+import {
+  RiEyeLine,
+  RiEyeOffLine,
+  RiLoader4Line,
+  RiCheckboxCircleLine,
+  RiCloseCircleLine,
+  RiErrorWarningLine,
+  RiNotificationLine,
+  RiAlertLine,
+  RiShieldKeyholeLine,
+  RiUser3Line,
+  RiSettings3Line,
+} from "@remixicon/react";
 
+// ─── Reusable floating-label input ────────────────────────────────────────────
+const FloatingInput = ({
+  id,
+  label,
+  value,
+  onChange,
+  type = "text",
+  disabled = false,
+  required = false,
+  minLength,
+  rightSlot,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+  disabled?: boolean;
+  required?: boolean;
+  minLength?: number;
+  rightSlot?: React.ReactNode;
+}) => (
+  <div className="relative group">
+    <input
+      id={id}
+      type={type}
+      value={value}
+      onChange={onChange}
+      disabled={disabled}
+      required={required}
+      minLength={minLength}
+      placeholder={label}
+      className={`w-full px-5 py-4 ${rightSlot ? "pr-12" : ""} bg-black/5 dark:bg-white/5 text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all placeholder-transparent peer disabled:opacity-60 disabled:cursor-not-allowed`}
+    />
+    {/* Label — always floated when disabled (disabled inputs always show a value) */}
+    <label
+      htmlFor={id}
+      className={`absolute left-5 px-1 rounded pointer-events-none text-theme-text-secondary transition-all bg-theme-bg-secondary
+        ${
+          disabled
+            ? "-top-2.5 text-xs"
+            : "top-4 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-theme-primary-500 peer-focus:bg-theme-bg-secondary peer-valid:-top-2.5 peer-valid:text-xs peer-valid:bg-theme-bg-secondary"
+        }`}
+    >
+      {label}
+    </label>
+    {rightSlot && (
+      <div className="absolute right-4 top-1/2 -translate-y-1/2">{rightSlot}</div>
+    )}
+  </div>
+);
 
+// ─── Section card wrapper ──────────────────────────────────────────────────────
+const SectionCard = ({
+  icon,
+  title,
+  children,
+  danger = false,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  children: React.ReactNode;
+  danger?: boolean;
+}) => (
+  <motion.div
+    variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+    className={`rounded-3xl border p-8 backdrop-blur-2xl shadow-sm ${
+      danger
+        ? "bg-red-500/5 border-red-500/20"
+        : "bg-black/5 dark:bg-white/5 border-theme-border"
+    }`}
+  >
+    <div className="flex items-center gap-3 mb-6 pb-5 border-b border-theme-border/60">
+      <div
+        className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+          danger
+            ? "bg-red-500/10 text-red-500"
+            : "bg-theme-primary-500/10 text-theme-primary-500"
+        }`}
+      >
+        {icon}
+      </div>
+      <h2 className={`text-xl font-display font-bold ${danger ? "text-red-500" : "text-theme-text-primary"}`}>
+        {title}
+      </h2>
+    </div>
+    {children}
+  </motion.div>
+);
+
+// ─── Main Profile component ────────────────────────────────────────────────────
 const Profile: React.FC = () => {
   const { user, logout } = useAuth();
   const { requestPermission, permissionStatus } = useNotifications();
@@ -22,23 +124,24 @@ const Profile: React.FC = () => {
   const { loading } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
 
-  // Profile form
   const [name, setName] = useState(user?.name || "");
   const [email, setEmail] = useState(user?.email || "");
 
-  // Password form
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Show password toggles
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Delete account
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showSystemConfirmModal, setShowSystemConfirmModal] = useState(false);
+
+  const [globalRetention, setGlobalRetention] = useState(14);
+  const [retentionSaving, setRetentionSaving] = useState(false);
+
+  const isSuperAdmin = user?.role === "SUPER_ADMIN";
 
   useEffect(() => {
     if (user) {
@@ -47,32 +150,17 @@ const Profile: React.FC = () => {
     }
   }, [user]);
 
-  const [globalRetention, setGlobalRetention] = useState(14);
-  const [retentionSaving, setRetentionSaving] = useState(false);
-
   useEffect(() => {
-    if (user?.role === "SUPER_ADMIN") {
-      systemService.getSettings()
-        .then(settings => setGlobalRetention(settings.default_retention_days))
+    if (isSuperAdmin) {
+      systemService
+        .getSettings()
+        .then((s) => setGlobalRetention(s.default_retention_days))
         .catch(console.error);
     }
-  }, [user]);
-
-  const handleUpdateRetention = async () => {
-    setRetentionSaving(true);
-    try {
-      await systemService.updateSettings(globalRetention);
-      toast.success("Global Default Retention updated");
-    } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to update system settings");
-    } finally {
-      setRetentionSaving(false);
-    }
-  };
+  }, [isSuperAdmin]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const result = await dispatch(updateUserProfile({ name, email }));
     if (updateUserProfile.fulfilled.match(result)) {
       toast.success("Profile updated successfully!");
@@ -81,29 +169,11 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleUnregisterSystemWide = async () => {
-    const resultAction = await dispatch(unregisterAllSystemDevices());
-    if (unregisterAllSystemDevices.fulfilled.match(resultAction)) {
-      toast.success("Successfully unregistered all devices globally.");
-    } else {
-      toast.error("Failed to unregister devices globally.");
-    }
-  };
-
   const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) {
-      toast.error("New passwords do not match");
-      return;
-    }
+    if (newPassword !== confirmPassword) return toast.error("Passwords do not match");
+    if (newPassword.length < 6) return toast.error("Minimum 6 characters required");
 
-    if (newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
-      return;
-    }
-
-    const result = await dispatch(
-      changeUserPassword({ oldPassword, newPassword }),
-    );
+    const result = await dispatch(changeUserPassword({ oldPassword, newPassword }));
     if (changeUserPassword.fulfilled.match(result)) {
       toast.success("Password changed successfully!");
       setOldPassword("");
@@ -111,6 +181,27 @@ const Profile: React.FC = () => {
       setConfirmPassword("");
     } else {
       toast.error("Failed to change password");
+    }
+  };
+
+  const handleUpdateRetention = async () => {
+    setRetentionSaving(true);
+    try {
+      await systemService.updateSettings(globalRetention);
+      toast.success("Global retention updated");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to update settings");
+    } finally {
+      setRetentionSaving(false);
+    }
+  };
+
+  const handleUnregisterSystemWide = async () => {
+    const result = await dispatch(unregisterAllSystemDevices());
+    if (unregisterAllSystemDevices.fulfilled.match(result)) {
+      toast.success("Successfully unregistered all devices globally.");
+    } else {
+      toast.error("Failed to unregister devices globally.");
     }
   };
 
@@ -125,124 +216,57 @@ const Profile: React.FC = () => {
     }
   };
 
-  const isSuperAdmin = user?.role === "SUPER_ADMIN";
-
-  const EyeIcon = ({ show, toggle }: { show: boolean; toggle: () => void }) => (
+  const EyeToggle = ({ show, toggle }: { show: boolean; toggle: () => void }) => (
     <button
       type="button"
       onClick={toggle}
-      className="absolute right-4 top-4 text-theme-text-muted hover:text-theme-text-primary transition-colors focus:outline-none"
+      className="text-theme-text-muted hover:text-theme-text-primary transition-colors focus:outline-none"
       aria-label={show ? "Hide password" : "Show password"}
     >
-      {show ? <RiEyeOffLine size={24} /> : <RiEyeLine size={24} />}
+      {show ? <RiEyeOffLine size={20} /> : <RiEyeLine size={20} />}
     </button>
   );
-
-  const fadeUpVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  };
 
   return (
     <motion.div
       initial="hidden"
       animate="visible"
-      variants={{
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-      }}
-      className="min-h-[calc(100vh-120px)] relative overflow-hidden transition-colors duration-300 py-12 px-4"
+      variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
+      className="min-h-[calc(100vh-120px)] py-12 px-4"
     >
-      {/* Background is now handled globally in App.tsx */}
-
-      <div className="max-w-3xl mx-auto relative z-10">
+      <div className="max-w-3xl mx-auto">
+        {/* Page header */}
         <motion.div
-          variants={fadeUpVariants}
-          className="mb-10 text-center sm:text-left"
+          variants={{ hidden: { opacity: 0, y: -12 }, visible: { opacity: 1, y: 0 } }}
+          className="mb-10"
         >
-          <h1 className="text-4xl font-black tracking-tight text-theme-text-primary drop-shadow-sm">
+          <h1 className="text-4xl font-display font-extrabold tracking-tight text-theme-text-primary">
             Profile Settings
           </h1>
-          <p className="text-theme-text-secondary mt-2 font-medium">
-            Manage your personal information, security, and preferences.
+          <p className="text-theme-text-secondary mt-2">
+            Manage your personal info, security, and preferences.
           </p>
         </motion.div>
 
-        <div className="grid gap-8">
-          {/* Account Information */}
-          <motion.div
-            variants={fadeUpVariants}
-            className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8"
-          >
-            <h2 className="text-2xl font-bold mb-6 text-theme-text-primary pb-4 border-b border-theme-border/50">
-              Account Information
-            </h2>
-
-            <form onSubmit={handleUpdateProfile} className="space-y-6">
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div className="relative group">
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full px-5 py-4 bg-theme-bg-primary text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 transition-all placeholder-transparent peer"
-                    placeholder="Full Name"
-                    id="profile-name"
-                    required
-                  />
-                  <label
-                    htmlFor="profile-name"
-                    className="absolute left-5 top-4 text-theme-text-secondary text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-theme-primary-500 peer-focus:bg-theme-bg-secondary px-1 peer-valid:-top-2.5 peer-valid:text-xs peer-valid:bg-theme-bg-secondary pointer-events-none rounded"
-                  >
-                    Full Name
-                  </label>
-                </div>
-
-                <div className="relative group">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-5 py-4 bg-theme-bg-primary text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 transition-all placeholder-transparent peer"
-                    placeholder="Email Address"
-                    id="profile-email"
-                    required
-                  />
-                  <label
-                    htmlFor="profile-email"
-                    className="absolute left-5 top-4 text-theme-text-secondary text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-theme-primary-500 peer-focus:bg-theme-bg-secondary px-1 peer-valid:-top-2.5 peer-valid:text-xs peer-valid:bg-theme-bg-secondary pointer-events-none rounded"
-                  >
-                    Email Address
-                  </label>
-                </div>
+        <div className="grid gap-6">
+          {/* ── Account Information ── */}
+          <SectionCard icon={<RiUser3Line size={20} />} title="Account Information">
+            <form onSubmit={handleUpdateProfile} className="space-y-5">
+              <div className="grid sm:grid-cols-2 gap-5">
+                <FloatingInput id="profile-name" label="Full Name" value={name} onChange={(e) => setName(e.target.value)} required />
+                <FloatingInput id="profile-email" label="Email Address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div className="relative group">
-                  <input
-                    type="text"
-                    value={user?.role}
-                    disabled
-                    className="w-full px-5 py-4 bg-theme-bg-muted/50 text-theme-text-muted border border-theme-border rounded-2xl cursor-not-allowed transition-all placeholder-transparent peer"
-                    placeholder="Role"
-                    id="profile-role"
-                  />
-                  <label
-                    htmlFor="profile-role"
-                    className="absolute left-5 -top-2.5 text-xs text-theme-text-secondary bg-theme-bg-secondary px-1 rounded pointer-events-none"
-                  >
-                    Role
-                  </label>
-                </div>
-
+              <div className="grid sm:grid-cols-2 gap-5">
+                <FloatingInput id="profile-role" label="Role" value={user?.role ?? ""} disabled />
                 <div className="flex items-center">
                   <span
-                    className={`inline-flex px-4 py-2 rounded-full text-sm font-bold shadow-sm ring-1 ring-inset ${
+                    className={`inline-flex px-4 py-2 rounded-full text-sm font-bold ring-1 ring-inset ${
                       user?.status === "APPROVED"
-                        ? "bg-theme-success/10 text-theme-success ring-theme-success/30"
+                        ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-300 dark:ring-green-800/40"
                         : user?.status === "PENDING"
-                          ? "bg-theme-warning/10 text-theme-warning ring-theme-warning/30"
-                          : "bg-theme-error/10 text-theme-error ring-theme-error/30"
+                          ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 ring-amber-300 dark:ring-amber-800/40"
+                          : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-red-300 dark:ring-red-800/40"
                     }`}
                   >
                     Status: {user?.status}
@@ -250,16 +274,16 @@ const Profile: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-4 flex justify-end">
+              <div className="flex justify-end pt-2">
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full sm:w-auto px-8 py-3.5 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-2xl font-semibold transform hover:-translate-y-0.5 transition-all active:translate-y-0 disabled:opacity-70 disabled:filter-grayscale disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                  className="btn-primary flex items-center gap-2"
                 >
                   {loading ? (
                     <>
-                      <RiLoader4Line size={20} className="animate-spin" />
-                      Updating...
+                      <RiLoader4Line size={18} className="animate-spin" />
+                      Saving...
                     </>
                   ) : (
                     "Save Changes"
@@ -267,343 +291,259 @@ const Profile: React.FC = () => {
                 </button>
               </div>
             </form>
-          </motion.div>
+          </SectionCard>
 
-          {/* Change Password */}
-          <motion.div
-            variants={fadeUpVariants}
-            className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8"
-          >
-            <h2 className="text-2xl font-bold mb-6 text-theme-text-primary pb-4 border-b border-theme-border/50">
-              Security
-            </h2>
+          {/* ── Security ── */}
+          <SectionCard icon={<RiShieldKeyholeLine size={20} />} title="Security">
+            <p className="text-theme-text-secondary text-sm mb-6">
+              Use a long, random password to keep your account secure.
+            </p>
+            <div className="grid gap-5 max-w-md">
+              <FloatingInput
+                id="old-password"
+                label="Current Password"
+                type={showOldPassword ? "text" : "password"}
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+                required
+                rightSlot={<EyeToggle show={showOldPassword} toggle={() => setShowOldPassword(!showOldPassword)} />}
+              />
+              <div>
+                <FloatingInput
+                  id="new-password"
+                  label="New Password"
+                  type={showNewPassword ? "text" : "password"}
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  rightSlot={<EyeToggle show={showNewPassword} toggle={() => setShowNewPassword(!showNewPassword)} />}
+                />
+                <p className="text-xs text-theme-text-muted mt-1.5 ml-1">Minimum 6 characters</p>
+              </div>
+              <FloatingInput
+                id="confirm-new-password"
+                label="Confirm New Password"
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={6}
+                rightSlot={<EyeToggle show={showConfirmPassword} toggle={() => setShowConfirmPassword(!showConfirmPassword)} />}
+              />
+            </div>
 
-            <div className="space-y-6">
-              <p className="text-theme-text-secondary text-sm">
-                Ensure your account is using a long, random password to stay
-                secure.
+            <div className="mt-6">
+              <button
+                type="button"
+                onClick={handleChangePassword}
+                disabled={loading || !oldPassword || !newPassword || !confirmPassword}
+                className="btn-primary"
+              >
+                {loading ? "Updating..." : "Update Password"}
+              </button>
+            </div>
+          </SectionCard>
+
+          {/* ── Notification Preferences ── */}
+          <SectionCard icon={<RiNotificationLine size={20} />} title="Notification Preferences">
+            <div className="space-y-5">
+              {/* External ID display */}
+              <FloatingInput
+                id="profile-external-id"
+                label="Unique User Identifier"
+                value={user?.email || ""}
+                disabled
+              />
+              <p className="text-xs text-theme-text-muted -mt-2 ml-1">
+                This identifier links your browser device with our notification servers.
               </p>
 
-              <div className="grid gap-6">
-                <div className="relative group max-w-md">
-                  <input
-                    type={showOldPassword ? "text" : "password"}
-                    value={oldPassword}
-                    onChange={(e) => setOldPassword(e.target.value)}
-                    className="w-full pl-5 pr-12 py-4 bg-theme-bg-primary text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 transition-all placeholder-transparent peer"
-                    placeholder="Current Password"
-                    id="old-password"
-                    required
-                  />
-                  <label
-                    htmlFor="old-password"
-                    className="absolute left-5 top-4 text-theme-text-secondary text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-theme-primary-500 peer-focus:bg-theme-bg-secondary px-1 peer-valid:-top-2.5 peer-valid:text-xs peer-valid:bg-theme-bg-secondary pointer-events-none rounded"
-                  >
-                    Current Password
-                  </label>
-                  <EyeIcon
-                    show={showOldPassword}
-                    toggle={() => setShowOldPassword(!showOldPassword)}
-                  />
-                </div>
-
-                <div className="relative group max-w-md">
-                  <input
-                    type={showNewPassword ? "text" : "password"}
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full pl-5 pr-12 py-4 bg-theme-bg-primary text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 transition-all placeholder-transparent peer"
-                    placeholder="New Password"
-                    id="new-password"
-                    required
-                    minLength={6}
-                  />
-                  <label
-                    htmlFor="new-password"
-                    className="absolute left-5 top-4 text-theme-text-secondary text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-theme-primary-500 peer-focus:bg-theme-bg-secondary px-1 peer-valid:-top-2.5 peer-valid:text-xs peer-valid:bg-theme-bg-secondary pointer-events-none rounded"
-                  >
-                    New Password
-                  </label>
-                  <EyeIcon
-                    show={showNewPassword}
-                    toggle={() => setShowNewPassword(!showNewPassword)}
-                  />
-                  <p className="text-[11px] text-theme-text-muted mt-2 ml-1">
-                    Minimum 6 characters
-                  </p>
-                </div>
-
-                <div className="relative group max-w-md">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full pl-5 pr-12 py-4 bg-theme-bg-primary text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 transition-all placeholder-transparent peer"
-                    placeholder="Confirm New Password"
-                    id="confirm-new-password"
-                    required
-                    minLength={6}
-                  />
-                  <label
-                    htmlFor="confirm-new-password"
-                    className="absolute left-5 top-4 text-theme-text-secondary text-sm transition-all peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-theme-primary-500 peer-focus:bg-theme-bg-secondary px-1 peer-valid:-top-2.5 peer-valid:text-xs peer-valid:bg-theme-bg-secondary pointer-events-none rounded"
-                  >
-                    Confirm New Password
-                  </label>
-                  <EyeIcon
-                    show={showConfirmPassword}
-                    toggle={() => setShowConfirmPassword(!showConfirmPassword)}
-                  />
-                </div>
-              </div>
-
-              <div className="pt-2 flex justify-start">
-                <button
-                  type="button"
-                  onClick={handleChangePassword}
-                  disabled={
-                    loading || !oldPassword || !newPassword || !confirmPassword
-                  }
-                  className="w-full sm:w-auto px-8 py-3 bg-theme-text-primary text-theme-bg-primary hover:bg-theme-text-secondary rounded-xl font-semibold transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
-                >
-                  {loading ? "Updating..." : "Update Password"}
-                </button>
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Notification Settings */}
-          <motion.div
-            variants={fadeUpVariants}
-            className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8"
-          >
-            <h2 className="text-2xl font-bold mb-6 text-theme-text-primary pb-4 border-b border-theme-border/50">
-              Notification Preferences
-            </h2>
-
-            <div className="space-y-6">
-              <div className="relative group max-w-md">
-                <input
-                  type="text"
-                  value={user?.email || ""}
-                  disabled
-                  className="w-full px-5 py-4 bg-theme-bg-muted/50 text-theme-text-muted border border-theme-border rounded-2xl cursor-not-allowed transition-all placeholder-transparent peer"
-                  placeholder="External ID"
-                  id="profile-external-id"
-                />
-                <label
-                  htmlFor="profile-external-id"
-                  className="absolute left-5 -top-2.5 text-xs text-theme-text-secondary bg-theme-bg-secondary px-1 rounded pointer-events-none"
-                >
-                  Unique User Identifier
-                </label>
-                <p className="text-[11px] text-theme-text-muted mt-2 ml-1">
-                  This identifier links your browser device with our
-                  notification servers.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-4 py-4">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-theme-text-primary">
-                    Push Notifications
-                  </h3>
-                  <p className="text-sm text-theme-text-secondary mt-1">
-                    Receive alerts directly in your browser even when you're
-                    away.
-                  </p>
-                </div>
+              {/* Permission status row */}
+              <div className="flex items-center justify-between py-4 border-t border-theme-border/50">
                 <div>
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide
-                      ${
-                        permissionStatus === "granted"
-                          ? "bg-theme-success/10 text-theme-success"
-                          : permissionStatus === "denied"
-                            ? "bg-theme-error/10 text-theme-error"
-                            : "bg-theme-warning/10 text-theme-warning"
-                      }`}
-                  >
-                    {permissionStatus === "granted" ? (
-                      <>
-                        <RiCheckboxCircleLine size={16} />{" "}
-                        Enabled
-                      </>
-                    ) : permissionStatus === "denied" ? (
-                      <>
-                        <RiCloseCircleLine size={16} />{" "}
-                        Blocked
-                      </>
-                    ) : (
-                      <>
-                        <RiErrorWarningLine size={16} />{" "}
-                        Disabled
-                      </>
-                    )}
-                  </span>
+                  <h3 className="font-semibold text-theme-text-primary">Push Notifications</h3>
+                  <p className="text-sm text-theme-text-secondary mt-0.5">
+                    Receive alerts directly in your browser.
+                  </p>
                 </div>
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide ${
+                    permissionStatus === "granted"
+                      ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                      : permissionStatus === "denied"
+                        ? "bg-red-500/10 text-red-600 dark:text-red-400"
+                        : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                  }`}
+                >
+                  {permissionStatus === "granted" ? (
+                    <><RiCheckboxCircleLine size={14} /> Enabled</>
+                  ) : permissionStatus === "denied" ? (
+                    <><RiCloseCircleLine size={14} /> Blocked</>
+                  ) : (
+                    <><RiErrorWarningLine size={14} /> Disabled</>
+                  )}
+                </span>
               </div>
 
+              {/* Enable prompt */}
               {permissionStatus !== "granted" && (
-                <div className="bg-theme-bg-muted/50 rounded-2xl p-6 border border-theme-border border-dashed">
-                  <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-                    <p className="text-sm text-theme-text-primary text-center sm:text-left">
-                      {permissionStatus === "denied"
-                        ? "You have blocked notifications in your browser settings. You must manually allow them in your browser URL bar to receive alerts."
-                        : "Enable notifications to stay updated on your account status, apps, and warnings."}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => requestPermission()}
-                      disabled={permissionStatus === "denied"}
-                      className="shrink-0 px-6 py-2.5 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-xl font-semibold transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Enable Access
-                    </button>
-                  </div>
+                <div className="bg-black/5 dark:bg-white/5 rounded-2xl p-5 border border-dashed border-theme-border flex flex-col sm:flex-row gap-4 items-center justify-between">
+                  <p className="text-sm text-theme-text-primary">
+                    {permissionStatus === "denied"
+                      ? "Notifications are blocked in your browser. Manually allow them from the address bar."
+                      : "Enable notifications to stay updated on account status and app activity."}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => requestPermission()}
+                    disabled={permissionStatus === "denied"}
+                    className="btn-primary shrink-0"
+                  >
+                    Enable Access
+                  </button>
                 </div>
               )}
 
+              {/* Success state */}
               {permissionStatus === "granted" && (
-                <div className="bg-theme-success/5 border border-theme-success/20 rounded-2xl p-6 relative overflow-hidden">
+                <div className="bg-green-500/5 border border-green-500/20 rounded-2xl p-5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <RiNotificationLine size={96} className="text-theme-success" />
+                    <RiNotificationLine size={80} className="text-green-500" />
                   </div>
-                  <div className="relative z-10">
-                    <h4 className="text-theme-success font-semibold flex items-center gap-2">
-                      <RiCheckboxCircleLine size={20} />
-                      Everything looks good!
-                    </h4>
-                    <p className="text-theme-text-secondary text-sm mt-2">
-                      You are actively receiving notifications. You will be
-                      alerted for account approvals, app updates, and important
-                      administrative activity on this device.
-                    </p>
-                  </div>
+                  <h4 className="text-green-600 dark:text-green-400 font-semibold flex items-center gap-2 relative z-10">
+                    <RiCheckboxCircleLine size={18} /> Everything looks good!
+                  </h4>
+                  <p className="text-theme-text-secondary text-sm mt-2 relative z-10">
+                    You are actively receiving notifications on this device.
+                  </p>
                 </div>
               )}
             </div>
-          </motion.div>
+          </SectionCard>
 
-          {/* System Configuration (SUPER ADMIN ONLY) */}
+          {/* ── System Settings (Super Admin only) ── */}
           {isSuperAdmin && (
-            <motion.div
-              variants={fadeUpVariants}
-              className="backdrop-blur-2xl bg-theme-bg-secondary border border-theme-border rounded-[2rem] shadow-xl dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] p-8"
-            >
-              <h2 className="text-2xl font-bold mb-6 text-theme-text-primary pb-4 border-b border-theme-border/50">
-                System Global Settings
-              </h2>
-              
+            <SectionCard icon={<RiSettings3Line size={20} />} title="System Global Settings">
               <div className="space-y-6">
-                <div className="relative group max-w-md">
-                  <label htmlFor="global-retention" className="block text-sm font-medium mb-2 text-theme-text-primary">
+                <div className="max-w-sm">
+                  <label
+                    htmlFor="global-retention"
+                    className="block text-sm font-medium mb-2 text-theme-text-primary"
+                  >
                     Default Notification Retention (Days)
                   </label>
                   <input
+                    id="global-retention"
                     type="number"
                     min="1"
                     value={globalRetention}
                     onChange={(e) => setGlobalRetention(parseInt(e.target.value, 10) || 1)}
-                    className="w-full px-5 py-4 bg-theme-bg-primary text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 transition-all peer"
-                    id="global-retention"
+                    className="input"
                   />
                   <p className="text-xs text-theme-text-muted mt-2">
-                    This timer determines how long notification logs are kept before being auto-deleted by the cron job across all apps that don't specify their own retention override.
+                    Notification logs are auto-deleted after this many days across all apps without a custom override.
                   </p>
                 </div>
-                
-                <div className="pt-2 flex justify-start">
+
+                <div>
                   <button
                     onClick={handleUpdateRetention}
                     disabled={retentionSaving}
-                    className="w-full sm:w-auto px-8 py-3 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-xl font-semibold transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+                    className="btn-primary"
                   >
                     {retentionSaving ? "Saving..." : "Save System Settings"}
                   </button>
                 </div>
-                
-                <div className="pt-6 mt-6 border-t border-theme-border/50">
-                  <h3 className="text-sm font-semibold text-theme-error mb-2">Danger: System Actions</h3>
+
+                {/* Danger: system-wide unregister */}
+                <div className="pt-6 mt-2 border-t border-theme-border/50">
+                  <p className="text-xs font-bold uppercase tracking-widest text-red-500 mb-3">
+                    System Danger Actions
+                  </p>
                   <button
                     onClick={() => setShowSystemConfirmModal(true)}
                     disabled={loading}
-                    className="w-full sm:w-auto px-6 py-2.5 bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/20 dark:hover:bg-red-900/40 dark:text-red-400 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 outline-none focus:ring-2 focus:ring-red-500/50"
+                    className="btn-danger flex items-center gap-2"
                   >
-                     <RiAlertLine size={18} />
-                     Unregister All Devices (System-Wide)
+                    <RiAlertLine size={18} />
+                    Unregister All Devices (System-Wide)
                   </button>
                   <p className="text-xs text-theme-text-muted mt-2">
-                    This will forcibly unregister all devices across all applications. Users will need to re-register to receive push notifications.
+                    Forcibly unregisters all devices across every app. Users must re-register to receive push notifications.
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </SectionCard>
           )}
 
-          {/* Danger Zone */}
+          {/* ── Danger Zone (non-super-admin) ── */}
           {!isSuperAdmin && (
-            <motion.div
-              variants={fadeUpVariants}
-              className="backdrop-blur-2xl bg-theme-error/5 border border-theme-error/20 rounded-[2rem] p-8"
-            >
-              <h2 className="text-2xl font-bold mb-4 text-theme-error pb-4 border-b border-theme-error/20">
-                Danger Zone
-              </h2>
-              <p className="text-theme-text-primary mb-6 max-w-2xl">
-                Permanently delete your account and all of its contents from our
-                servers. This action is irreversible. All your apps, API keys,
-                and configurations will be dropped.
+            <SectionCard icon={<RiAlertLine size={20} />} title="Danger Zone" danger>
+              <p className="text-theme-text-primary mb-6">
+                Permanently delete your account and all its contents from our servers. This is irreversible — all apps, API keys, and configurations will be dropped.
               </p>
 
-              {!showDeleteConfirm ? (
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="px-6 py-3 bg-red-500 hover:bg-red-600 outline-none focus:ring-4 focus:ring-red-500/30 text-white rounded-xl font-bold transition-all active:scale-95"
-                >
-                  Delete Account...
-                </button>
-              ) : (
-                <div className="border border-red-500/30 rounded-2xl p-6 bg-red-500/10">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
-                      <RiAlertLine size={24} className="text-red-600 dark:text-red-400" />
-                    </div>
-                    <div>
-                      <h4 className="text-red-600 dark:text-red-400 font-bold text-lg mb-1">
-                        Are you sure you want to do this?
-                      </h4>
-                      <p className="text-red-800/80 dark:text-red-200/80 text-sm mb-6 max-w-lg">
-                        You will immediately lose access to the platform. We
-                        cannot recover any metrics, notifications, or
-                        configurations once you confirm.
-                      </p>
-
-                      <div className="flex flex-wrap gap-4">
-                        <button
-                          onClick={handleDeleteAccount}
-                          disabled={loading}
-                          className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all active:scale-95 disabled:opacity-50"
-                        >
-                          {loading ? "Deleting..." : "Yes, Purge My Data"}
-                        </button>
-                        <button
-                          onClick={() => setShowDeleteConfirm(false)}
-                          className="px-6 py-2.5 bg-theme-bg-secondary text-theme-text-primary border border-theme-border font-bold rounded-xl hover:bg-theme-bg-muted transition-all"
-                        >
-                          Cancel
-                        </button>
+              <AnimatePresence mode="wait">
+                {!showDeleteConfirm ? (
+                  <motion.div
+                    key="btn"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                  >
+                    <button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-all active:scale-95 focus:outline-none focus:ring-4 focus:ring-red-500/30"
+                    >
+                      Delete Account…
+                    </button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="confirm"
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    className="border border-red-500/30 rounded-2xl p-6 bg-red-500/10"
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center shrink-0">
+                        <RiAlertLine size={24} className="text-red-500" />
+                      </div>
+                      <div>
+                        <h4 className="text-red-600 dark:text-red-400 font-bold text-lg mb-1">
+                          Are you absolutely sure?
+                        </h4>
+                        <p className="text-red-800/80 dark:text-red-200/80 text-sm mb-6 max-w-lg">
+                          You will immediately lose access to the platform. We cannot recover any metrics, notifications, or configurations once confirmed.
+                        </p>
+                        <div className="flex flex-wrap gap-3">
+                          <button
+                            onClick={handleDeleteAccount}
+                            disabled={loading}
+                            className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all active:scale-95 disabled:opacity-50"
+                          >
+                            {loading ? "Deleting..." : "Yes, Purge My Data"}
+                          </button>
+                          <button
+                            onClick={() => setShowDeleteConfirm(false)}
+                            className="px-6 py-2.5 bg-black/10 dark:bg-white/10 text-theme-text-primary border border-theme-border font-bold rounded-xl hover:bg-black/20 dark:hover:bg-white/20 transition-all"
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              )}
-            </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </SectionCard>
           )}
         </div>
       </div>
 
-      {/* Custom Confirmation Modal for System Wide Unregister */}
+      {/* ── System-Wide Unregister Confirmation Modal ── */}
       <AnimatePresence>
         {showSystemConfirmModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -618,40 +558,38 @@ const Profile: React.FC = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-theme-bg-primary rounded-2xl shadow-2xl border border-red-500/20 overflow-hidden"
+              className="relative w-full max-w-md bg-theme-bg-primary rounded-3xl shadow-2xl border border-red-500/20 p-8 overflow-hidden"
             >
-              <div className="p-6">
-                <div className="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-4 text-red-600 dark:text-red-400 mx-auto border border-red-200 dark:border-red-900/50 shadow-inner">
-                  <RiAlertLine size={32} />
-                </div>
-                <h3 className="text-2xl font-black text-center text-red-600 dark:text-red-400 mb-2 uppercase tracking-wide">
-                  Critical Warning
-                </h3>
-                <p className="text-center text-theme-text-secondary mb-6 leading-relaxed">
-                  Are you sure you want to unregister <strong className="text-theme-text-primary text-red-500">ALL DEVICES SYSTEM-WIDE?</strong> 
-                  <br className="mt-2" />
-                  <strong>EVERY user across EVERY app</strong> will immediately stop receiving notifications until they re-register!
-                </p>
-                <div className="flex gap-3 mt-8">
-                  <button
-                    onClick={() => setShowSystemConfirmModal(false)}
-                    disabled={loading}
-                    className="flex-1 px-4 py-3 bg-theme-bg-secondary text-theme-text-primary hover:bg-theme-bg-muted rounded-xl font-bold transition-colors border border-theme-border focus:outline-none focus:ring-2 focus:ring-theme-border"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowSystemConfirmModal(false);
-                      handleUnregisterSystemWide();
-                    }}
-                    disabled={loading}
-                    className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black transition-all shadow-lg shadow-red-600/30 focus:outline-none focus:ring-2 focus:ring-red-500 active:scale-95 flex items-center justify-center gap-2"
-                  >
-                    <RiAlertLine size={18} />
-                    Execute Purge
-                  </button>
-                </div>
+              <div className="w-16 h-16 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center mb-5 mx-auto">
+                <RiAlertLine size={32} />
+              </div>
+              <h3 className="text-2xl font-display font-black text-center text-red-600 dark:text-red-400 mb-3 uppercase tracking-wide">
+                Critical Warning
+              </h3>
+              <p className="text-center text-theme-text-secondary mb-6 leading-relaxed">
+                Are you sure you want to unregister{" "}
+                <strong className="text-red-500">ALL DEVICES SYSTEM-WIDE?</strong>
+                <br />
+                <strong>Every user across every app</strong> will stop receiving notifications until they re-register!
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowSystemConfirmModal(false)}
+                  disabled={loading}
+                  className="btn-secondary flex-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setShowSystemConfirmModal(false);
+                    handleUnregisterSystemWide();
+                  }}
+                  disabled={loading}
+                  className="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <RiAlertLine size={18} /> Execute Purge
+                </button>
               </div>
             </motion.div>
           </div>

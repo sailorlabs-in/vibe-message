@@ -7,6 +7,10 @@ export default {
   darkMode: 'class', // Enable class-based dark mode
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['"DM Sans"', 'sans-serif'],
+        display: ['"Space Grotesk"', 'sans-serif'],
+      },
       colors: {
         'theme-bg-primary': 'var(--bg-primary)',
         'theme-bg-secondary': 'var(--bg-secondary)',
