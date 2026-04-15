@@ -27,7 +27,7 @@ const runRegularScheduler = async () => {
       WHERE  dt.app_id    = $1
         AND  dt.is_active = true
         -- device's local clock has reached or passed the scheduled time today
-        AND  (CURRENT_TIMESTAMP AT TIME ZONE dt.timezone)::time >= $2::time
+        AND  (CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= $2::time
         -- not already delivered
         AND  NOT EXISTS (
                SELECT 1 FROM notification_logs nl
@@ -111,7 +111,7 @@ const runDripScheduler = async () => {
         AND  (COALESCE(dt.drip_anchor_date, dt.created_at) + ($2 || ' days')::interval) <= NOW()
 
         -- The device's local clock has reached or passed the step's fire time today
-        AND  (CURRENT_TIMESTAMP AT TIME ZONE dt.timezone)::time >= $3::time
+        AND  (CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= $3::time
 
         -- This step has NOT been sent to this device yet
         AND  NOT EXISTS (
