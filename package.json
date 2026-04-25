@@ -14,10 +14,15 @@
     "serve:notification-demo:dev": "nx run notification-demo:dev",
     "build:frontend:prod": "nx run vibe-message-frontend:build",
     "build:server:prod": "nx run vibe-message-server:build",
-    "build:notification-demo:prod": "nx run notification-demo:build"
+    "build:notification-demo:prod": "nx run notification-demo:build",
+    "preview:server": "npm run preview --workspace=apps/server",
+    "preview:frontend": "npm run preview --workspace=apps/frontend",
+    "preview:notification-demo": "npm run preview --workspace=apps/notification-demo",
+    "preview-all": "concurrently \"npm run preview:server\" \"npm run preview:frontend\" \"npm run preview:notification-demo\""
   },
   "devDependencies": {
     "baseline-browser-mapping": "^2.10.10",
+    "concurrently": "^9.2.1",
     "nx": "22.5.4"
   },
   "dependencies": {
