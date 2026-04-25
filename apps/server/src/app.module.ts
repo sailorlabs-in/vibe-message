@@ -26,6 +26,7 @@ import { DripModule } from './modules/drip/drip.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { SdkModule } from './modules/sdk/sdk.module';
 import { SystemModule } from './modules/system/system.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { SystemModule } from './modules/system/system.module';
     AdminModule,
     SdkModule,
     SystemModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [

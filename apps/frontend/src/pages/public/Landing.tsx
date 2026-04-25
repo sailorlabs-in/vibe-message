@@ -16,9 +16,11 @@ import {
   RiCheckboxCircleLine,
 } from "@remixicon/react";
 import { useRef } from "react";
+import { useHealthStatus } from "../../hooks/useHealthStatus";
 
 export const Landing: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const health = useHealthStatus();
 
   return (
     <div className="min-h-screen text-theme-text-primary overflow-x-hidden font-sans mt-[-120px]">
@@ -852,8 +854,38 @@ export const Landing: React.FC = () => {
                 reserved.
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-2 h-2 rounded-full bg-theme-success"></div>
-                <span>All backend services operational</span>
+                {health.status === 'loading' && (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-theme-text-muted animate-pulse" />
+                    <span>Checking services…</span>
+                  </>
+                )}
+                {health.status === 'ok' && (
+                  <>
+                    <div className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-theme-success opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-theme-success" />
+                    </div>
+                    <span>
+                      All services operational
+                      {health.checks?.server?.uptimeHuman && (
+                        <span className="ml-1 opacity-60">· up {health.checks.server.uptimeHuman}</span>
+                      )}
+                    </span>
+                  </>
+                )}
+                {health.status === 'degraded' && (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
+                    <span>Some services degraded</span>
+                  </>
+                )}
+                {health.status === 'error' && (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-theme-error" />
+                    <span>Backend unreachable</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
