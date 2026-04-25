@@ -66,12 +66,6 @@ async function bootstrap() {
 
   // NestJS handles routing natively now
 
-  // Initialize internal jobs that were in index.ts
-  const { startCleanupJob } = require('./jobs/cleanupJob');
-  const { startTimezoneSchedulerJob } = require('./jobs/timezoneSchedulerJob');
-  startCleanupJob();
-  startTimezoneSchedulerJob();
-
   const port = config.server.port || 3000;
   await app.listen(port);
   console.log(`🚀 Server running on port ${port}`);
