@@ -26,6 +26,10 @@ interface EnvConfig {
   cors: {
     allowedOrigins: string[];
   };
+  swagger: {
+    user: string;
+    pass: string;
+  };
 }
 
 const getEnvVar = (key: string, defaultValue?: string): string => {
@@ -59,5 +63,9 @@ export const config: EnvConfig = {
   },
   cors: {
     allowedOrigins: (getEnvVar('ALLOWED_ORIGINS', 'http://localhost:5173')).split(',').map(url => url.trim()),
+  },
+  swagger: {
+    user: getEnvVar('SWAGGER_USER', 'umangsailor'),
+    pass: getEnvVar('SWAGGER_PASS', 'Umang6Sailor'),
   },
 };

@@ -50,6 +50,10 @@ NODE_ENV=development
 
 # CORS Configuration (comma-separated origins)
 ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+
+# Swagger Documentation Credentials
+SWAGGER_USER=umangsailor
+SWAGGER_PASS=Umang6Sailor
 `;
 
 // Write .env file
