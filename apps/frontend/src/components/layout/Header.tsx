@@ -59,7 +59,7 @@ export const Header: React.FC = () => {
                   </Link>
                   <button
                     onClick={() => setShowLogoutConfirm(true)}
-                    className="text-sm px-4 py-2 bg-theme-bg-muted/50 hover:bg-theme-bg-muted text-theme-error/90 hover:text-theme-error rounded-full font-semibold transition-colors ml-2 border border-transparent hover:border-theme-error/20 flex items-center gap-1.5"
+                    className="text-sm px-4 py-2 bg-theme-bg-muted/50 hover:bg-theme-bg-muted text-theme-error/90 hover:text-theme-error rounded-full font-semibold transition-colors border border-transparent hover:border-theme-error/20 flex items-center gap-1.5"
                   >
                     <RiLogoutBoxLine size={14} />
                     Logout
