@@ -25,6 +25,7 @@ import { Pending } from "./pages/admin/Pending";
 import { Users } from "./pages/super/Users";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import { AnimatedBackground } from "./components/common/AnimatedBackground";
+import Footer from "./components/layout/Footer";
 
 const AppContent: React.FC = () => {
   return (
@@ -102,6 +103,7 @@ const AppContent: React.FC = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
+        <Footer />
     </BrowserRouter>
   );
 };
