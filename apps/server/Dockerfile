@@ -40,4 +40,4 @@ EXPOSE 5000
 
 # Start the application using workspace command
 WORKDIR /app/apps/server
-CMD ["node", "dist/index.js"]
+CMD ["node", "dist/main.js"]

@@ -2,7 +2,7 @@
   "name": "vibe-message-server",
   "version": "1.0.0",
   "description": "FCM-style notification platform backend",
-  "main": "dist/index.js",
+  "main": "dist/main.js",
   "scripts": {
     "dev": "nest start --watch",
     "build": "nest build",
