@@ -26,8 +26,13 @@ export const useHealthStatus = (pollIntervalMs = 30_000): HealthData => {
       const json = await res.json();
       const responseTimeMs = Date.now() - t0;
 
-      if (res.ok && json?.data?.status === 'ok') {
-        setHealth({ status: 'ok', checks: json.data.checks, responseTimeMs });
+      const isHealthy =
+        res.ok &&
+        (json?.data?.status === 'ok' ||
+          (json?.success === true && json?.message === 'Server is running'));
+
+      if (isHealthy) {
+        setHealth({ status: 'ok', checks: json?.data?.checks, responseTimeMs });
       } else {
         setHealth({ status: 'degraded', checks: json?.data?.checks, responseTimeMs });
       }
