@@ -1,38 +1,54 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { PushService } from '../push/push.service';
+import { SystemSettings } from '../system/system_settings.entity';
+import { App as AppEntity } from '../app/app.entity';
+import { Notification } from '../push/notification.entity';
+import { DeviceToken } from '../device/device_token.entity';
+import { DripCampaign, DripSentLog } from '../drip/drip.entity';
 
 @Injectable()
 export class CronService {
   private readonly logger = new Logger(CronService.name);
 
   constructor(
-    private dataSource: DataSource,
     private pushService: PushService,
+    @InjectRepository(SystemSettings)
+    private systemSettingsRepo: Repository<SystemSettings>,
+    @InjectRepository(AppEntity)
+    private appRepo: Repository<AppEntity>,
+    @InjectRepository(Notification)
+    private notificationRepo: Repository<Notification>,
+    @InjectRepository(DeviceToken)
+    private deviceTokenRepo: Repository<DeviceToken>,
+    @InjectRepository(DripCampaign)
+    private dripCampaignRepo: Repository<DripCampaign>,
+    @InjectRepository(DripSentLog)
+    private dripSentLogRepo: Repository<DripSentLog>,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleCleanup() {
     this.logger.log('🧹 [Cron] Running daily notification cleanup job...');
     try {
-      const settingsResult = await this.dataSource.query('SELECT default_retention_days FROM system_settings WHERE id = 1');
-      const defaultRetention = settingsResult.length ? settingsResult[0].default_retention_days : 14;
+      const settings = await this.systemSettingsRepo.findOne({ where: { id: 1 } });
+      const defaultRetention = settings?.default_retention_days ?? 14;
 
-      const appsResult = await this.dataSource.query('SELECT id, retention_days FROM apps');
+      const apps = await this.appRepo.find({ select: ['id', 'retention_days'] });
       
       let deletedCount = 0;
-      for (const app of appsResult) {
+      for (const app of apps) {
         const retentionDays = app.retention_days ?? defaultRetention;
-        const deleteQuery = `
-          DELETE FROM notifications 
-          WHERE app_id = $1 
-          AND created_at < NOW() - INTERVAL '${retentionDays} days'
-        `;
-        const result = await this.dataSource.query(deleteQuery, [app.id]);
-        deletedCount += result[1] || 0; // Postgres driver via TypeORM sometimes returns [results, rowCount]
+        const deleteResult = await this.notificationRepo.createQueryBuilder()
+          .delete()
+          .where('app_id = :appId', { appId: app.id })
+          .andWhere(`created_at < NOW() - INTERVAL '1 day' * :days`, { days: retentionDays })
+          .execute();
+        deletedCount += deleteResult.affected || 0;
       }
-      this.logger.log(`✅ [Cron] Cleanup complete. Deleted expired notifications.`);
+      this.logger.log(`✅ [Cron] Cleanup complete. Deleted ${deletedCount} expired notifications.`);
     } catch (error) {
       this.logger.error('❌ [Cron] Error during notification cleanup:', error);
     }
@@ -55,30 +71,29 @@ export class CronService {
   }
 
   private async runRegularScheduler() {
-    const notificationsResult = await this.dataSource.query(`
-      SELECT id, app_id, payload_json, scheduled_at_local_time::text AS scheduled_time
-      FROM   notifications
-      WHERE  scheduled_at_local_time IS NOT NULL
-    `);
+    const notifications = await this.notificationRepo.createQueryBuilder('n')
+      .where('n.scheduled_at_local_time IS NOT NULL')
+      .getMany();
 
-    for (const notification of notificationsResult) {
-      const { id, app_id, payload_json, scheduled_time } = notification;
+    for (const notification of notifications) {
+      const { id, app_id, payload_json, scheduled_at_local_time } = notification;
 
-      const targetDevicesResult = await this.dataSource.query(
-        `
-        SELECT dt.external_user_id
-        FROM   device_tokens dt
-        WHERE  dt.app_id    = $1
-          AND  dt.is_active = true
-          AND  (CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= $2::time
-          AND  NOT EXISTS (
-                 SELECT 1 FROM notification_logs nl
-                 WHERE  nl.notification_id  = $3
-                   AND  nl.device_token_id  = dt.id
-               )
-        `,
-        [app_id, scheduled_time, id]
-      );
+      const targetDevicesResult = await this.deviceTokenRepo.createQueryBuilder('dt')
+        .select('dt.external_user_id', 'external_user_id')
+        .where('dt.app_id = :appId', { appId: app_id })
+        .andWhere('dt.is_active = true')
+        .andWhere(`(CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= :scheduledTime::time`, { scheduledTime: scheduled_at_local_time })
+        .andWhere((qb) => {
+          const subQuery = qb.subQuery()
+            .select('1')
+            .from('notification_logs', 'nl')
+            .where('nl.notification_id = :notificationId')
+            .andWhere('nl.device_token_id = dt.id')
+            .getQuery();
+          return `NOT EXISTS ${subQuery}`;
+        })
+        .setParameter('notificationId', id)
+        .getRawMany();
 
       if (targetDevicesResult.length > 0) {
         const targetUserIds = targetDevicesResult.map((r: any) => r.external_user_id);
@@ -90,20 +105,21 @@ export class CronService {
   }
 
   private async runDripScheduler() {
-    const campaignsResult = await this.dataSource.query(`
-      SELECT
-        dc.id          AS campaign_id,
-        dc.app_id,
-        ds.id          AS step_id,
-        ds.step_number,
-        ds.delay_days,
-        ds.scheduled_at_local_time::text AS step_time,
-        ds.notification_payload_json
-      FROM drip_campaigns dc
-      JOIN drip_steps     ds ON ds.campaign_id = dc.id
-      WHERE dc.is_active = true
-      ORDER BY dc.id, ds.step_number
-    `);
+    const campaignsResult = await this.dripCampaignRepo.createQueryBuilder('dc')
+      .select([
+        'dc.id AS campaign_id',
+        'dc.app_id AS app_id',
+        'ds.id AS step_id',
+        'ds.step_number AS step_number',
+        'ds.delay_days AS delay_days',
+        'ds.scheduled_at_local_time::text AS step_time',
+        'ds.notification_payload_json AS notification_payload_json'
+      ])
+      .innerJoin('drip_steps', 'ds', 'ds.campaign_id = dc.id')
+      .where('dc.is_active = true')
+      .orderBy('dc.id', 'ASC')
+      .addOrderBy('ds.step_number', 'ASC')
+      .getRawMany();
 
     if (campaignsResult.length === 0) return;
 
@@ -112,22 +128,23 @@ export class CronService {
 
       if (!step_time) continue;
 
-      const devicesResult = await this.dataSource.query(
-        `
-        SELECT dt.id AS device_id, dt.external_user_id, dt.app_id
-        FROM   device_tokens dt
-        WHERE  dt.app_id    = $1
-          AND  dt.is_active = true
-          AND  (COALESCE(dt.drip_anchor_date, dt.created_at) + ($2 || ' days')::interval) <= NOW()
-          AND  (CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= $3::time
-          AND  NOT EXISTS (
-                 SELECT 1 FROM drip_sent_logs dsl
-                 WHERE  dsl.drip_step_id    = $4
-                   AND  dsl.device_token_id = dt.id
-               )
-        `,
-        [app_id, delay_days, step_time, step_id]
-      );
+      const devicesResult = await this.deviceTokenRepo.createQueryBuilder('dt')
+        .select(['dt.id AS device_id', 'dt.external_user_id AS external_user_id', 'dt.app_id AS app_id'])
+        .where('dt.app_id = :appId', { appId: app_id })
+        .andWhere('dt.is_active = true')
+        .andWhere(`(COALESCE(dt.drip_anchor_date, dt.created_at) + (:delayDays * INTERVAL '1 day')) <= NOW()`, { delayDays: delay_days })
+        .andWhere(`(CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= :stepTime::time`, { stepTime: step_time })
+        .andWhere((qb) => {
+          const subQuery = qb.subQuery()
+            .select('1')
+            .from('drip_sent_logs', 'dsl')
+            .where('dsl.drip_step_id = :stepId')
+            .andWhere('dsl.device_token_id = dt.id')
+            .getQuery();
+          return `NOT EXISTS ${subQuery}`;
+        })
+        .setParameter('stepId', step_id)
+        .getRawMany();
 
       if (devicesResult.length === 0) continue;
 
@@ -147,13 +164,15 @@ export class CronService {
         await this.pushService.sendPushNotification(app_id, payload, targetUserIds);
 
         if (deviceIds.length > 0) {
-          const valuePlaceholders = deviceIds.map((_, idx) => `($1, $${idx + 2})`).join(', ');
-          await this.dataSource.query(
-            `INSERT INTO drip_sent_logs (drip_step_id, device_token_id)
-             VALUES ${valuePlaceholders}
-             ON CONFLICT DO NOTHING`,
-            [step_id, ...deviceIds]
-          );
+          await this.dripSentLogRepo.createQueryBuilder()
+            .insert()
+            .into(DripSentLog)
+            .values(deviceIds.map((deviceId: number) => ({
+              drip_step_id: step_id,
+              device_token_id: deviceId
+            })))
+            .orIgnore()
+            .execute();
         }
       } catch (err) {
         this.logger.error(`[Drip] Failed to send step ${step_id}:`, err);

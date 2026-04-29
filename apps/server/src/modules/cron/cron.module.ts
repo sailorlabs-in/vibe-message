@@ -8,6 +8,7 @@ import { Notification } from '../push/notification.entity';
 import { DeviceToken } from '../device/device_token.entity';
 import { DripCampaign, DripStep, DripSentLog } from '../drip/drip.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SystemSettings } from '../system/system_settings.entity';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       DripCampaign,
       DripStep,
       DripSentLog,
+      SystemSettings,
     ]),
     SystemModule,
     PushModule,
