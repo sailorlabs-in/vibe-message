@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import ApiRequest from "../../../services/ApiRequest";
 import { TableSkeleton } from "../../../components/common/SkeletonLoader";
-import { RiNotificationLine, RiDeleteBinLine } from "@remixicon/react";
+import { RiNotificationLine, RiDeleteBinLine, RiRefreshLine } from "@remixicon/react";
 import { useAppDispatch } from "../../../store/store";
 import { clearAppNotifications } from "../../../store/slices/appsSlice";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
@@ -91,12 +91,23 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
 
   if (notifications.length === 0) {
     return (
-      <div className="card text-center py-10">
-        <div className="w-16 h-16 mx-auto mb-4 bg-theme-bg-muted rounded-full flex items-center justify-center text-theme-text-muted">
-           <RiNotificationLine size={32} />
+      <div className="card py-10">
+        <div className="flex justify-end px-2 -mt-2 mb-2">
+          <button
+            onClick={fetchNotifications}
+            className="text-sm font-medium text-theme-primary-500 hover:text-theme-primary-600 focus:outline-none flex items-center gap-1"
+          >
+            <RiRefreshLine size={16} />
+            Refresh
+          </button>
         </div>
-        <h3 className="text-lg font-medium text-theme-text-primary">No notifications sent yet</h3>
-        <p className="text-theme-text-secondary mt-1">Use the composer to send your first push notification.</p>
+        <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-4 bg-theme-bg-muted rounded-full flex items-center justify-center text-theme-text-muted">
+           <RiNotificationLine size={32} />
+          </div>
+          <h3 className="text-lg font-medium text-theme-text-primary">No notifications sent yet</h3>
+          <p className="text-theme-text-secondary mt-1">Use the composer to send your first push notification.</p>
+        </div>
       </div>
     );
   }
@@ -108,16 +119,25 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
           Notification History
         </h2>
         
-        {notifications.length > 0 && (
-          <button 
-            onClick={() => setShowClearConfirmModal(true)} 
-            disabled={clearing || notifications.length === 0}
-            className="px-4 py-2 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/40 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 outline-none focus:ring-2 focus:ring-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+        <div className="flex items-center gap-3">
+          {notifications.length > 0 && (
+            <button
+              onClick={() => setShowClearConfirmModal(true)}
+              disabled={clearing || notifications.length === 0}
+              className="px-4 py-2 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/40 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 outline-none focus:ring-2 focus:ring-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <RiDeleteBinLine size={16} />
+              {clearing ? "Clearing..." : "Clear History"}
+            </button>
+          )}
+          <button
+            onClick={fetchNotifications}
+            className="text-sm font-medium text-theme-primary-500 hover:text-theme-primary-600 focus:outline-none flex items-center gap-1"
           >
-            <RiDeleteBinLine size={16} />
-            {clearing ? "Clearing..." : "Clear History"}
+            <RiRefreshLine size={16} />
+            Refresh
           </button>
-        )}
+        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
