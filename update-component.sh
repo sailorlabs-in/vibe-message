@@ -2,34 +2,38 @@
 set -e
 
 if [ -z "$1" ]; then
-  echo "Usage: ./update-component.sh <component-name>"
-  echo "Example: ./update-component.sh backend"
-  echo "Valid components: frontend, backend, demo"
+  echo "Usage: ./update-component-v2.sh <component-name>"
+  echo "Example: ./update-component-v2.sh backend"
+  echo "Valid components: frontend, backend, demo, frontend-new, backend-new, demo-new"
   exit 1
 fi
 
 COMPONENT=$1
 NAMESPACE="message-app"
+CLUSTER_NAME="vibe-new"
+
+# Switch kubectl context to ensure deployment goes to the new cluster
+kubectl config use-context kind-$CLUSTER_NAME
 
 case $COMPONENT in
   frontend|frontend-new)
-    DIR="./frontend"
+    DOCKERFILE="./apps/frontend/Dockerfile"
     IMAGE="local/frontend:latest"
     DEPLOYMENT="frontend"
     ;;
   backend|backend-new)
-    DIR="./server"
+    DOCKERFILE="./apps/server/Dockerfile"
     IMAGE="local/server:latest"
     DEPLOYMENT="backend"
     
     # Refresh the backend secret so latest .env changes are picked up
-    echo "Updating backend-secret from server/.env..."
+    echo "Updating backend-secret from apps/server/.env..."
     if command -v ip &> /dev/null; then
         HOST_IP=$(ip -4 route get 1.1.1.1 | grep -P -o 'src \K\S+')
     else
         HOST_IP="host.docker.internal"
     fi
-    cp server/.env .env.k8s
+    cp apps/server/.env .env.k8s
     sed -i "s/localhost/$HOST_IP/g" .env.k8s
     sed -i "s/127.0.0.1/$HOST_IP/g" .env.k8s
     kubectl create secret generic backend-secret \
@@ -37,7 +41,7 @@ case $COMPONENT in
         -n $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
     
     # Refresh the backend configmap
-    echo "Updating backend-config ConfigMap from server/.env..."
+    echo "Updating backend-config ConfigMap from apps/server/.env..."
     PORT_VAL=$(grep '^PORT=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
     ENV_VAL=$(grep '^NODE_ENV=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
     CORS_VAL=$(grep '^FRONTEND_URL=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
@@ -58,7 +62,7 @@ case $COMPONENT in
     rm .env.k8s
     ;;
   demo|demo-new)
-    DIR="./notification-demo"
+    DOCKERFILE="./apps/notification-demo/Dockerfile"
     IMAGE="local/demo:latest"
     DEPLOYMENT="demo"
     ;;
@@ -69,11 +73,11 @@ case $COMPONENT in
     ;;
 esac
 
-echo "Step 1/3: Rebuilding Docker image for $COMPONENT..."
-docker build -t $IMAGE $DIR
+echo "Step 1/3: Rebuilding Docker image for $COMPONENT (using Monorepo Root Context)..."
+sudo docker build -f $DOCKERFILE -t $IMAGE .
 
-echo "Step 2/3: Loading image into KIND cluster..."
-kind load docker-image $IMAGE
+echo "Step 2/3: Loading image into KIND cluster '$CLUSTER_NAME'..."
+sudo kind load docker-image $IMAGE --name $CLUSTER_NAME
 
 echo "Step 3/3: Restarting Kubernetes deployment to pick up the new image..."
 kubectl rollout restart deployment/$DEPLOYMENT -n $NAMESPACE

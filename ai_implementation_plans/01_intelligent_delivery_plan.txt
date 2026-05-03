@@ -1,0 +1,29 @@
+# AI Implementation Task: Intelligent Delivery & Automation
+
+## Objective
+Implement Local Timezone Delivery and Automated Drip Campaigns into the Vibe Message platform.
+
+## Context
+Currently, notifications are sent immediately to all subscribers. We need to introduce the ability to schedule notifications based on the user's local timezone (e.g., 9:00 AM user local time) and to set up sequence workflows (Drip Campaigns).
+
+## Step-by-Step Implementation Plan
+
+### Phase 1: Database Updates (PostgreSQL / Prisma or internal schema)
+1. Update your `Subscriber` or `Device` table/model to include a `timezone` field (e.g., `America/New_York`).
+2. Update the `Campaign` or `Notification` sending model to include a `scheduledAtLocalTime` field (time without date, e.g., "09:00:00").
+3. Create a `DripCampaign` and `DripStep` model to define automated sequence delays (e.g., "Send Step 2 after 3 days").
+
+### Phase 2: Frontend SDK Updates
+1. Modify the `vibe.register()` or equivalent initialization function on the client frontend SDK to detect `Intl.DateTimeFormat().resolvedOptions().timeZone` and send it during device registration.
+
+### Phase 3: Backend Scheduler
+1. Implement a Node.js cron job (node-cron or agenda) that runs every 15-30 minutes.
+2. In the cron job, query campaigns that are marked for "Timezone Routing". Loop through distinct timezones, calculate if "now" matches the scheduled local time for that timezone, and select the specific devices in that timezone to blast.
+
+### Phase 4: Dashboard UI
+1. Add a "Delivery Time" section in the `PushComposer.tsx` frontend component.
+2. Add a toggle for "Send in user's local timezone" vs "Send immediately".
+3. Provide a UI specifically for Drip Campaigns (e.g., Day 1, Day 3, Day 7).
+
+## Instructions for AI
+Please begin by checking `apps/server/src/models` or `apps/server/prisma` (whichever schema exists) to introduce the timezone properties. Then, update the device registration API routes. Wait for my feedback after database changes before moving to the frontend UI.

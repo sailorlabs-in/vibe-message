@@ -1,0 +1,29 @@
+# AI Implementation Task: Advanced Developer API & Webhooks
+
+## Objective
+Provide extensive programmatic utility for our customers by introducing Real-Time Webhooks and Granular API Keys with Roles.
+
+## Context
+Developers building on Vibe Message want data routed back to their own servers securely. If a user unsubscribes or clicks a notification, the developer wants their server to know instantly via a webhook POST request. They also need granular API keys.
+
+## Step-by-Step Implementation Plan
+
+### Phase 1: Webhook Infrastructure Backend
+1. Update the `App` or `Workspace` table/model to include a `webhookUrl` field and a `webhookSecret` field.
+2. In the `apps/server/utils`, build a `dispatchWebhook(appId, eventType, payload)` utility.
+3. Ensure the utility performs an HTTP POST request to the application's configured URL with a payload like `{ "event": "notification.clicked", "data": { ... } }`.
+4. Sign the payload using HMAC with the `webhookSecret` so developers can verify the authenticity of the webhook.
+
+### Phase 2: Wiring up Triggers
+1. Hook `dispatchWebhook` into:
+   - Device registration endpoints (event: `device.subscribed`)
+   - Device unregister/unsubscribe endpoints (event: `device.unsubscribed`)
+   - Click telemetry endpoints (event: `notification.clicked`)
+
+### Phase 3: Dashboard Webhook Config UI
+1. Inside the platform's app settings (`AppDetails.tsx` or similar configuration area), add a section indicating "Webhooks".
+2. Provide a field to enter the Webhook URL and a "Generate Secret" button. 
+3. Include a "Send Test Event" button to help developers test their integrations.
+
+## Instructions for AI
+We want solid background processing for these webhooks so they don't block the main API threads. Let's look at `node-cron` or simple asynchronous calls in `server/src/utils`. Implement the cryptographic webhook signing algorithm correctly, then wire the API to dispatch events. Once the backend works via manual HTTP testing, build the Webhook configuration UI on the admin frontend.

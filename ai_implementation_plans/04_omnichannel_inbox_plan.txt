@@ -1,0 +1,27 @@
+# AI Implementation Task: Omnichannel Notification Inbox (Bell Icon)
+
+## Objective
+Build a plug-and-play frontend components toolkit (a "Bell Icon" inbox) that developers can natively drop into their websites alongside standard Web Push.
+
+## Context
+If a user misses a web push or has them disabled, there's no way to view past messages. We want to build an embeddable React/Vanilla JS inbox component that fetches and shows the 20 most recent messages right in the user's web platform.
+
+## Step-by-Step Implementation Plan
+
+### Phase 1: Backend History Endpoint
+1. Create a `GET /api/v1/inbox/:endpoint` or `GET /api/v1/inbox/:user_id` route.
+2. Map recent messages sent to this specific device/user. Return them ordered by time descending (limit: 50).
+3. Ensure the schema supports a `read` boolean status. Create a `POST /api/v1/inbox/:message_id/read` endpoint to mark items as viewed.
+
+### Phase 2: Frontend SDK Toolkit (Injectable component)
+1. Add an embed script or React Component to the `vibe-message` SDK.
+2. Example API: `import { VibeInbox } from 'vibe-message/react'; <VibeInbox theme="dark" />`
+3. This component should render a Bell Icon. When clicked, it renders a dropdown popover showing the list of fetched notifications.
+4. Implement a small red notification badge inside the component for `unreadCount`.
+
+### Phase 3: Syncing Push and Inbox
+1. In the Service Worker, ensure notifications that are "Clicked" sync directly with the `read` status endpoint in Phase 1.
+2. In the `VibeInbox` component, poll or connect via websockets to get real-time unread counts.
+
+## Instructions for AI
+I want to focus heavily on the frontend embeddable SDK first. Please look at the `vibe-message` directory/package in this workspace. Let's create an `Inbox` React component there. Then, let's create the two necessary `GET` and `POST` inbox routes in our `apps/server` environment. Review the backend routes with me before editing the SDK.
