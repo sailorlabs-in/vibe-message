@@ -1,0 +1,30 @@
+# AI Implementation Task: Advanced Audience Segmentation
+
+## Objective
+Implement Audience Tagging and Geofencing functionality, allowing dashboard users to filter subscribers instead of broadcasting to everyone.
+
+## Context
+Sending relevant notifications is key. Instead of sending a push to the entire app user base, we want to allow developers to tag users (e.g., tag: 'sports_fan', role: 'admin') and target them directly from the dashboard.
+
+## Step-by-Step Implementation Plan
+
+### Phase 1: Database Updates
+1. Introduce a JSONB column called `tags` or `properties` inside the `Device` or `Subscriber` model (or create a relational mapping). It should act as a key-value store.
+2. Example schema: `{ "topic": "sports", "role": "admin", "country": "US" }`.
+
+### Phase 2: Client SDK Refactor
+1. Add a new method to the frontend SDK: `vibe.setTags({ topic: 'sports' })`.
+2. This method should ping an endpoint `POST /api/v1/devices/:endpoint/tags` to update the user's tags on our backend.
+
+### Phase 3: Backend API Modification
+1. Create the endpoint for managing device tags. 
+2. Modify the `POST /api/v1/messages/send` or campaign dispatch logic. The API should now accept a `filters` object. E.g., `where: { tags: { topic: 'sports' } }`.
+3. Update the SQL query builder to properly filter using JSONB containment operators `@@` or `@>`.
+
+### Phase 4: Dashboard UI
+1. In `PushComposer.tsx`, add an "Audience Selection" dropdown.
+2. Let users switch from "All Users" to "Segment". Provide inputs to specify key-value matching (e.g., `topic equals sports`).
+3. Have the backend calculate and return an estimate: "This will reach approximately ~450 users" before the user hits Send.
+
+## Instructions for AI
+Start by implementing the backend tag structure for devices/subscribers. Check the existing POST registration endpoint and how it stores devices, then update the schema to accept key-value tags. Provide a review before tackling the PushComposer UI.

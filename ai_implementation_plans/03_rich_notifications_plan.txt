@@ -1,0 +1,31 @@
+# AI Implementation Task: Rich & Interactive Notifications
+
+## Objective
+Enable A/B testing and interactive web push action buttons (e.g., "Like", "Snooze") to increase engagement.
+
+## Context
+Currently, notifications support basic titles and bodies. We want developers to be able to attach action buttons, and marketers to be able to A/B test two different titles to see which one converts better.
+
+## Step-by-Step Implementation Plan
+
+### Phase 1: Web Push Action Buttons payload format
+1. Extend the notification payload in the Node backend `web-push` send method. Update it to include the `actions` array array supported by standard Web Push APIs:
+   `actions: [{ action: 'reply', title: 'Reply', icon: 'url-here' }]`
+2. Update the frontend Service Worker (`push-sw.js` or `worker.js`) to listen for the `notificationclick` event, detect the `event.action`, and log the action type (or navigate specifically to a reply-link URL).
+
+### Phase 2: A/B Testing Data Structure
+1. Update the `Campaign` / `Message` table. Instead of a single `title` and `body`, allow an array of variants. 
+2. Example Schema: `variations: [{ title: 'A', body: 'A' }, { title: 'B', body: 'B' }]`.
+3. Track the number of deliveries and clicks *per variation*, not just per campaign.
+
+### Phase 3: Backend A/B Testing Logic
+1. When a campaign is mapped with variations, distribute it randomly (or round-robin) across the target devices (50% get A, 50% get B).
+2. Attach a `variation_id` to the click telemetry payload when a user clicks the notification.
+
+### Phase 4: Dashboard UI
+1. In `PushComposer.tsx`, add a clear toggle: "[ ] Enable A/B Testing". If checked, duplicate the title/body input fields for "Variant A" and "Variant B".
+2. Also, provide form inputs to specify "Action Buttons" (Action ID, Title, Action URL).
+3. In `AppDetails.tsx` or stats views, show a simple bar chart comparing Variant A vs Variant B CTR.
+
+## Instructions for AI
+First, dive into `server/package.json` to find where `web-push` payloads are constructed. Update the schema and service worker logic to support and track `actions`. Once that works, implement the A/B testing distribution logic. Let's do this step by step.
