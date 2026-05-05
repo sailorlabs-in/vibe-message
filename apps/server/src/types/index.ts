@@ -1,6 +1,6 @@
 // User types
-export type UserRole = 'SUPER_ADMIN' | 'ADMIN';
-export type UserStatus = 'PENDING' | 'APPROVED' | 'BANNED';
+export type UserRole = "SUPER_ADMIN" | "ADMIN";
+export type UserStatus = "PENDING" | "APPROVED" | "BANNED";
 
 export interface User {
   id: number;
@@ -88,7 +88,7 @@ export interface NotificationPayload {
   silent?: boolean;
 }
 
-export type NotificationLogStatus = 'PENDING' | 'SENT' | 'FAILED';
+export type NotificationLogStatus = "PENDING" | "SENT" | "FAILED";
 
 export interface NotificationLog {
   id: number;

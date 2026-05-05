@@ -1,0 +1,64 @@
+# Vibe Message: Features for External Clients
+
+Based on an analysis of the current `vibe-message` codebase, the platform currently acts as a foundation for Web Push Notifications by supporting:
+- Device Registration & Unregistration (with VAPID keys)
+- Direct notifications to specific users (`externalUserIds`)
+- Silent notifications
+- Basic scheduled pushes
+
+To make `vibe-message` a robust, FCM-like notification platform for external developers, the following key features should be implemented.
+
+---
+
+## 1. Topic / Channel Subscriptions
+**Description:** Instead of sending notifications to specific user IDs, external clients can subscribe devices to specific topics (e.g., `news`, `sports`, `offers`) and send push notifications to that topic.
+
+**Implementation Plan:**
+- **Database (`apps/server`):** Create a `DeviceTopic` junction table mapping `device_id` to `topic_name`.
+- **SDK (`libs/sdk`):** 
+  - Add `NotificationClient.subscribeToTopic(topicName)` and `unsubscribeFromTopic(topicName)`.
+  - Add API endpoints `/sdk/topics/subscribe` and `/sdk/topics/unsubscribe`.
+- **Server API (`apps/server`):** Update `/push/send` to accept a new target: `data.targets.topic`. The push service will query all devices associated with the topic and broadcast the payload.
+
+## 2. Broadcast Notifications
+**Description:** Ability to send a notification to *all* registered devices for a specific application without explicitly providing an array of all `externalUserIds`.
+
+**Implementation Plan:**
+- **Server API (`apps/server`):** 
+  - Update `push.controller.ts` and `validateSendPush` to support a `broadcast: true` flag in the target object.
+  - Update `PushService` to fetch all active devices mapped to the `appId` and dispatch the messages in paginated batches (to handle large datasets without memory limits).
+
+## 3. Webhooks & Event Tracking (Delivery, Click, Dismiss)
+**Description:** External developers need to know if their notifications were successfully delivered or clicked. The server should track these events and forward them to the client's backend via Webhooks.
+
+**Implementation Plan:**
+- **Service Worker:** Update `push-sw.js` (or the SDK side) to hook into `notificationclick` and `notificationclose` events. Make an API call to `/sdk/track-event` (e.g., `event_type=click`).
+- **Database (`apps/server`):** 
+  - Add a `WebhookEndpoints` table (URL, active status, events to listen for).
+  - Add a `NotificationEvents` table to log interactions.
+- **Server API (`apps/server`):** Implement an async worker/queue that picks up new events and sends HTTP POST requests to the registered webhook URLs of the respective `appId`.
+
+## 4. Audience Segmentation & User Attributes
+**Description:** Allow developers to tag users with specific attributes (e.g., `country: US`, `subscription: premium`) and send targeted notifications based on these attributes.
+
+**Implementation Plan:**
+- **SDK (`libs/sdk`):** Add `NotificationClient.setUserAttributes(attributes: Record<string, any>)`.
+- **Database (`apps/server`):** Add a JSONB column `attributes` to the `User` or `Device` entity.
+- **Server API (`apps/server`):** 
+  - Update the push endpoint targets to accept `data.targets.segment` (e.g., `{ "country": "US" }`).
+  - Update `PushService` to build dynamic SQL/TypeORM queries to filter devices based on the JSONB attributes before sending.
+
+## 5. Rich Notifications (Action Buttons & Badges)
+**Description:** Enhance the current push payload to natively support advanced web push features like action buttons, vibration patterns, and app badges.
+
+**Implementation Plan:**
+- **SDK Types (`types.ts`):** Expand `NotificationPayload` to include `actions` (array of buttons with `action` and `title`), `badge`, `requireInteraction`, and `vibrate`.
+- **Service Worker:** Update the `showNotification` method to parse and include these new attributes.
+- **Event Handling:** In the `notificationclick` listener, check `event.action` to determine which button was clicked and report it to the analytics tracking endpoint.
+
+## 6. Analytics and Reporting APIs
+**Description:** Provide API endpoints for the external client's backend to fetch campaign performance statistics.
+
+**Implementation Plan:**
+- **Server API (`apps/server`):** Create new endpoints under `/analytics` (e.g., `/analytics/campaign/:id`).
+- **Service (`apps/server`):** Aggregate data from the `NotificationEvents` table to return metrics like `total_sent`, `total_delivered`, `total_clicked`, and `click_through_rate`.
