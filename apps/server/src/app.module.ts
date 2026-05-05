@@ -45,7 +45,7 @@ import { HealthModule } from './modules/health/health.module';
           User, App, DeviceToken, Notification, NotificationLog, 
           Warning, SystemSettings, DripCampaign, DripStep, DripSentLog
         ],
-        synchronize: false, // We use SQL files for migration, so keep this false in prod
+        synchronize: true, // We use SQL files for migration, so keep this false in prod
       }),
       inject: [ConfigService],
     }),

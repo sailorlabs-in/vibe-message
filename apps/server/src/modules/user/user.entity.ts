@@ -1,8 +1,15 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
-import { App } from '../app/app.entity';
-import { Warning } from '../user/warning.entity';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from "typeorm";
+import { App } from "../app/app.entity";
+import { Warning } from "../user/warning.entity";
 
-@Entity('users')
+@Entity("users")
 export class User {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -13,30 +20,30 @@ export class User {
   @Column({ length: 255, unique: true })
   email!: string;
 
-  @Column({ name: 'password_hash', length: 255 })
+  @Column({ name: "password_hash", length: 255 })
   password_hash!: string;
 
   @Column({ length: 20 })
-  role!: 'SUPER_ADMIN' | 'ADMIN';
+  role!: "SUPER_ADMIN" | "ADMIN";
 
-  @Column({ length: 20, default: 'PENDING' })
-  status!: 'PENDING' | 'APPROVED' | 'BANNED';
+  @Column({ length: 20, default: "PENDING" })
+  status!: "PENDING" | "APPROVED" | "BANNED";
 
-  @Column({ name: 'app_limit', type: 'int', nullable: true })
+  @Column({ name: "app_limit", type: "int", nullable: true })
   app_limit!: number | null;
 
-  @Column({ name: 'can_manage_retention', default: false })
+  @Column({ name: "can_manage_retention", default: false })
   can_manage_retention!: boolean;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: "created_at" })
   created_at!: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: "updated_at" })
   updated_at!: Date;
 
-  @OneToMany('App', (app: any) => app.user)
+  @OneToMany("App", (app: any) => app.user)
   apps!: any[];
 
-  @OneToMany('Warning', (warning: any) => warning.user)
+  @OneToMany("Warning", (warning: any) => warning.user)
   warnings!: any[];
 }

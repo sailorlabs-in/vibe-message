@@ -1,12 +1,12 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { App as AppEntity } from '../app/app.entity';
-import { User } from '../user/user.entity';
-import { Notification } from '../push/notification.entity';
-import { initServerClient } from 'vibe-message';
-import { generateAppId, generateSecretKey } from '../../utils/crypto';
-import { getVapidPublicKey } from '../../utils/webPush';
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { App as AppEntity } from "../app/app.entity";
+import { User } from "../user/user.entity";
+import { Notification } from "../push/notification.entity";
+import { initServerClient } from "vibe-message";
+import { generateAppId, generateSecretKey } from "../../utils/crypto";
+import { getVapidPublicKey } from "../../utils/webPush";
 
 const INTERNAL_APP_NAME = "Admin Panel Notifications";
 
@@ -28,7 +28,7 @@ export class InternalNotificationService {
       where: {
         name: INTERNAL_APP_NAME,
         description: "Internal app for admin panel notifications",
-      }
+      },
     });
 
     if (existingApp) {
@@ -36,8 +36,8 @@ export class InternalNotificationService {
     }
 
     const superAdmin = await this.userRepository.findOne({
-      where: { role: 'SUPER_ADMIN' },
-      order: { created_at: 'ASC' }
+      where: { role: "SUPER_ADMIN" },
+      order: { created_at: "ASC" },
     });
 
     if (!superAdmin) {
@@ -61,17 +61,21 @@ export class InternalNotificationService {
     return this.appRepository.save(newApp);
   }
 
-  async notifySuperAdmins(title: string, body: string, data?: any): Promise<void> {
+  async notifySuperAdmins(
+    title: string,
+    body: string,
+    data?: any,
+  ): Promise<void> {
     try {
       const internalApp = await this.getOrCreateInternalApp();
 
       const superAdmins = await this.userRepository.find({
-        where: { role: 'SUPER_ADMIN', status: 'APPROVED' }
+        where: { role: "SUPER_ADMIN", status: "APPROVED" },
       });
 
       if (superAdmins.length === 0) return;
 
-      const externalUserIds = superAdmins.map(admin => admin.email);
+      const externalUserIds = superAdmins.map((admin) => admin.email);
 
       const vibe = initServerClient({
         baseUrl: process.env.NOTIFICATION_URL || "http://localhost:3000",
@@ -93,7 +97,12 @@ export class InternalNotificationService {
     }
   }
 
-  async notifyUser(userId: number, title: string, body: string, data?: any): Promise<void> {
+  async notifyUser(
+    userId: number,
+    title: string,
+    body: string,
+    data?: any,
+  ): Promise<void> {
     try {
       const internalApp = await this.getOrCreateInternalApp();
       const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -123,7 +132,10 @@ export class InternalNotificationService {
     }
   }
 
-  async notifySuperAdminNewUser(userName: string, userEmail: string): Promise<void> {
+  async notifySuperAdminNewUser(
+    userName: string,
+    userEmail: string,
+  ): Promise<void> {
     await this.notifySuperAdmins(
       "New User Signup",
       `${userName} (${userEmail}) has signed up and is awaiting approval`,
@@ -150,10 +162,15 @@ export class InternalNotificationService {
   }
 
   async notifyUserWarned(userId: number, message: string): Promise<void> {
-    await this.notifyUser(userId, "Warning from Administrator", message, { type: "warning" });
+    await this.notifyUser(userId, "Warning from Administrator", message, {
+      type: "warning",
+    });
   }
 
-  async notifyUserAppLimitChanged(userId: number, newLimit: number | null): Promise<void> {
+  async notifyUserAppLimitChanged(
+    userId: number,
+    newLimit: number | null,
+  ): Promise<void> {
     const limitText = newLimit === null ? "unlimited" : newLimit.toString();
     await this.notifyUser(
       userId,
@@ -167,12 +184,15 @@ export class InternalNotificationService {
 
     const notifications = await this.notificationRepository.find({
       where: { app_id: internalApp.id },
-      order: { created_at: 'DESC' },
+      order: { created_at: "DESC" },
       take: limit,
     });
 
-    return notifications.map(notif => {
-      const payload = typeof notif.payload_json === 'string' ? JSON.parse(notif.payload_json) : notif.payload_json;
+    return notifications.map((notif) => {
+      const payload =
+        typeof notif.payload_json === "string"
+          ? JSON.parse(notif.payload_json)
+          : notif.payload_json;
       return {
         id: notif.id,
         ...payload,

@@ -1,11 +1,17 @@
-import { customAlphabet } from 'nanoid';
-import CryptoJS from 'crypto-js';
+import { customAlphabet } from "nanoid";
+import CryptoJS from "crypto-js";
 
 // Generate public app ID (short, URL-safe)
-const nanoidAppId = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz', 16);
+const nanoidAppId = customAlphabet(
+  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
+  16,
+);
 
 // Generate secret key (longer, more secure)
-const nanoidSecret = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_', 64);
+const nanoidSecret = customAlphabet(
+  "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_",
+  64,
+);
 
 export const generateAppId = (): string => {
   return `app_${nanoidAppId()}`;
@@ -26,10 +32,10 @@ export function decryptPayload(encryptedPayload: string, secret: string): any {
     const bytes = CryptoJS.AES.decrypt(encryptedPayload, secret);
     const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
     if (!decryptedString) {
-      throw new Error('Decryption failed, returned empty string');
+      throw new Error("Decryption failed, returned empty string");
     }
     return JSON.parse(decryptedString);
   } catch (error) {
-    throw new Error('Invalid or corrupted encrypted payload');
+    throw new Error("Invalid or corrupted encrypted payload");
   }
 }

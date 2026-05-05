@@ -1,11 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
-import { DripCampaign, DripStep } from './drip.entity';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository, DataSource } from "typeorm";
+import { DripCampaign, DripStep } from "./drip.entity";
 
 export interface DripStepInput {
   dayDelay: number;
-  time: string;         // "HH:MM" local time
+  time: string; // "HH:MM" local time
   title: string;
   body: string;
 }
@@ -24,11 +24,13 @@ export class DripService {
     private dataSource: DataSource,
   ) {}
 
-  async getDripCampaign(internalAppId: number): Promise<DripCampaignWithSteps | null> {
+  async getDripCampaign(
+    internalAppId: number,
+  ): Promise<DripCampaignWithSteps | null> {
     const campaign = await this.campaignRepository.findOne({
       where: { app_id: internalAppId, is_active: true },
-      order: { created_at: 'DESC' },
-      relations: ['steps'],
+      order: { created_at: "DESC" },
+      relations: ["steps"],
     });
 
     if (!campaign) {
@@ -45,14 +47,18 @@ export class DripService {
     internalAppId: number,
     name: string,
     steps: DripStepInput[],
-    isActive: boolean = true
+    isActive: boolean = true,
   ): Promise<DripCampaignWithSteps> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      await queryRunner.manager.update(DripCampaign, { app_id: internalAppId }, { is_active: false });
+      await queryRunner.manager.update(
+        DripCampaign,
+        { app_id: internalAppId },
+        { is_active: false },
+      );
 
       const newCampaign = this.campaignRepository.create({
         app_id: internalAppId,
@@ -66,7 +72,8 @@ export class DripService {
       for (let i = 0; i < steps.length; i++) {
         const step = steps[i];
         const payload = JSON.stringify({ title: step.title, body: step.body });
-        const scheduledTime = step.time.length === 5 ? `${step.time}:00` : step.time;
+        const scheduledTime =
+          step.time.length === 5 ? `${step.time}:00` : step.time;
 
         const newStep = this.stepRepository.create({
           campaign_id: savedCampaign.id,
@@ -82,7 +89,10 @@ export class DripService {
 
       await queryRunner.commitTransaction();
 
-      return { ...savedCampaign, steps: insertedSteps } as DripCampaignWithSteps;
+      return {
+        ...savedCampaign,
+        steps: insertedSteps,
+      } as DripCampaignWithSteps;
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw err;
@@ -94,11 +104,11 @@ export class DripService {
   async deactivateDripCampaign(internalAppId: number): Promise<void> {
     const result = await this.campaignRepository.update(
       { app_id: internalAppId, is_active: true },
-      { is_active: false }
+      { is_active: false },
     );
 
     if (result.affected === 0) {
-      throw new NotFoundException('No active drip campaign found for this app');
+      throw new NotFoundException("No active drip campaign found for this app");
     }
   }
 }
