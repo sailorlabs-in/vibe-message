@@ -1,20 +1,30 @@
-import { Controller, Get, Post, Patch, Delete, Param, Query, Body, UseGuards, Req } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
-import { AppService } from './app.service';
-import { AuthGuard } from '../../common/guards/auth.guard';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { ApprovedGuard } from '../../common/guards/approved.guard';
-import { CreateAppRequest, UpdateAppRequest } from '../../types';
-import { InternalNotificationService } from '../system/internal-notification.service';
-import { PushService } from '../push/push.service';
-import { DeviceService } from '../device/device.service';
-import { DripService } from '../drip/drip.service';
-import { UserService } from '../user/user.service';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Param,
+  Query,
+  Body,
+  UseGuards,
+  Req,
+} from "@nestjs/common";
+import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
+import { AppService } from "./app.service";
+import { AuthGuard } from "../../common/guards/auth.guard";
+import { ApprovedGuard } from "../../common/guards/approved.guard";
+import { CreateAppRequest, UpdateAppRequest } from "../../types";
+import { InternalNotificationService } from "../system/internal-notification.service";
+import { PushService } from "../push/push.service";
+import { DeviceService } from "../device/device.service";
+import { DripService } from "../drip/drip.service";
+import { UserService } from "../user/user.service";
 
-@ApiTags('Apps')
+@ApiTags("Apps")
 @ApiBearerAuth()
 @UseGuards(AuthGuard)
-@Controller('apps')
+@Controller("apps")
 export class AppController {
   constructor(
     private readonly appService: AppService,
@@ -27,9 +37,13 @@ export class AppController {
 
   @UseGuards(ApprovedGuard)
   @Get()
-  async getUserApps(@Req() req: any, @Query('userId') userId?: string) {
+  async getUserApps(@Req() req: any, @Query("userId") userId?: string) {
     const targetUserId = userId ? parseInt(userId, 10) : undefined;
-    const apps = await this.appService.getUserApps(req.user.userId, req.user.role, targetUserId);
+    const apps = await this.appService.getUserApps(
+      req.user.userId,
+      req.user.role,
+      targetUserId,
+    );
     return { success: true, data: apps };
   }
 
@@ -40,102 +54,162 @@ export class AppController {
     return { success: true, data: app };
   }
 
-  @Get('system/public')
+  @Get("system/public")
   async getSystemAppPublic() {
     const app = await this.internalNotificationService.getOrCreateInternalApp();
     return {
       success: true,
       data: {
         public_app_id: app.public_app_id,
-        public_key: app.public_key || '',
+        public_key: app.public_key || "",
       },
     };
   }
 
   @UseGuards(ApprovedGuard)
-  @Get(':id')
-  async getAppById(@Req() req: any, @Param('id') id: string) {
-    const app = await this.appService.getAppById(id, req.user.userId, req.user.role);
+  @Get(":id")
+  async getAppById(@Req() req: any, @Param("id") id: string) {
+    const app = await this.appService.getAppById(
+      id,
+      req.user.userId,
+      req.user.role,
+    );
     return { success: true, data: app };
   }
 
   @UseGuards(ApprovedGuard)
-  @Patch(':id')
-  async updateApp(@Req() req: any, @Param('id') id: string, @Body() data: UpdateAppRequest) {
-    const app = await this.appService.updateApp(id, req.user.userId, req.user.role, data);
+  @Patch(":id")
+  async updateApp(
+    @Req() req: any,
+    @Param("id") id: string,
+    @Body() data: UpdateAppRequest,
+  ) {
+    const app = await this.appService.updateApp(
+      id,
+      req.user.userId,
+      req.user.role,
+      data,
+    );
     return { success: true, data: app };
   }
 
   @UseGuards(ApprovedGuard)
-  @Post(':id/rotate-secret')
-  async rotateAppSecret(@Req() req: any, @Param('id') id: string) {
-    const app = await this.appService.rotateAppSecret(id, req.user.userId, req.user.role);
+  @Post(":id/rotate-secret")
+  async rotateAppSecret(@Req() req: any, @Param("id") id: string) {
+    const app = await this.appService.rotateAppSecret(
+      id,
+      req.user.userId,
+      req.user.role,
+    );
     return { success: true, data: app };
   }
 
   @UseGuards(ApprovedGuard)
-  @Delete(':id')
-  async deleteApp(@Req() req: any, @Param('id') id: string) {
+  @Delete(":id")
+  async deleteApp(@Req() req: any, @Param("id") id: string) {
     await this.appService.deleteApp(id, req.user.userId, req.user.role);
-    return { success: true, message: 'App deleted successfully' };
+    return { success: true, message: "App deleted successfully" };
   }
 
   @UseGuards(ApprovedGuard)
-  @Get(':id/notifications')
-  async getAppNotifications(@Req() req: any, @Param('id') id: string) {
-    const app = await this.appService.getAppById(id, req.user.userId, req.user.role);
-    const notifications = await this.pushService.getAppNotifications(app.id, 100);
+  @Get(":id/notifications")
+  async getAppNotifications(@Req() req: any, @Param("id") id: string) {
+    const app = await this.appService.getAppById(
+      id,
+      req.user.userId,
+      req.user.role,
+    );
+    const notifications = await this.pushService.getAppNotifications(
+      app.id,
+      100,
+    );
     return { success: true, data: notifications };
   }
 
   @UseGuards(ApprovedGuard)
-  @Delete(':id/notifications')
-  async clearAppNotifications(@Req() req: any, @Param('id') id: string) {
-    const app = await this.appService.getAppById(id, req.user.userId, req.user.role);
+  @Delete(":id/notifications")
+  async clearAppNotifications(@Req() req: any, @Param("id") id: string) {
+    const app = await this.appService.getAppById(
+      id,
+      req.user.userId,
+      req.user.role,
+    );
     await this.pushService.clearAppNotifications(app.id);
-    return { success: true, message: 'Notification history cleared successfully' };
+    return {
+      success: true,
+      message: "Notification history cleared successfully",
+    };
   }
 
   @UseGuards(ApprovedGuard)
-  @Get(':id/notifications/:notificationId/logs')
-  async getNotificationLogs(@Req() req: any, @Param('id') id: string, @Param('notificationId') notificationId: string) {
+  @Get(":id/notifications/:notificationId/logs")
+  async getNotificationLogs(
+    @Req() req: any,
+    @Param("id") id: string,
+    @Param("notificationId") notificationId: string,
+  ) {
     await this.appService.getAppById(id, req.user.userId, req.user.role);
-    const logs = await this.pushService.getNotificationLogs(parseInt(notificationId, 10));
+    const logs = await this.pushService.getNotificationLogs(
+      parseInt(notificationId, 10),
+    );
     return { success: true, data: logs };
   }
 
   @UseGuards(ApprovedGuard)
-  @Get(':id/subscribers')
-  async getAppSubscribers(@Req() req: any, @Param('id') id: string) {
-    const app = await this.appService.getAppById(id, req.user.userId, req.user.role);
+  @Get(":id/subscribers")
+  async getAppSubscribers(@Req() req: any, @Param("id") id: string) {
+    const app = await this.appService.getAppById(
+      id,
+      req.user.userId,
+      req.user.role,
+    );
     const devices = await this.deviceService.getDevicesByApp(app.id);
-    const subscribers = devices.map(d => ({
+    const subscribers = devices.map((d) => ({
       id: d.id,
       external_user_id: d.external_user_id,
       is_active: d.is_active,
       created_at: d.created_at,
-      updated_at: d.updated_at
+      updated_at: d.updated_at,
     }));
     return { success: true, data: subscribers };
   }
 
   @UseGuards(ApprovedGuard)
-  @Delete(':id/subscribers')
-  async clearAppSubscribers(@Req() req: any, @Param('id') id: string) {
-    const app = await this.appService.getAppById(id, req.user.userId, req.user.role);
+  @Delete(":id/subscribers")
+  async clearAppSubscribers(@Req() req: any, @Param("id") id: string) {
+    const app = await this.appService.getAppById(
+      id,
+      req.user.userId,
+      req.user.role,
+    );
     await this.deviceService.unregisterAllDevicesForApp(app.id);
-    return { success: true, message: 'All devices unregistered successfully for this app' };
+    return {
+      success: true,
+      message: "All devices unregistered successfully for this app",
+    };
   }
 
   @UseGuards(ApprovedGuard)
-  @Post(':id/push')
-  async sendPushNotificationDirectly(@Req() req: any, @Param('id') id: string, @Body() body: any) {
-    const app = await this.appService.getAppById(id, req.user.userId, req.user.role);
+  @Post(":id/push")
+  async sendPushNotificationDirectly(
+    @Req() req: any,
+    @Param("id") id: string,
+    @Body() body: any,
+  ) {
+    const app = await this.appService.getAppById(
+      id,
+      req.user.userId,
+      req.user.role,
+    );
     let targetUserIds: string[] | undefined;
     if (body.targets?.externalUserIds?.length > 0) {
       targetUserIds = body.targets.externalUserIds;
     }
-    const result = await this.pushService.sendPushNotification(app.id, body.notification, targetUserIds);
+    const result = await this.pushService.sendPushNotification(
+      app.id,
+      body.notification,
+      targetUserIds,
+    );
     return {
       success: true,
       data: {
@@ -147,28 +221,46 @@ export class AppController {
     };
   }
 
-  @Get('user/warnings')
+  @Get("user/warnings")
   async getUserWarnings(@Req() req: any) {
     const warnings = await this.userService.getUserWarnings(req.user.userId);
     return { success: true, data: warnings };
   }
 
   @UseGuards(ApprovedGuard)
-  @Get(':id/drip-campaign')
-  async getDripCampaign(@Req() req: any, @Param('id') id: string) {
-    const app = await this.appService.getAppById(id, req.user.userId, req.user.role);
+  @Get(":id/drip-campaign")
+  async getDripCampaign(@Req() req: any, @Param("id") id: string) {
+    const app = await this.appService.getAppById(
+      id,
+      req.user.userId,
+      req.user.role,
+    );
     const campaign = await this.dripService.getDripCampaign(app.id);
     return { success: true, data: campaign };
   }
 
   @UseGuards(ApprovedGuard)
-  @Post(':id/drip-campaign')
-  async saveDripCampaign(@Req() req: any, @Param('id') id: string, @Body() body: any) {
+  @Post(":id/drip-campaign")
+  async saveDripCampaign(
+    @Req() req: any,
+    @Param("id") id: string,
+    @Body() body: any,
+  ) {
     const { name, steps, is_active } = body;
-    const campaignName = (typeof name === 'string' && name.trim()) ? name.trim() : 'Drip Campaign';
-    const isActive = typeof is_active === 'boolean' ? is_active : true;
-    const app = await this.appService.getAppById(id, req.user.userId, req.user.role);
-    const campaign = await this.dripService.saveDripCampaign(app.id, campaignName, steps, isActive);
+    const campaignName =
+      typeof name === "string" && name.trim() ? name.trim() : "Drip Campaign";
+    const isActive = typeof is_active === "boolean" ? is_active : true;
+    const app = await this.appService.getAppById(
+      id,
+      req.user.userId,
+      req.user.role,
+    );
+    const campaign = await this.dripService.saveDripCampaign(
+      app.id,
+      campaignName,
+      steps,
+      isActive,
+    );
     return { success: true, data: campaign };
   }
 }
