@@ -286,6 +286,19 @@ export const Landing: React.FC = () => {
                 }}
                 className="flex items-center space-x-2 text-xl font-bold font-display"
               >
+                <RiFlashlightLine /> <span>Redis</span>
+              </motion.div>
+              <motion.div
+                variants={{
+                  hidden: { opacity: 0, y: 20 },
+                  visible: {
+                    opacity: 1,
+                    y: 0,
+                    transition: { type: "spring", stiffness: 100 },
+                  },
+                }}
+                className="flex items-center space-x-2 text-xl font-bold font-display"
+              >
                 <RiGlobalLine /> <span>Service Workers</span>
               </motion.div>
             </motion.div>
@@ -338,10 +351,10 @@ export const Landing: React.FC = () => {
                     Hyper-Scale Core
                   </h3>
                   <p className="text-theme-text-secondary text-lg leading-relaxed">
-                    Built natively on heavily optimized PostgreSQL and event
-                    queues. Capable of processing hundreds of thousands of
-                    concurrent notification dispatch requests without breaking a
-                    sweat. Guaranteed delivery integrity.
+                    Built natively on heavily optimized PostgreSQL, Redis caching,
+                    and Redis-backed event queues. Capable of processing hundreds of
+                    thousands of concurrent notification dispatch requests without
+                    breaking a sweat. Guaranteed delivery integrity.
                   </p>
                 </div>
               </motion.div>
@@ -764,7 +777,7 @@ export const Landing: React.FC = () => {
           </motion.div>
         </section>
 
-        
+
       </div>
     </div>
   );
