@@ -30,6 +30,10 @@ interface EnvConfig {
     user: string;
     pass: string;
   };
+  redis: {
+    host: string;
+    port: number;
+  };
 }
 
 const getEnvVar = (key: string, defaultValue?: string): string => {
@@ -70,4 +74,9 @@ export const config: EnvConfig = {
     user: getEnvVar("SWAGGER_USER", "umangsailor"),
     pass: getEnvVar("SWAGGER_PASS", "Umang6Sailor"),
   },
+  redis: {
+    host: getEnvVar("REDIS_HOST", "localhost"),
+    port: parseInt(getEnvVar("REDIS_PORT", "6379"), 10),
+  },
 };
+

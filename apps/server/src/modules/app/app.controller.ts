@@ -216,7 +216,9 @@ export class AppController {
         notificationId: result.notificationId,
         sent: result.sent,
         failed: result.failed,
-        message: `Notification sent to ${result.sent} device(s), ${result.failed} failed`,
+        message: result.queued
+          ? "Notification queued for delivery in background"
+          : `Notification sent to ${result.sent} device(s), ${result.failed} failed`,
       },
     };
   }

@@ -27,15 +27,25 @@ import { AdminModule } from './modules/admin/admin.module';
 import { SdkModule } from './modules/sdk/sdk.module';
 import { SystemModule } from './modules/system/system.module';
 import { HealthModule } from './modules/health/health.module';
+import { RedisModule } from './modules/redis/redis.module';
+import { RedisService } from './modules/redis/redis.service';
+import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     ScheduleModule.forRoot(),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 100, // 100 requests per minute
-    }]),
+    ThrottlerModule.forRootAsync({
+      imports: [RedisModule],
+      inject: [RedisService],
+      useFactory: (redisService: RedisService) => ({
+        throttlers: [{
+          ttl: 60000,
+          limit: 100, // 100 requests per minute
+        }],
+        storage: new ThrottlerStorageRedisService(redisService.client),
+      }),
+    }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: () => ({
@@ -59,7 +69,9 @@ import { HealthModule } from './modules/health/health.module';
     SdkModule,
     SystemModule,
     HealthModule,
+    RedisModule,
   ],
+
   controllers: [],
   providers: [
     {

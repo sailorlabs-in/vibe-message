@@ -6,6 +6,7 @@ import { NotificationLog as NotificationLogEntity } from "./notification_log.ent
 import { DeviceToken as DeviceTokenEntity } from "../device/device_token.entity";
 import { NotificationPayload, PushSubscription } from "../../types";
 import { webpush } from "../../utils/webPush";
+import { RedisService } from "../redis/redis.service";
 
 const RETRY_CONFIG = {
   maxRetries: 3,
@@ -53,6 +54,7 @@ export class PushService {
     @InjectRepository(DeviceTokenEntity)
     private deviceTokenRepository: Repository<DeviceTokenEntity>,
     private dataSource: DataSource,
+    private redisService: RedisService,
   ) {}
 
   private async sendToDevice(
@@ -83,7 +85,7 @@ export class PushService {
     notification: NotificationPayload,
     targetUserIds?: string[],
     scheduledAtLocalTime?: string,
-  ): Promise<{ notificationId: number; sent: number; failed: number }> {
+  ): Promise<{ notificationId: number; sent: number; failed: number; queued?: boolean }> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -97,11 +99,57 @@ export class PushService {
       });
 
       const savedNotification = await queryRunner.manager.save(newNotification);
+      await queryRunner.commitTransaction();
 
       if (scheduledAtLocalTime) {
-        await queryRunner.commitTransaction();
-        return { notificationId: savedNotification.id, sent: 0, failed: 0 };
+        return { notificationId: savedNotification.id, sent: 0, failed: 0, queued: false };
       }
+
+      // Enqueue job in Redis for async delivery
+      await this.redisService.client.rpush(
+        "vibe:push_queue",
+        JSON.stringify({
+          notificationId: savedNotification.id,
+          appId,
+          targetUserIds,
+        }),
+      );
+
+      return {
+        notificationId: savedNotification.id,
+        sent: 0,
+        failed: 0,
+        queued: true,
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async executePushDelivery(
+    notificationId: number,
+    appId: number,
+    targetUserIds?: string[],
+  ): Promise<{ sent: number; failed: number }> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const savedNotification = await queryRunner.manager.findOne(NotificationEntity, {
+        where: { id: notificationId },
+      });
+
+      if (!savedNotification) {
+        console.error(`[Push Service] Notification ${notificationId} not found in DB`);
+        await queryRunner.commitTransaction();
+        return { sent: 0, failed: 0 };
+      }
+
+      const notification: NotificationPayload = JSON.parse(savedNotification.payload_json);
 
       const queryBuilder = queryRunner.manager
         .createQueryBuilder(DeviceTokenEntity, "dt")
@@ -118,7 +166,7 @@ export class PushService {
 
       if (devices.length === 0) {
         await queryRunner.commitTransaction();
-        return { notificationId: savedNotification.id, sent: 0, failed: 0 };
+        return { sent: 0, failed: 0 };
       }
 
       let sentCount = 0;
@@ -172,7 +220,6 @@ export class PushService {
       await queryRunner.commitTransaction();
 
       return {
-        notificationId: savedNotification.id,
         sent: sentCount,
         failed: failedCount,
       };
@@ -183,6 +230,7 @@ export class PushService {
       await queryRunner.release();
     }
   }
+
 
   async getNotificationLogs(
     notificationId: number,

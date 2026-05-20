@@ -8,6 +8,7 @@ import { App as AppEntity } from "../app/app.entity";
 import { Notification } from "../push/notification.entity";
 import { DeviceToken } from "../device/device_token.entity";
 import { DripCampaign, DripSentLog } from "../drip/drip.entity";
+import { RedisService } from "../redis/redis.service";
 
 @Injectable()
 export class CronService {
@@ -27,12 +28,20 @@ export class CronService {
     private dripCampaignRepo: Repository<DripCampaign>,
     @InjectRepository(DripSentLog)
     private dripSentLogRepo: Repository<DripSentLog>,
+    private redisService: RedisService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleCleanup() {
-    this.logger.log("🧹 [Cron] Running daily notification cleanup job...");
     try {
+      const lockKey = "vibe:cleanup_lock";
+      const acquired = await this.redisService.client.set(lockKey, "locked", "PX", 3600000, "NX"); // 1 hour lock
+      if (acquired !== "OK") {
+        this.logger.debug("🧹 [Cron] Notification cleanup lock already acquired. Skipping.");
+        return;
+      }
+
+      this.logger.log("🧹 [Cron] Running daily notification cleanup job...");
       const settings = await this.systemSettingsRepo.findOne({
         where: { id: 1 },
       });
@@ -65,17 +74,28 @@ export class CronService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async handleTimezoneScheduler() {
-    this.logger.log("🌍 [Cron] Timezone-aware scheduler tick...");
     try {
-      await this.runRegularScheduler();
-    } catch (err) {
-      this.logger.error("❌ [Cron] Regular scheduler error:", err);
-    }
+      const lockKey = "vibe:cron_lock";
+      const acquired = await this.redisService.client.set(lockKey, "locked", "PX", 50000, "NX"); // 50 seconds lock
+      if (acquired !== "OK") {
+        this.logger.debug("🌍 [Cron] Timezone-aware scheduler lock already acquired by another replica. Skipping.");
+        return;
+      }
 
-    try {
-      await this.runDripScheduler();
-    } catch (err) {
-      this.logger.error("❌ [Cron] Drip scheduler error:", err);
+      this.logger.log("🌍 [Cron] Timezone-aware scheduler tick (Lock Acquired)...");
+      try {
+        await this.runRegularScheduler();
+      } catch (err) {
+        this.logger.error("❌ [Cron] Regular scheduler error:", err);
+      }
+
+      try {
+        await this.runDripScheduler();
+      } catch (err) {
+        this.logger.error("❌ [Cron] Drip scheduler error:", err);
+      }
+    } catch (error) {
+      this.logger.error("❌ [Cron] Distributed locking error:", error);
     }
   }
 
@@ -83,6 +103,7 @@ export class CronService {
     const notifications = await this.notificationRepo
       .createQueryBuilder("n")
       .where("n.scheduled_at_local_time IS NOT NULL")
+      .andWhere("n.created_at >= NOW() - INTERVAL '36 hours'")
       .getMany();
 
     for (const notification of notifications) {
