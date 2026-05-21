@@ -9,9 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
           <div className="col-span-2 lg:col-span-2">
             <div className="flex items-center space-x-2 mb-6 text-lg font-display font-bold">
-              <div className="w-6 h-6 bg-theme-primary-500 rounded flex items-center justify-center">
-                <div className="w-2.5 h-2.5 bg-white rounded-full"></div>
-              </div>
+              <img src="/favicon.png" alt="Vibe Message Logo" className="w-6 h-6 object-contain" />
               <span>Vibe Message</span>
             </div>
             <p className="text-theme-text-secondary mb-6 max-w-xs leading-relaxed">

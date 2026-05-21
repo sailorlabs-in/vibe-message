@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Notification Demo — Vibe Message",
   description: "Test push and in-app notifications with Vibe Message",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
