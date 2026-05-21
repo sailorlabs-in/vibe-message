@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { ThemeSwitcher } from "../common/ThemeSwitcher";
-import { RiFlashlightLine, RiLogoutBoxLine } from "@remixicon/react";
+import { RiLogoutBoxLine } from "@remixicon/react";
 import { ConfirmModal } from "../common/ConfirmModal";
 
 
@@ -29,7 +29,7 @@ export const Header: React.FC = () => {
         >
           <div className="flex justify-between items-center h-16 w-full px-6 flex-shrink-0">
             <Link to="/" className="text-xl font-bold text-theme-primary-600 dark:text-theme-primary-400 flex items-center gap-2 flex-shrink-0">
-              <RiFlashlightLine size={24} />
+              <img src="/favicon.png" alt="Vibe Message Logo" className="w-6 h-6 object-contain" />
               <span className="truncate tracking-tight hidden sm:block">Vibe Message</span>
               <span className="truncate tracking-tight sm:hidden">Vibe</span>
             </Link>
