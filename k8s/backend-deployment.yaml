@@ -78,6 +78,16 @@ spec:
                 secretKeyRef:
                   name: backend-secret
                   key: SUPER_ADMIN_NAME
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: REDIS_PORT
             - name: ALLOWED_ORIGINS
               valueFrom:
                 configMapKeyRef:
