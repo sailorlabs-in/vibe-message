@@ -147,17 +147,16 @@ export class CronService {
         const targetUserIds = targetDevicesResult.map(
           (r: any) => r.external_user_id,
         );
-        const payload =
-          typeof payload_json === "string"
-            ? JSON.parse(payload_json)
-            : payload_json;
         this.logger.log(
-          `[Scheduler] Sending scheduled notification ${id} to ${targetUserIds.length} user(s)...`,
+          `[Scheduler] Enqueuing scheduled notification ${id} to ${targetUserIds.length} user(s)...`,
         );
-        await this.pushService.sendPushNotification(
-          app_id,
-          payload,
-          targetUserIds,
+        await this.redisService.client.rpush(
+          "vibe:push_queue",
+          JSON.stringify({
+            notificationId: id,
+            appId: app_id,
+            targetUserIds,
+          }),
         );
       }
     }
@@ -210,7 +209,9 @@ export class CronService {
           { delayDays: delay_days },
         )
         .andWhere(
-          `(CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= :stepTime::time`,
+          `(CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= :stepTime::time
+           AND
+           (CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time < (:stepTime::time + INTERVAL '1 minute')`,
           { stepTime: step_time },
         )
         .andWhere((qb) => {
