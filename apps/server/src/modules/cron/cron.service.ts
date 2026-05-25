@@ -210,7 +210,9 @@ export class CronService {
           { delayDays: delay_days },
         )
         .andWhere(
-          `(CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= :stepTime::time`,
+          `(CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= :stepTime::time
+           AND
+           (CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time < (:stepTime::time + INTERVAL '1 minute')`,
           { stepTime: step_time },
         )
         .andWhere((qb) => {
