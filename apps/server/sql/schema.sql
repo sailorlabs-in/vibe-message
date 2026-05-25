@@ -70,7 +70,7 @@ CREATE TABLE notifications (
   app_id INTEGER REFERENCES apps(id) ON DELETE CASCADE,
   payload_json TEXT NOT NULL,
   is_silent BOOLEAN DEFAULT false,
-  scheduled_at_local_time TIME,
+  scheduled_at TIMESTAMP,
   created_by INTEGER REFERENCES users(id),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

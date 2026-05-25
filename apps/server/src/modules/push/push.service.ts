@@ -84,7 +84,7 @@ export class PushService {
     appId: number,
     notification: NotificationPayload,
     targetUserIds?: string[],
-    scheduledAtLocalTime?: string,
+    scheduledAt?: Date | string,
   ): Promise<{ notificationId: number; sent: number; failed: number; queued?: boolean }> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -95,13 +95,14 @@ export class PushService {
         app_id: appId,
         payload_json: JSON.stringify(notification),
         is_silent: notification.silent || false,
-        scheduled_at_local_time: scheduledAtLocalTime || null,
+        scheduled_at: scheduledAt ? new Date(scheduledAt) : null,
+        target_user_ids: targetUserIds ? JSON.stringify(targetUserIds) : null,
       });
 
       const savedNotification = await queryRunner.manager.save(newNotification);
       await queryRunner.commitTransaction();
 
-      if (scheduledAtLocalTime) {
+      if (scheduledAt) {
         return { notificationId: savedNotification.id, sent: 0, failed: 0, queued: false };
       }
 

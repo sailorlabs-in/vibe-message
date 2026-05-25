@@ -102,23 +102,20 @@ export class CronService {
   private async runRegularScheduler() {
     const notifications = await this.notificationRepo
       .createQueryBuilder("n")
-      .where("n.scheduled_at_local_time IS NOT NULL")
+      .where("n.scheduled_at IS NOT NULL")
+      .andWhere("n.scheduled_at <= NOW()")
       .andWhere("n.created_at >= NOW() - INTERVAL '36 hours'")
       .getMany();
 
     for (const notification of notifications) {
-      const { id, app_id, payload_json, scheduled_at_local_time } =
+      const { id, app_id, payload_json, scheduled_at, target_user_ids } =
         notification;
 
-      const targetDevicesResult = await this.deviceTokenRepo
+      const queryBuilder = this.deviceTokenRepo
         .createQueryBuilder("dt")
         .select("dt.external_user_id", "external_user_id")
         .where("dt.app_id = :appId", { appId: app_id })
         .andWhere("dt.is_active = true")
-        .andWhere(
-          `(CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= :scheduledTime::time`,
-          { scheduledTime: scheduled_at_local_time },
-        )
         .andWhere((qb) => {
           const subQuery = qb
             .subQuery()
@@ -129,8 +126,22 @@ export class CronService {
             .getQuery();
           return `NOT EXISTS ${subQuery}`;
         })
-        .setParameter("notificationId", id)
-        .getRawMany();
+        .setParameter("notificationId", id);
+
+      if (target_user_ids) {
+        try {
+          const ids = JSON.parse(target_user_ids);
+          if (Array.isArray(ids) && ids.length > 0) {
+            queryBuilder.andWhere("dt.external_user_id IN (:...targetUserIds)", {
+              targetUserIds: ids,
+            });
+          }
+        } catch (e) {
+          this.logger.error(`Error parsing target_user_ids for notification ${id}:`, e);
+        }
+      }
+
+      const targetDevicesResult = await queryBuilder.getRawMany();
 
       if (targetDevicesResult.length > 0) {
         const targetUserIds = targetDevicesResult.map(

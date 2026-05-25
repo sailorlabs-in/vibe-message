@@ -57,7 +57,13 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
         toast.error("Scheduled time is required");
         return;
       }
-      payload.scheduledAtLocalTime = `${scheduledTime}:00`;
+      const [hours, minutes] = scheduledTime.split(":").map(Number);
+      const now = new Date();
+      const scheduledDate = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), hours, minutes, 0));
+      if (scheduledDate.getTime() < now.getTime()) {
+        scheduledDate.setUTCDate(scheduledDate.getUTCDate() + 1);
+      }
+      payload.scheduledAt = scheduledDate.toISOString();
     }
 
     try {
@@ -167,14 +173,14 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                     onChange={() => setDeliveryMode("scheduled")}
                     className="text-theme-primary-500 focus:ring-theme-primary-500"
                   />
-                  <span className="text-sm text-theme-text-primary">User's Local Timezone</span>
+                  <span className="text-sm text-theme-text-primary">Absolute UTC Time</span>
                 </label>
               </div>
 
               {deliveryMode === "scheduled" && (
                 <div className="animate-in fade-in slide-in-from-top-2">
                   <label className="block text-sm font-medium mb-2 text-theme-text-primary">
-                    Local Time <span className="text-red-500">*</span>
+                    UTC Time <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="time"
@@ -184,7 +190,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                     required
                   />
                   <p className="text-xs text-theme-text-secondary mt-2">
-                    Message will be sent when the user's local clock reaches this time.
+                    Message will be sent globally at this absolute UTC time.
                   </p>
                 </div>
               )}

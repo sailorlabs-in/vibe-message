@@ -65,7 +65,7 @@ export class PushController {
         app.id,
         data.notification,
         targetUserIds,
-        data.scheduledAtLocalTime,
+        data.scheduledAt,
       );
 
       return res.json({

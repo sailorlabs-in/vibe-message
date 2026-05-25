@@ -188,7 +188,7 @@ export const validateUnregisterDevice = (
 };
 
 export const validateSendPush = (data: any): SendPushRequest => {
-  const { appId, secretKey, targets, notification, scheduledAtLocalTime } =
+  const { appId, secretKey, targets, notification, scheduledAt } =
     data;
 
   if (!appId || typeof appId !== "string") {
@@ -203,14 +203,15 @@ export const validateSendPush = (data: any): SendPushRequest => {
     throw new BadRequestException("notification is required");
   }
 
-  if (!notification.title || typeof notification.title !== "string") {
+  const isSilent = notification.silent === true;
+  if (!isSilent && (!notification.title || typeof notification.title !== "string")) {
     throw new BadRequestException("notification.title is required");
   }
 
   const req: SendPushRequest = { appId, secretKey, targets, notification };
 
-  if (scheduledAtLocalTime && typeof scheduledAtLocalTime === "string") {
-    req.scheduledAtLocalTime = scheduledAtLocalTime;
+  if (scheduledAt) {
+    req.scheduledAt = scheduledAt;
   }
 
   return req;

@@ -209,6 +209,7 @@ export class AppController {
       app.id,
       body.notification,
       targetUserIds,
+      body.scheduledAt,
     );
     return {
       success: true,

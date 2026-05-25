@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { RiMagicLine, RiKeyLine, RiSettings3Line, RiReactjsLine, RiArrowUpLine, RiFlashlightLine, RiShieldKeyholeLine, RiRefreshLine, RiTeamLine, RiPaletteLine, RiBarChartBoxLine, RiInformationLine, RiCheckLine, RiErrorWarningLine, RiArchiveLine, RiServerLine, RiSmartphoneLine, RiCodeLine, RiFlaskLine } from "@remixicon/react";
 
-type TabType = "overview" | "quickstart" | "backend" | "react" | "nextjs";
+type TabType = "overview" | "quickstart" | "sdk" | "backend" | "react" | "nextjs";
 
 export const Docs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>("overview");
@@ -10,6 +10,7 @@ export const Docs: React.FC = () => {
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: "overview", label: "Platform Overview", icon: <RiMagicLine size={18} /> },
     { id: "quickstart", label: "Quick Start", icon: <RiKeyLine size={18} /> },
+    { id: "sdk", label: "SDK Package", icon: <RiCodeLine size={18} /> },
     { id: "backend", label: "Backend Integration", icon: <RiSettings3Line size={18} /> },
     { id: "react", label: "React Frontend", icon: <RiReactjsLine size={18} /> },
     { id: "nextjs", label: "Next.js Frontend", icon: <RiArrowUpLine size={18} /> },
@@ -326,6 +327,205 @@ export const Docs: React.FC = () => {
               </motion.div>
             )}
 
+            {activeTab === "sdk" && (
+              <motion.div
+                key="sdk"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.4 }}
+                className="max-w-5xl mx-auto space-y-12"
+              >
+                <div className="text-center max-w-3xl mx-auto mb-12">
+                  <h2 className="text-4xl font-display font-extrabold mb-4 text-theme-text-primary">
+                    Vibe Message SDK Reference
+                  </h2>
+                  <p className="text-lg text-theme-text-secondary leading-relaxed">
+                    The <code className="font-mono text-theme-primary-500 bg-theme-bg-secondary px-1 py-0.5 rounded">vibe-message</code> package provides lightweight client-side API integrations for browsers and fully secure server-side SDKs for Node.js backends.
+                  </p>
+                </div>
+
+                {/* Installation */}
+                <div className="bg-theme-bg-secondary border border-theme-border rounded-3xl p-8 relative overflow-hidden group hover:border-theme-primary-500 transition-all duration-300 shadow-sm">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-theme-primary-500/10 flex items-center justify-center text-theme-primary-600 dark:text-theme-primary-400">
+                      <RiFlashlightLine size={20} />
+                    </div>
+                    <h3 className="text-xl font-display font-bold text-theme-text-primary m-0">Installation</h3>
+                  </div>
+                  <p className="text-theme-text-secondary text-sm mb-6">
+                    Get started by installing the universal SDK package into your project:
+                  </p>
+                  <CodeBlock code="npm install vibe-message" language="bash" />
+                </div>
+
+                {/* Grid for Client and Server SDK */}
+                <div className="grid lg:grid-cols-2 gap-8">
+                  {/* Left Column: Client SDK */}
+                  <div className="space-y-6">
+                    <div className="bg-[#0f172a]/20 border border-theme-border rounded-3xl p-8 space-y-6">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-xl bg-theme-accent-500/10 flex items-center justify-center text-theme-accent-600 dark:text-theme-accent-400">
+                          <RiSmartphoneLine size={20} />
+                        </div>
+                        <h3 className="text-xl font-display font-bold text-theme-text-primary m-0">Client SDK (Frontend)</h3>
+                      </div>
+                      <p className="text-theme-text-secondary text-sm leading-relaxed">
+                        Responsible for requesting browser permissions, subscribing to push notification service workers, handling foreground messages, and managing silent data syncs.
+                      </p>
+
+                      <div className="space-y-4">
+                        <div className="border-t border-theme-border pt-4">
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">initNotificationClient(options)</h4>
+                          <p className="text-xs text-theme-text-secondary leading-relaxed mb-2">
+                            Initializes a browser-facing notification client instance.
+                          </p>
+                          <ul className="text-xs space-y-1 text-theme-text-muted">
+                            <li><strong className="text-theme-text-secondary font-mono">appId: string</strong> — Public ID of your application.</li>
+                            <li><strong className="text-theme-text-secondary font-mono">publicKey: string</strong> — VAPID public key.</li>
+                            <li><strong className="text-theme-text-secondary font-mono">baseUrl?: string</strong> — Override for custom hosting.</li>
+                          </ul>
+                        </div>
+
+                        <div className="border-t border-theme-border pt-4">
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">client.registerDevice(options)</h4>
+                          <p className="text-xs text-theme-text-secondary leading-relaxed mb-2">
+                            Requests push notification access permissions and registers service worker subscriptions with the server.
+                          </p>
+                          <ul className="text-xs space-y-1 text-theme-text-muted">
+                            <li><strong className="text-theme-text-secondary font-mono">externalUserId: string</strong> — Unique developer ID mapping the user.</li>
+                            <li><strong className="text-theme-text-secondary font-mono">serviceWorkerPath?: string</strong> — Defaults to <code className="font-mono">/push-sw.js</code>.</li>
+                            <li><strong className="text-theme-text-secondary font-mono">serviceWorkerScope?: string</strong> — Scope (defaults to <code className="font-mono">/</code>).</li>
+                          </ul>
+                        </div>
+
+                        <div className="border-t border-theme-border pt-4">
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">client.onMessage(callback)</h4>
+                          <p className="text-xs text-theme-text-secondary leading-relaxed">
+                            Foreground callback when the web app is visible and focused. Receives standard notification payload details.
+                          </p>
+                        </div>
+
+                        <div className="border-t border-theme-border pt-4">
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">client.onSilentMessage(callback)</h4>
+                          <p className="text-xs text-theme-text-secondary leading-relaxed">
+                            Bypasses UI system notifications to deliver direct data payloads to background callbacks. Perfect for syncing databases/stores.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right Column: Server SDK */}
+                  <div className="space-y-6">
+                    <div className="bg-[#0f172a]/20 border border-theme-border rounded-3xl p-8 space-y-6">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-xl bg-theme-primary-500/10 flex items-center justify-center text-theme-primary-600 dark:text-theme-primary-400">
+                          <RiServerLine size={20} />
+                        </div>
+                        <h3 className="text-xl font-display font-bold text-theme-text-primary m-0">Server SDK (Backend)</h3>
+                      </div>
+                      <p className="text-theme-text-secondary text-sm leading-relaxed">
+                        Empowers your backend server to securely encrypt and publish system-wide or user-specific push notifications using your private credentials.
+                      </p>
+
+                      <div className="space-y-4">
+                        <div className="border-t border-theme-border pt-4">
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">initServerClient(options)</h4>
+                          <p className="text-xs text-theme-text-secondary leading-relaxed mb-2">
+                            Initializes a private server-side instance. Must only be run in node backend scripts.
+                          </p>
+                          <ul className="text-xs space-y-1 text-theme-text-muted">
+                            <li><strong className="text-theme-text-secondary font-mono">appId: string</strong> — Application public ID.</li>
+                            <li><strong className="text-theme-text-secondary font-mono">secretKey: string</strong> — Private administrative secret.</li>
+                            <li><strong className="text-theme-text-secondary font-mono">baseUrl?: string</strong> — Custom hosted endpoint routing.</li>
+                          </ul>
+                        </div>
+
+                        <div className="border-t border-theme-border pt-4">
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">server.notification(options)</h4>
+                          <p className="text-xs text-theme-text-secondary leading-relaxed mb-2">
+                            Sends a standard visible push notification to targets or global broadcasts.
+                          </p>
+                          <ul className="text-xs space-y-1 text-theme-text-muted">
+                            <li><strong className="text-theme-text-secondary font-mono">notificationData: NotificationData</strong> — Title, body, icon, and custom click_action actions.</li>
+                            <li><strong className="text-theme-text-secondary font-mono">externalUsers?: string[]</strong> — Target user list. Omit to broadcast.</li>
+                            <li><strong className="text-theme-text-secondary font-mono">scheduledAt?: string | Date</strong> — UTC timezone timestamp (ISO-8601).</li>
+                          </ul>
+                        </div>
+
+                        <div className="border-t border-theme-border pt-4">
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">server.silentNotification(options)</h4>
+                          <p className="text-xs text-theme-text-secondary leading-relaxed mb-2">
+                            Sends an invisible data payload directly to user background instances.
+                          </p>
+                          <ul className="text-xs space-y-1 text-theme-text-muted">
+                            <li><strong className="text-theme-text-secondary font-mono">data: Record&lt;string, any&gt;</strong> — Custom structural data dictionary.</li>
+                            <li><strong className="text-theme-text-secondary font-mono">externalUsers?: string[]</strong> — Target client list.</li>
+                            <li><strong className="text-theme-text-secondary font-mono">scheduledAt?: string | Date</strong> — UTC timestamp scheduling.</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Example Quick Code block */}
+                <div className="bg-theme-bg-secondary border border-theme-border rounded-3xl p-8 relative overflow-hidden group hover:border-theme-primary-500 transition-all duration-300">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-10 h-10 rounded-xl bg-theme-primary-500/10 flex items-center justify-center text-theme-primary-600 dark:text-theme-primary-400">
+                      <RiCodeLine size={20} />
+                    </div>
+                    <h3 className="text-xl font-display font-bold text-theme-text-primary m-0">Full SDK implementation Flow</h3>
+                  </div>
+                  <p className="text-theme-text-secondary text-sm mb-6">
+                    A typical setup importing client listeners and secure server dispatch modules:
+                  </p>
+                  <CodeBlock
+                    code={`// 1. Frontend Implementation
+import { initNotificationClient } from 'vibe-message';
+
+const client = initNotificationClient({
+  appId: 'your-app-id',
+  publicKey: 'your-public-key'
+});
+
+// Start listening for notifications
+client.onMessage((payload) => {
+  console.log('Got visible notification:', payload.title);
+});
+
+client.onSilentMessage((data) => {
+  console.log('Got sync background request:', data);
+});
+
+// Call upon user login
+await client.registerDevice({ externalUserId: 'user_123' });
+
+
+// 2. Node.js Secure Backend Trigger
+import { initServerClient } from 'vibe-message';
+
+const server = initServerClient({
+  appId: 'your-app-id',
+  secretKey: 'your-secret-key'
+});
+
+// Trigger a scheduled visible alert
+await server.notification({
+  notificationData: {
+    title: 'Match Alert!',
+    body: 'Your match is starting now.'
+  },
+  externalUsers: ['user_123'],
+  scheduledAt: new Date(Date.now() + 60000) // schedule 1 minute into the future
+});`}
+                    language="typescript"
+                  />
+                </div>
+              </motion.div>
+            )}
+
             {activeTab === "backend" && (
               <motion.div
                 key="backend"
@@ -378,7 +578,8 @@ const result = await vibe.notification({
     icon: 'https://yoursite.com/icon.png',
     click_action: 'https://yoursite.com/dashboard',
   },
-  externalUsers: ['user-123'] // ID of the user you want to notify
+  externalUsers: ['user-123'], // ID of the user you want to notify
+  scheduledAt: '2026-05-25T14:30:00Z' // Optional: ISO-8601 UTC timestamp string or Date object
 });
 
 console.log(result);`}
@@ -401,7 +602,8 @@ await vibe.silentNotification({
     type: 'REFRESH_CHAT',
     chatId: 'chat-456'
   },
-  externalUsers: ['user-123']
+  externalUsers: ['user-123'],
+  scheduledAt: '2026-05-25T14:30:00Z' // Optional: ISO-8601 UTC timestamp string or Date object
 });`}
                     language="typescript"
                   />
