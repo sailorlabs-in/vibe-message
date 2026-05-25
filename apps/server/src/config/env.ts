@@ -75,7 +75,7 @@ export const config: EnvConfig = {
     pass: getEnvVar("SWAGGER_PASS", "Umang6Sailor"),
   },
   redis: {
-    host: getEnvVar("REDIS_HOST", "localhost"),
+    host: getEnvVar("REDIS_HOST", "192.168.1.2"),
     port: parseInt(getEnvVar("REDIS_PORT", "6379"), 10),
   },
 };
