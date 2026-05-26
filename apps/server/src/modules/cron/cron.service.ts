@@ -74,11 +74,11 @@ export class CronService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async handleTimezoneScheduler() {
+    const lockKey = "vibe:cron_lock";
     try {
-      const lockKey = "vibe:cron_lock";
-      const acquired = await this.redisService.client.set(lockKey, "locked", "PX", 50000, "NX"); // 50 seconds lock
+      const acquired = await this.redisService.client.set(lockKey, "locked", "PX", 55000, "NX"); // 55s safety TTL
       if (acquired !== "OK") {
-        this.logger.debug("🌍 [Cron] Timezone-aware scheduler lock already acquired by another replica. Skipping.");
+        this.logger.debug("🌍 [Cron] Scheduler lock already held by another replica. Skipping.");
         return;
       }
 
@@ -96,69 +96,54 @@ export class CronService {
       }
     } catch (error) {
       this.logger.error("❌ [Cron] Distributed locking error:", error);
+    } finally {
+      // Always release the lock immediately so the next minute's tick can acquire it cleanly
+      await this.redisService.client.del(lockKey).catch(() => {});
     }
   }
 
   private async runRegularScheduler() {
+    const now = new Date();
+    const since = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
+
+    // Only fetch scheduled notifications that have NOT yet been dispatched
     const notifications = await this.notificationRepo
       .createQueryBuilder("n")
       .where("n.scheduled_at IS NOT NULL")
-      .andWhere("n.scheduled_at <= NOW()")
-      .andWhere("n.created_at >= NOW() - INTERVAL '36 hours'")
+      .andWhere("n.scheduled_at <= :now", { now })
+      .andWhere("n.scheduled_at >= :since", { since })
+      .andWhere("n.dispatched_at IS NULL")
       .getMany();
 
     for (const notification of notifications) {
-      const { id, app_id, payload_json, scheduled_at, target_user_ids } =
-        notification;
+      const { id, app_id, target_user_ids } = notification;
 
-      const queryBuilder = this.deviceTokenRepo
-        .createQueryBuilder("dt")
-        .select("dt.external_user_id", "external_user_id")
-        .where("dt.app_id = :appId", { appId: app_id })
-        .andWhere("dt.is_active = true")
-        .andWhere((qb) => {
-          const subQuery = qb
-            .subQuery()
-            .select("1")
-            .from("notification_logs", "nl")
-            .where("nl.notification_id = :notificationId")
-            .andWhere("nl.device_token_id = dt.id")
-            .getQuery();
-          return `NOT EXISTS ${subQuery}`;
-        })
-        .setParameter("notificationId", id);
+      // Mark as dispatched immediately to prevent re-enqueue on next cron tick
+      await this.notificationRepo.update(id, { dispatched_at: now });
 
-      if (target_user_ids) {
-        try {
-          const ids = JSON.parse(target_user_ids);
-          if (Array.isArray(ids) && ids.length > 0) {
-            queryBuilder.andWhere("dt.external_user_id IN (:...targetUserIds)", {
-              targetUserIds: ids,
-            });
-          }
-        } catch (e) {
-          this.logger.error(`Error parsing target_user_ids for notification ${id}:`, e);
-        }
-      }
+      const targetUserIds = target_user_ids
+        ? (() => {
+            try {
+              const ids = JSON.parse(target_user_ids);
+              return Array.isArray(ids) && ids.length > 0 ? ids : undefined;
+            } catch {
+              return undefined;
+            }
+          })()
+        : undefined;
 
-      const targetDevicesResult = await queryBuilder.getRawMany();
+      this.logger.log(
+        `[Scheduler] Enqueuing scheduled notification ${id} (app=${app_id}) to ${targetUserIds ? targetUserIds.length + " user(s)" : "all subscribers"}...`,
+      );
 
-      if (targetDevicesResult.length > 0) {
-        const targetUserIds = targetDevicesResult.map(
-          (r: any) => r.external_user_id,
-        );
-        this.logger.log(
-          `[Scheduler] Enqueuing scheduled notification ${id} to ${targetUserIds.length} user(s)...`,
-        );
-        await this.redisService.client.rpush(
-          "vibe:push_queue",
-          JSON.stringify({
-            notificationId: id,
-            appId: app_id,
-            targetUserIds,
-          }),
-        );
-      }
+      await this.redisService.client.rpush(
+        "vibe:push_queue",
+        JSON.stringify({
+          notificationId: id,
+          appId: app_id,
+          targetUserIds,
+        }),
+      );
     }
   }
 

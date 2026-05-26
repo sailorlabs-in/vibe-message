@@ -238,6 +238,7 @@ export class PushService {
   ): Promise<NotificationLogEntity[]> {
     return this.notificationLogRepository.find({
       where: { notification_id: notificationId },
+      relations: ["device_token"],
       order: { sent_at: "DESC" },
     });
   }
@@ -245,12 +246,29 @@ export class PushService {
   async getAppNotifications(
     appId: number,
     limit: number = 50,
+    scheduled: boolean = false,
   ): Promise<NotificationEntity[]> {
-    return this.notificationRepository.find({
-      where: { app_id: appId },
-      order: { created_at: "DESC" },
-      take: limit,
-    });
+    const now = new Date();
+    if (scheduled) {
+      return this.notificationRepository.createQueryBuilder("n")
+        .where("n.app_id = :appId", { appId })
+        .andWhere("n.scheduled_at IS NOT NULL")
+        .andWhere("n.scheduled_at > :now", { now })
+        .orderBy("n.scheduled_at", "ASC")
+        .take(limit)
+        .getMany();
+    } else {
+      return this.notificationRepository.createQueryBuilder("n")
+        .where("n.app_id = :appId", { appId })
+        .andWhere("(n.scheduled_at IS NULL OR n.scheduled_at <= :now)", { now })
+        .orderBy("n.created_at", "DESC")
+        .take(limit)
+        .getMany();
+    }
+  }
+
+  async deleteNotification(appId: number, notificationId: number): Promise<void> {
+    await this.notificationRepository.delete({ app_id: appId, id: notificationId });
   }
 
   async clearAppNotifications(appId: number): Promise<void> {

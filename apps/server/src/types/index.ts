@@ -74,6 +74,7 @@ export interface Notification {
   payload_json: string;
   is_silent: boolean;
   scheduled_at?: string | Date;
+  dispatched_at?: string | Date | null;
   created_by: number | null;
   created_at: Date;
 }
