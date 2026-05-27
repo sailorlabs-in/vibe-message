@@ -6,6 +6,7 @@ import { Notification } from "./notification.entity";
 import { NotificationLog } from "./notification_log.entity";
 import { DeviceToken } from "../device/device_token.entity";
 import { AppModule } from "../app/app.module";
+import { PushQueueProcessor } from "./push-queue.processor";
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { AppModule } from "../app/app.module";
     forwardRef(() => AppModule),
   ],
   controllers: [PushController],
-  providers: [PushService],
+  providers: [PushService, PushQueueProcessor],
   exports: [PushService],
 })
 export class PushModule {}
+

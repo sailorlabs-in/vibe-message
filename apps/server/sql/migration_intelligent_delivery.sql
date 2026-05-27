@@ -1,8 +1,8 @@
 -- Add timezone to device_tokens
 ALTER TABLE device_tokens ADD COLUMN timezone VARCHAR(100) DEFAULT 'UTC';
 
--- Add scheduled_at_local_time to notifications (for simple local timezone scheduling)
-ALTER TABLE notifications ADD COLUMN scheduled_at_local_time TIME;
+-- Add scheduled_at to notifications (for absolute UTC scheduling)
+ALTER TABLE notifications ADD COLUMN scheduled_at TIMESTAMP;
 
 -- Table for Drip Campaigns
 CREATE TABLE drip_campaigns (

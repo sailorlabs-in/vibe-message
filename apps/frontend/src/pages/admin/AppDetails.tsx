@@ -31,7 +31,7 @@ export const AppDetails: React.FC = () => {
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'subscribers' | 'push' | 'drip' | 'history'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'subscribers' | 'push' | 'drip' | 'history' | 'scheduled'>('overview');
   const [globalRetention, setGlobalRetention] = useState<number>(14);
   const { user } = useAppSelector((state) => state.auth);
 
@@ -336,7 +336,8 @@ const result = await vibe.notification({
           { id: 'subscribers', label: 'Subscribers' },
           { id: 'push', label: 'Send Push' },
           { id: 'drip', label: 'Drip Campaigns' },
-          { id: 'history', label: 'History' }
+          { id: 'history', label: 'History' },
+          { id: 'scheduled', label: 'Scheduled Messages' }
         ].map((tab) => (
           <button
             key={tab.id}
@@ -488,6 +489,12 @@ const result = await vibe.notification({
       {activeTab === 'history' && (
         <motion.div variants={fadeUpVariants}>
           <NotificationHistory appId={app.public_app_id} />
+        </motion.div>
+      )}
+
+      {activeTab === 'scheduled' && (
+        <motion.div variants={fadeUpVariants}>
+          <NotificationHistory appId={app.public_app_id} isScheduled={true} />
         </motion.div>
       )}
     </motion.div>

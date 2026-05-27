@@ -14,6 +14,7 @@ import {
   UserRole,
 } from "../../types";
 import { generateAppId, generateSecretKey } from "../../utils/crypto";
+import { RedisService } from "../redis/redis.service";
 
 @Injectable()
 export class AppService {
@@ -22,7 +23,20 @@ export class AppService {
     private appRepository: Repository<AppEntity>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private redisService: RedisService,
   ) {}
+
+  private getCacheKey(publicAppId: string): string {
+    return `vibe:app:public_id:${publicAppId}`;
+  }
+
+  private async invalidateCache(publicAppId: string): Promise<void> {
+    try {
+      await this.redisService.client.del(this.getCacheKey(publicAppId));
+    } catch (err) {
+      console.error("[App Service] Redis delete cache error:", err);
+    }
+  }
 
   async getUserApps(
     userId: number,
@@ -146,7 +160,9 @@ export class AppService {
     if (data.retention_days !== undefined)
       app.retention_days = data.retention_days;
 
-    return this.appRepository.save(app);
+    const saved = await this.appRepository.save(app);
+    await this.invalidateCache(publicAppId);
+    return saved;
   }
 
   async rotateAppSecret(
@@ -163,7 +179,9 @@ export class AppService {
     }
 
     app.secret_key = generateSecretKey();
-    return this.appRepository.save(app);
+    const saved = await this.appRepository.save(app);
+    await this.invalidateCache(publicAppId);
+    return saved;
   }
 
   async deleteApp(
@@ -180,23 +198,51 @@ export class AppService {
     }
 
     await this.appRepository.remove(app);
+    await this.invalidateCache(publicAppId);
   }
 
   async getAppByPublicId(publicAppId: string): Promise<AppEntity | null> {
-    return this.appRepository.findOne({
+    const cacheKey = this.getCacheKey(publicAppId);
+    
+    try {
+      const cached = await this.redisService.client.get(cacheKey);
+      if (cached) {
+        const data = JSON.parse(cached);
+        const app = new AppEntity();
+        Object.assign(app, data);
+        return app;
+      }
+    } catch (err) {
+      console.error("[App Service] Redis read error:", err);
+    }
+
+    const app = await this.appRepository.findOne({
       where: { public_app_id: publicAppId, is_active: true },
     });
+
+    if (app) {
+      try {
+        await this.redisService.client.set(
+          cacheKey,
+          JSON.stringify(app),
+          "PX",
+          3600000 // Cache for 1 hour
+        );
+      } catch (err) {
+        console.error("[App Service] Redis write error:", err);
+      }
+    }
+
+    return app;
   }
 
   async validateAppCredentials(
     publicAppId: string,
     secretKey: string,
   ): Promise<AppEntity> {
-    const app = await this.appRepository.findOne({
-      where: { public_app_id: publicAppId, secret_key: secretKey },
-    });
+    const app = await this.getAppByPublicId(publicAppId);
 
-    if (!app) {
+    if (!app || app.secret_key !== secretKey) {
       throw new ForbiddenException("Invalid app credentials");
     }
 
@@ -211,11 +257,9 @@ export class AppService {
     publicAppId: string,
     publicKey: string,
   ): Promise<AppEntity> {
-    const app = await this.appRepository.findOne({
-      where: { public_app_id: publicAppId, public_key: publicKey },
-    });
+    const app = await this.getAppByPublicId(publicAppId);
 
-    if (!app) {
+    if (!app || app.public_key !== publicKey) {
       throw new ForbiddenException("Invalid SDK credentials");
     }
 

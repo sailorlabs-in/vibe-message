@@ -28,8 +28,14 @@ export class Notification {
   @Column({ name: "is_silent", default: false })
   is_silent!: boolean;
 
-  @Column({ name: "scheduled_at_local_time", type: "time", nullable: true })
-  scheduled_at_local_time!: string | null;
+  @Column({ name: "scheduled_at", type: "timestamp", nullable: true })
+  scheduled_at!: Date | null;
+
+  @Column({ name: "target_user_ids", type: "text", nullable: true })
+  target_user_ids!: string | null;
+
+  @Column({ name: "dispatched_at", type: "timestamp", nullable: true })
+  dispatched_at!: Date | null;
 
   @Column({ name: "created_by", nullable: true })
   created_by!: number | null;

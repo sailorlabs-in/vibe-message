@@ -26,6 +26,8 @@
     "nx": "22.5.4"
   },
   "dependencies": {
-    "vibe-message": "^1.1.5"
+    "@nest-lab/throttler-storage-redis": "^1.2.0",
+    "ioredis": "^5.10.1",
+    "vibe-message": "^1.1.6"
   }
 }

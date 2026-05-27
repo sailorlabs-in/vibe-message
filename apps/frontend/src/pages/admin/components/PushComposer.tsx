@@ -19,7 +19,9 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
   const [targetType, setTargetType] = useState<"all" | "specific">("all");
   const [userIds, setUserIds] = useState("");
   const [deliveryMode, setDeliveryMode] = useState<"immediate" | "scheduled">("immediate");
+  const [scheduledDate, setScheduledDate] = useState(() => new Date().toLocaleDateString('en-CA'));
   const [scheduledTime, setScheduledTime] = useState("09:00");
+  const [timezoneMode, setTimezoneMode] = useState<"local" | "utc">("local");
   const { selectedApp } = useAppSelector((state) => state.apps);
   const appName = selectedApp?.name || "Vibe Message";
 
@@ -53,17 +55,48 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
     }
 
     if (deliveryMode === "scheduled") {
+      if (!scheduledDate) {
+        toast.error("Scheduled date is required");
+        return;
+      }
       if (!scheduledTime) {
         toast.error("Scheduled time is required");
         return;
       }
-      payload.scheduledAtLocalTime = `${scheduledTime}:00`;
+      const [year, month, day] = scheduledDate.split("-").map(Number);
+      const [hours, minutes] = scheduledTime.split(":").map(Number);
+      
+      let targetDate: Date;
+      if (timezoneMode === "local") {
+        targetDate = new Date(year, month - 1, day, hours, minutes, 0);
+      } else {
+        targetDate = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0));
+      }
+
+      const now = new Date();
+      if (targetDate.getTime() < now.getTime()) {
+        toast.error("Scheduled date and time must be in the future");
+        return;
+      }
+
+      payload.scheduledAt = targetDate.toISOString();
     }
 
     try {
       setLoading(true);
       const response = await ApiRequest(`/apps/${appId}/push`, "post", payload);
-      toast.success(response.data?.message || "Push notification configured successfully");
+      
+      if (deliveryMode === "scheduled") {
+        const [year, month, day] = scheduledDate.split("-").map(Number);
+        const [hours, minutes] = scheduledTime.split(":").map(Number);
+        const targetDate = timezoneMode === "local"
+          ? new Date(year, month - 1, day, hours, minutes, 0)
+          : new Date(Date.UTC(year, month - 1, day, hours, minutes, 0));
+        toast.success(`Message scheduled successfully at ${targetDate.toLocaleString()}`);
+      } else {
+        toast.success(response.data?.message || "Push notification configured successfully");
+      }
+
       // Reset form on success
       setTitle("");
       setBody("");
@@ -71,7 +104,9 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
       setClickAction("");
       setUserIds("");
       setDeliveryMode("immediate");
+      setScheduledDate(new Date().toLocaleDateString('en-CA'));
       setScheduledTime("09:00");
+      setTimezoneMode("local");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to send push notification");
     } finally {
@@ -167,24 +202,73 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                     onChange={() => setDeliveryMode("scheduled")}
                     className="text-theme-primary-500 focus:ring-theme-primary-500"
                   />
-                  <span className="text-sm text-theme-text-primary">User's Local Timezone</span>
+                  <span className="text-sm text-theme-text-primary">Absolute UTC Time</span>
                 </label>
               </div>
 
               {deliveryMode === "scheduled" && (
-                <div className="animate-in fade-in slide-in-from-top-2">
-                  <label className="block text-sm font-medium mb-2 text-theme-text-primary">
-                    Local Time <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="time"
-                    value={scheduledTime}
-                    onChange={(e) => setScheduledTime(e.target.value)}
-                    className="input w-full max-w-xs"
-                    required
-                  />
-                  <p className="text-xs text-theme-text-secondary mt-2">
-                    Message will be sent when the user's local clock reaches this time.
+                <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+                      Timezone Mode
+                    </label>
+                    <div className="inline-flex rounded-lg p-0.5 bg-theme-bg-secondary border border-theme-border">
+                      <button
+                        type="button"
+                        onClick={() => setTimezoneMode("local")}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                          timezoneMode === "local"
+                            ? "bg-theme-primary-500 text-white shadow-sm"
+                            : "text-theme-text-secondary hover:text-theme-text-primary"
+                        }`}
+                      >
+                        Local Time
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setTimezoneMode("utc")}
+                        className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                          timezoneMode === "utc"
+                            ? "bg-theme-primary-500 text-white shadow-sm"
+                            : "text-theme-text-secondary hover:text-theme-text-primary"
+                        }`}
+                      >
+                        UTC Time
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4 max-w-md">
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+                        Date <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="date"
+                        value={scheduledDate}
+                        onChange={(e) => setScheduledDate(e.target.value)}
+                        className="input w-full"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+                        Time <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="time"
+                        value={scheduledTime}
+                        onChange={(e) => setScheduledTime(e.target.value)}
+                        className="input w-full"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-theme-text-secondary">
+                    {timezoneMode === "local"
+                      ? "Message will be sent using your local timezone (translated to UTC for delivery)."
+                      : "Message will be sent using absolute UTC timezone."}
                   </p>
                 </div>
               )}

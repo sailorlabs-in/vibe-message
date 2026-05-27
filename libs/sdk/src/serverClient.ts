@@ -28,7 +28,11 @@ export class NotificationServerClient {
   /**
    * Send a standard push notification to specific users implicitly abstracting the auth headers.
    */
-  async notification(options: { notificationData: NotificationData; externalUsers?: string[] }): Promise<any> {
+  async notification(options: {
+    notificationData: NotificationData;
+    externalUsers?: string[];
+    scheduledAt?: string | Date;
+  }): Promise<any> {
     const response = await fetch(`${this.baseUrl}/push/send`, {
       method: "POST",
       headers: {
@@ -41,6 +45,7 @@ export class NotificationServerClient {
           targets: {
             externalUserIds: options.externalUsers,
           },
+          scheduledAt: options.scheduledAt,
         }, this.secretKey),
       }),
     });
@@ -57,7 +62,11 @@ export class NotificationServerClient {
    * Send a silent payload (no visible push notification) to trigger background syncs
    * or updates within the application.
    */
-  async silentNotification(options: { data: Record<string, any>; externalUsers?: string[] }): Promise<any> {
+  async silentNotification(options: {
+    data: Record<string, any>;
+    externalUsers?: string[];
+    scheduledAt?: string | Date;
+  }): Promise<any> {
     const response = await fetch(`${this.baseUrl}/push/send`, {
       method: "POST",
       headers: {
@@ -69,10 +78,12 @@ export class NotificationServerClient {
           notification: {
             // A payload with only 'data' and no 'title'/'body' behaves as a silent push
             data: options.data,
+            silent: true,
           },
           targets: {
             externalUserIds: options.externalUsers,
           },
+          scheduledAt: options.scheduledAt,
         }, this.secretKey),
       }),
     });
