@@ -3,6 +3,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { App as AppEntity } from "./app.entity";
+import { AppMember } from "./app-member.entity";
 import { User } from "../user/user.entity";
 
 import { SystemModule } from "../system/system.module";
@@ -14,7 +15,7 @@ import { CronModule } from "../cron/cron.module";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([AppEntity, User]),
+    TypeOrmModule.forFeature([AppEntity, User, AppMember]),
     forwardRef(() => SystemModule),
     forwardRef(() => PushModule),
     forwardRef(() => DeviceModule),

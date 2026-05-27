@@ -18,6 +18,7 @@ import { PushComposer } from "./components/PushComposer";
 import { NotificationHistory } from "./components/NotificationHistory";
 import { Subscribers } from "./components/Subscribers";
 import { DripCampaigns } from "./components/DripCampaigns";
+import { Members } from "./components/Members";
 import { RiCheckboxCircleLine, RiCloseCircleLine, RiLockLine, RiDeleteBinLine } from "@remixicon/react";
 import { ConfirmModal } from "../../components/common/ConfirmModal";
 
@@ -31,7 +32,7 @@ export const AppDetails: React.FC = () => {
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'subscribers' | 'push' | 'drip' | 'history' | 'scheduled'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'subscribers' | 'push' | 'drip' | 'history' | 'scheduled'>('overview');
   const [globalRetention, setGlobalRetention] = useState<number>(14);
   const { user } = useAppSelector((state) => state.auth);
 
@@ -258,19 +259,23 @@ const result = await vibe.notification({
         </div>
         {!isEditing && (
           <div className="flex gap-2">
-            <button
-              onClick={() => setIsEditing(true)}
-              className="btn-secondary px-4 py-2 text-sm"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => setShowDeleteConfirm(true)}
-              className="btn-danger flex items-center gap-1.5 text-sm"
-            >
-              <RiDeleteBinLine size={16} />
-              Delete
-            </button>
+            {app.currentUserRole !== "viewer" && (
+              <button
+                onClick={() => setIsEditing(true)}
+                className="btn-secondary px-4 py-2 text-sm"
+              >
+                Edit
+              </button>
+            )}
+            {(app.currentUserRole === "owner" || app.currentUserRole === "superadmin") && (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="btn-danger flex items-center gap-1.5 text-sm"
+              >
+                <RiDeleteBinLine size={16} />
+                Delete
+              </button>
+            )}
           </div>
         )}
       </motion.div>
@@ -319,13 +324,15 @@ const result = await vibe.notification({
                 <><RiCloseCircleLine size={20} className="text-theme-error" /> Inactive</>
               )}
             </p>
-            <button
-              onClick={handleToggleActive}
-              disabled={loading}
-              className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${app.is_active ? "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50" : "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"} disabled:opacity-50`}
-            >
-              {app.is_active ? "Disable" : "Enable"}
-            </button>
+            {app.currentUserRole !== "viewer" && (
+              <button
+                onClick={handleToggleActive}
+                disabled={loading}
+                className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${app.is_active ? "bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50" : "bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50"} disabled:opacity-50`}
+              >
+                {app.is_active ? "Disable" : "Enable"}
+              </button>
+            )}
           </div>
         </div>
       </motion.div>
@@ -333,6 +340,7 @@ const result = await vibe.notification({
       <div className="flex border-b border-theme-border mb-6 overflow-x-auto print:hidden">
         {[
           { id: 'overview', label: 'Overview' },
+          { id: 'members', label: 'Members' },
           { id: 'subscribers', label: 'Subscribers' },
           { id: 'push', label: 'Send Push' },
           { id: 'drip', label: 'Drip Campaigns' },
@@ -401,13 +409,15 @@ const result = await vibe.notification({
                 type="password"
               />
               <CopyButton text={app.secret_key} />
-              <button
-                onClick={handleRotateSecret}
-                disabled={loading}
-                className="btn-danger whitespace-nowrap"
-              >
-                {loading ? "Rotating..." : "Rotate Key"}
-              </button>
+              {(app.currentUserRole === "owner" || app.currentUserRole === "superadmin") && (
+                <button
+                  onClick={handleRotateSecret}
+                  disabled={loading}
+                  className="btn-danger whitespace-nowrap"
+                >
+                  {loading ? "Rotating..." : "Rotate Key"}
+                </button>
+              )}
             </div>
             <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-medium">
               Keep this secret! Never expose it in client-side code.
@@ -466,6 +476,12 @@ const result = await vibe.notification({
         </pre>
       </motion.div>
         </>
+      )}
+
+      {activeTab === 'members' && (
+        <motion.div variants={fadeUpVariants}>
+          <Members appId={app.public_app_id} />
+        </motion.div>
       )}
 
       {activeTab === 'subscribers' && (

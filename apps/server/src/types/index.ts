@@ -45,6 +45,7 @@ export interface App {
 export interface AppWithStats extends App {
   device_count: number;
   notification_count: number;
+  currentUserRole?: "owner" | "moderator" | "viewer" | "superadmin";
 }
 
 // Device token types
