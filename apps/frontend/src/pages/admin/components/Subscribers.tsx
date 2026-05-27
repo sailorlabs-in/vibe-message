@@ -13,6 +13,7 @@ interface Subscriber {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  platform?: string;
 }
 
 interface SubscribersProps {
@@ -107,6 +108,8 @@ export const Subscribers: React.FC<SubscribersProps> = ({ appId }) => {
           <thead>
             <tr className="border-b border-theme-border text-sm text-theme-text-secondary">
               <th className="p-4 font-medium">External User ID</th>
+              <th className="p-4 font-medium text-center">Device ID</th>
+              <th className="p-4 font-medium text-center">Platform</th>
               <th className="p-4 font-medium text-center">Status</th>
               <th className="p-4 font-medium">Subscribed At</th>
               <th className="p-4 font-medium">Last Active</th>
@@ -120,6 +123,36 @@ export const Subscribers: React.FC<SubscribersProps> = ({ appId }) => {
               >
                 <td className="p-4 font-mono text-sm text-theme-text-primary">
                   {sub.external_user_id}
+                </td>
+                <td className="p-4 text-center font-mono text-xs text-theme-text-secondary">
+                  Device #{sub.id}
+                </td>
+                <td className="p-4 text-center">
+                  {sub.platform === "Chrome/Android" && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
+                      Chrome/Android
+                    </span>
+                  )}
+                  {sub.platform === "Safari" && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300">
+                      Safari
+                    </span>
+                  )}
+                  {sub.platform === "Firefox" && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300">
+                      Firefox
+                    </span>
+                  )}
+                  {sub.platform === "Edge/Windows" && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                      Edge/Windows
+                    </span>
+                  )}
+                  {!["Chrome/Android", "Safari", "Firefox", "Edge/Windows"].includes(sub.platform || "") && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+                      {sub.platform || "Web Push"}
+                    </span>
+                  )}
                 </td>
                 <td className="p-4 text-center">
                   {sub.is_active ? (

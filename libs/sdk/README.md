@@ -134,6 +134,7 @@ await server.notification({
     data: { messageId: '42' },
   },
   externalUsers: ['user-123', 'user-456'],  // omit to broadcast
+  scheduledAt: '2026-05-25T14:30:00Z', // optional, ISO-8601 UTC timestamp string or Date object
 });
 ```
 
@@ -145,6 +146,7 @@ Silent notifications carry data without showing a visible push to the user — u
 await server.silentNotification({
   data: { action: 'SYNC_MESSAGES', conversationId: '99' },
   externalUsers: ['user-123'],
+  scheduledAt: '2026-05-25T14:30:00Z', // optional, ISO-8601 UTC timestamp string or Date object
 });
 ```
 
@@ -168,8 +170,8 @@ await server.silentNotification({
 | Method | Description |
 | --- | --- |
 | `initServerClient(options)` | Create a server instance. Options: `appId`, `secretKey`, `baseUrl?` |
-| `server.notification(options)` | Send a push notification. Options: `notificationData`, `externalUsers?` |
-| `server.silentNotification(options)` | Send a silent data payload. Options: `data`, `externalUsers?` |
+| `server.notification(options)` | Send a push notification. Options: `notificationData`, `externalUsers?`, `scheduledAt?` |
+| `server.silentNotification(options)` | Send a silent data payload. Options: `data`, `externalUsers?`, `scheduledAt?` |
 
 ---
 

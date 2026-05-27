@@ -8,6 +8,7 @@ import { App as AppEntity } from "../app/app.entity";
 import { Notification } from "../push/notification.entity";
 import { DeviceToken } from "../device/device_token.entity";
 import { DripCampaign, DripSentLog } from "../drip/drip.entity";
+import { RedisService } from "../redis/redis.service";
 
 @Injectable()
 export class CronService {
@@ -27,12 +28,20 @@ export class CronService {
     private dripCampaignRepo: Repository<DripCampaign>,
     @InjectRepository(DripSentLog)
     private dripSentLogRepo: Repository<DripSentLog>,
+    private redisService: RedisService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleCleanup() {
-    this.logger.log("🧹 [Cron] Running daily notification cleanup job...");
     try {
+      const lockKey = "vibe:cleanup_lock";
+      const acquired = await this.redisService.client.set(lockKey, "locked", "PX", 3600000, "NX"); // 1 hour lock
+      if (acquired !== "OK") {
+        this.logger.debug("🧹 [Cron] Notification cleanup lock already acquired. Skipping.");
+        return;
+      }
+
+      this.logger.log("🧹 [Cron] Running daily notification cleanup job...");
       const settings = await this.systemSettingsRepo.findOne({
         where: { id: 1 },
       });
@@ -65,69 +74,76 @@ export class CronService {
 
   @Cron(CronExpression.EVERY_MINUTE)
   async handleTimezoneScheduler() {
-    this.logger.log("🌍 [Cron] Timezone-aware scheduler tick...");
+    const lockKey = "vibe:cron_lock";
     try {
-      await this.runRegularScheduler();
-    } catch (err) {
-      this.logger.error("❌ [Cron] Regular scheduler error:", err);
-    }
+      const acquired = await this.redisService.client.set(lockKey, "locked", "PX", 55000, "NX"); // 55s safety TTL
+      if (acquired !== "OK") {
+        this.logger.debug("🌍 [Cron] Scheduler lock already held by another replica. Skipping.");
+        return;
+      }
 
-    try {
-      await this.runDripScheduler();
-    } catch (err) {
-      this.logger.error("❌ [Cron] Drip scheduler error:", err);
+      this.logger.log("🌍 [Cron] Timezone-aware scheduler tick (Lock Acquired)...");
+      try {
+        await this.runRegularScheduler();
+      } catch (err) {
+        this.logger.error("❌ [Cron] Regular scheduler error:", err);
+      }
+
+      try {
+        await this.runDripScheduler();
+      } catch (err) {
+        this.logger.error("❌ [Cron] Drip scheduler error:", err);
+      }
+    } catch (error) {
+      this.logger.error("❌ [Cron] Distributed locking error:", error);
+    } finally {
+      // Always release the lock immediately so the next minute's tick can acquire it cleanly
+      await this.redisService.client.del(lockKey).catch(() => {});
     }
   }
 
   private async runRegularScheduler() {
+    const now = new Date();
+    const since = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
+
+    // Only fetch scheduled notifications that have NOT yet been dispatched
     const notifications = await this.notificationRepo
       .createQueryBuilder("n")
-      .where("n.scheduled_at_local_time IS NOT NULL")
+      .where("n.scheduled_at IS NOT NULL")
+      .andWhere("n.scheduled_at <= :now", { now })
+      .andWhere("n.scheduled_at >= :since", { since })
+      .andWhere("n.dispatched_at IS NULL")
       .getMany();
 
     for (const notification of notifications) {
-      const { id, app_id, payload_json, scheduled_at_local_time } =
-        notification;
+      const { id, app_id, target_user_ids } = notification;
 
-      const targetDevicesResult = await this.deviceTokenRepo
-        .createQueryBuilder("dt")
-        .select("dt.external_user_id", "external_user_id")
-        .where("dt.app_id = :appId", { appId: app_id })
-        .andWhere("dt.is_active = true")
-        .andWhere(
-          `(CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= :scheduledTime::time`,
-          { scheduledTime: scheduled_at_local_time },
-        )
-        .andWhere((qb) => {
-          const subQuery = qb
-            .subQuery()
-            .select("1")
-            .from("notification_logs", "nl")
-            .where("nl.notification_id = :notificationId")
-            .andWhere("nl.device_token_id = dt.id")
-            .getQuery();
-          return `NOT EXISTS ${subQuery}`;
-        })
-        .setParameter("notificationId", id)
-        .getRawMany();
+      // Mark as dispatched immediately to prevent re-enqueue on next cron tick
+      await this.notificationRepo.update(id, { dispatched_at: now });
 
-      if (targetDevicesResult.length > 0) {
-        const targetUserIds = targetDevicesResult.map(
-          (r: any) => r.external_user_id,
-        );
-        const payload =
-          typeof payload_json === "string"
-            ? JSON.parse(payload_json)
-            : payload_json;
-        this.logger.log(
-          `[Scheduler] Sending scheduled notification ${id} to ${targetUserIds.length} user(s)...`,
-        );
-        await this.pushService.sendPushNotification(
-          app_id,
-          payload,
+      const targetUserIds = target_user_ids
+        ? (() => {
+            try {
+              const ids = JSON.parse(target_user_ids);
+              return Array.isArray(ids) && ids.length > 0 ? ids : undefined;
+            } catch {
+              return undefined;
+            }
+          })()
+        : undefined;
+
+      this.logger.log(
+        `[Scheduler] Enqueuing scheduled notification ${id} (app=${app_id}) to ${targetUserIds ? targetUserIds.length + " user(s)" : "all subscribers"}...`,
+      );
+
+      await this.redisService.client.rpush(
+        "vibe:push_queue",
+        JSON.stringify({
+          notificationId: id,
+          appId: app_id,
           targetUserIds,
-        );
-      }
+        }),
+      );
     }
   }
 
@@ -178,7 +194,9 @@ export class CronService {
           { delayDays: delay_days },
         )
         .andWhere(
-          `(CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= :stepTime::time`,
+          `(CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time >= :stepTime::time
+           AND
+           (CURRENT_TIMESTAMP AT TIME ZONE (CASE WHEN dt.timezone = 'Asia/Calcutta' THEN 'Asia/Kolkata' ELSE dt.timezone END))::time < (:stepTime::time + INTERVAL '1 minute')`,
           { stepTime: step_time },
         )
         .andWhere((qb) => {

@@ -20,6 +20,7 @@ import { PushService } from "../push/push.service";
 import { DeviceService } from "../device/device.service";
 import { DripService } from "../drip/drip.service";
 import { UserService } from "../user/user.service";
+import { getDevicePlatform } from "../../utils/webPush";
 
 @ApiTags("Apps")
 @ApiBearerAuth()
@@ -113,15 +114,21 @@ export class AppController {
 
   @UseGuards(ApprovedGuard)
   @Get(":id/notifications")
-  async getAppNotifications(@Req() req: any, @Param("id") id: string) {
+  async getAppNotifications(
+    @Req() req: any,
+    @Param("id") id: string,
+    @Query("scheduled") scheduled?: string,
+  ) {
     const app = await this.appService.getAppById(
       id,
       req.user.userId,
       req.user.role,
     );
+    const isScheduled = scheduled === "true";
     const notifications = await this.pushService.getAppNotifications(
       app.id,
       100,
+      isScheduled,
     );
     return { success: true, data: notifications };
   }
@@ -142,6 +149,28 @@ export class AppController {
   }
 
   @UseGuards(ApprovedGuard)
+  @Delete(":id/notifications/:notificationId")
+  async deleteNotification(
+    @Req() req: any,
+    @Param("id") id: string,
+    @Param("notificationId") notificationId: string,
+  ) {
+    const app = await this.appService.getAppById(
+      id,
+      req.user.userId,
+      req.user.role,
+    );
+    await this.pushService.deleteNotification(
+      app.id,
+      parseInt(notificationId, 10),
+    );
+    return {
+      success: true,
+      message: "Notification deleted successfully",
+    };
+  }
+
+  @UseGuards(ApprovedGuard)
   @Get(":id/notifications/:notificationId/logs")
   async getNotificationLogs(
     @Req() req: any,
@@ -152,7 +181,22 @@ export class AppController {
     const logs = await this.pushService.getNotificationLogs(
       parseInt(notificationId, 10),
     );
-    return { success: true, data: logs };
+    const mappedLogs = logs.map((log) => ({
+      id: log.id,
+      notification_id: log.notification_id,
+      device_token_id: log.device_token_id,
+      status: log.status,
+      error_message: log.error_message,
+      sent_at: log.sent_at,
+      device_token: log.device_token
+        ? {
+            id: log.device_token.id,
+            external_user_id: log.device_token.external_user_id,
+            platform: getDevicePlatform(log.device_token.subscription_json),
+          }
+        : undefined,
+    }));
+    return { success: true, data: mappedLogs };
   }
 
   @UseGuards(ApprovedGuard)
@@ -170,6 +214,7 @@ export class AppController {
       is_active: d.is_active,
       created_at: d.created_at,
       updated_at: d.updated_at,
+      platform: getDevicePlatform(d.subscription_json),
     }));
     return { success: true, data: subscribers };
   }
@@ -209,6 +254,7 @@ export class AppController {
       app.id,
       body.notification,
       targetUserIds,
+      body.scheduledAt,
     );
     return {
       success: true,
@@ -216,7 +262,9 @@ export class AppController {
         notificationId: result.notificationId,
         sent: result.sent,
         failed: result.failed,
-        message: `Notification sent to ${result.sent} device(s), ${result.failed} failed`,
+        message: result.queued
+          ? "Notification queued for delivery in background"
+          : `Notification sent to ${result.sent} device(s), ${result.failed} failed`,
       },
     };
   }

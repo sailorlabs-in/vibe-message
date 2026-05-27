@@ -6,6 +6,7 @@ import { NotificationLog as NotificationLogEntity } from "./notification_log.ent
 import { DeviceToken as DeviceTokenEntity } from "../device/device_token.entity";
 import { NotificationPayload, PushSubscription } from "../../types";
 import { webpush } from "../../utils/webPush";
+import { RedisService } from "../redis/redis.service";
 
 const RETRY_CONFIG = {
   maxRetries: 3,
@@ -53,6 +54,7 @@ export class PushService {
     @InjectRepository(DeviceTokenEntity)
     private deviceTokenRepository: Repository<DeviceTokenEntity>,
     private dataSource: DataSource,
+    private redisService: RedisService,
   ) {}
 
   private async sendToDevice(
@@ -82,8 +84,8 @@ export class PushService {
     appId: number,
     notification: NotificationPayload,
     targetUserIds?: string[],
-    scheduledAtLocalTime?: string,
-  ): Promise<{ notificationId: number; sent: number; failed: number }> {
+    scheduledAt?: Date | string,
+  ): Promise<{ notificationId: number; sent: number; failed: number; queued?: boolean }> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -93,15 +95,62 @@ export class PushService {
         app_id: appId,
         payload_json: JSON.stringify(notification),
         is_silent: notification.silent || false,
-        scheduled_at_local_time: scheduledAtLocalTime || null,
+        scheduled_at: scheduledAt ? new Date(scheduledAt) : null,
+        target_user_ids: targetUserIds ? JSON.stringify(targetUserIds) : null,
       });
 
       const savedNotification = await queryRunner.manager.save(newNotification);
+      await queryRunner.commitTransaction();
 
-      if (scheduledAtLocalTime) {
-        await queryRunner.commitTransaction();
-        return { notificationId: savedNotification.id, sent: 0, failed: 0 };
+      if (scheduledAt) {
+        return { notificationId: savedNotification.id, sent: 0, failed: 0, queued: false };
       }
+
+      // Enqueue job in Redis for async delivery
+      await this.redisService.client.rpush(
+        "vibe:push_queue",
+        JSON.stringify({
+          notificationId: savedNotification.id,
+          appId,
+          targetUserIds,
+        }),
+      );
+
+      return {
+        notificationId: savedNotification.id,
+        sent: 0,
+        failed: 0,
+        queued: true,
+      };
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  async executePushDelivery(
+    notificationId: number,
+    appId: number,
+    targetUserIds?: string[],
+  ): Promise<{ sent: number; failed: number }> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const savedNotification = await queryRunner.manager.findOne(NotificationEntity, {
+        where: { id: notificationId },
+      });
+
+      if (!savedNotification) {
+        console.error(`[Push Service] Notification ${notificationId} not found in DB`);
+        await queryRunner.commitTransaction();
+        return { sent: 0, failed: 0 };
+      }
+
+      const notification: NotificationPayload = JSON.parse(savedNotification.payload_json);
 
       const queryBuilder = queryRunner.manager
         .createQueryBuilder(DeviceTokenEntity, "dt")
@@ -118,7 +167,7 @@ export class PushService {
 
       if (devices.length === 0) {
         await queryRunner.commitTransaction();
-        return { notificationId: savedNotification.id, sent: 0, failed: 0 };
+        return { sent: 0, failed: 0 };
       }
 
       let sentCount = 0;
@@ -172,7 +221,6 @@ export class PushService {
       await queryRunner.commitTransaction();
 
       return {
-        notificationId: savedNotification.id,
         sent: sentCount,
         failed: failedCount,
       };
@@ -184,11 +232,13 @@ export class PushService {
     }
   }
 
+
   async getNotificationLogs(
     notificationId: number,
   ): Promise<NotificationLogEntity[]> {
     return this.notificationLogRepository.find({
       where: { notification_id: notificationId },
+      relations: ["device_token"],
       order: { sent_at: "DESC" },
     });
   }
@@ -196,12 +246,29 @@ export class PushService {
   async getAppNotifications(
     appId: number,
     limit: number = 50,
+    scheduled: boolean = false,
   ): Promise<NotificationEntity[]> {
-    return this.notificationRepository.find({
-      where: { app_id: appId },
-      order: { created_at: "DESC" },
-      take: limit,
-    });
+    const now = new Date();
+    if (scheduled) {
+      return this.notificationRepository.createQueryBuilder("n")
+        .where("n.app_id = :appId", { appId })
+        .andWhere("n.scheduled_at IS NOT NULL")
+        .andWhere("n.scheduled_at > :now", { now })
+        .orderBy("n.scheduled_at", "ASC")
+        .take(limit)
+        .getMany();
+    } else {
+      return this.notificationRepository.createQueryBuilder("n")
+        .where("n.app_id = :appId", { appId })
+        .andWhere("(n.scheduled_at IS NULL OR n.scheduled_at <= :now)", { now })
+        .orderBy("n.created_at", "DESC")
+        .take(limit)
+        .getMany();
+    }
+  }
+
+  async deleteNotification(appId: number, notificationId: number): Promise<void> {
+    await this.notificationRepository.delete({ app_id: appId, id: notificationId });
   }
 
   async clearAppNotifications(appId: number): Promise<void> {

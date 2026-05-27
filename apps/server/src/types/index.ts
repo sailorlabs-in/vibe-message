@@ -73,7 +73,8 @@ export interface Notification {
   app_id: number;
   payload_json: string;
   is_silent: boolean;
-  scheduled_at_local_time?: string;
+  scheduled_at?: string | Date;
+  dispatched_at?: string | Date | null;
   created_by: number | null;
   created_at: Date;
 }
@@ -179,7 +180,7 @@ export interface SendPushRequest {
     all?: boolean;
   };
   notification: NotificationPayload;
-  scheduledAtLocalTime?: string;
+  scheduledAt?: string | Date;
 }
 
 export interface UpdateUserStatusRequest {

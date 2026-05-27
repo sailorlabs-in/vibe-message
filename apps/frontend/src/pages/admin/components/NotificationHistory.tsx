@@ -13,6 +13,8 @@ interface Notification {
   payload_json: string;
   is_silent: boolean;
   created_at: string;
+  scheduled_at?: string;
+  target_user_ids?: string;
 }
 
 interface NotificationLog {
@@ -20,13 +22,20 @@ interface NotificationLog {
   status: 'PENDING' | 'SENT' | 'FAILED';
   error_message: string | null;
   sent_at: string;
+  device_token_id: number;
+  device_token?: {
+    id: number;
+    external_user_id: string;
+    platform?: string;
+  };
 }
 
 interface NotificationHistoryProps {
   appId: string;
+  isScheduled?: boolean;
 }
 
-export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId }) => {
+export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId, isScheduled = false }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedNotificationId, setSelectedNotificationId] = useState<number | null>(null);
@@ -35,18 +44,24 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
   const dispatch = useAppDispatch();
   const [clearing, setClearing] = useState(false);
   const [showClearConfirmModal, setShowClearConfirmModal] = useState(false);
+  const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
+  const [notificationToCancel, setNotificationToCancel] = useState<number | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   useEffect(() => {
     fetchNotifications();
-  }, [appId]);
+  }, [appId, isScheduled]);
 
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const res = await ApiRequest(`/apps/${appId}/notifications`, "get");
+      const url = isScheduled 
+        ? `/apps/${appId}/notifications?scheduled=true`
+        : `/apps/${appId}/notifications`;
+      const res = await ApiRequest(url, "get");
       setNotifications(res.data || []);
     } catch (error) {
-      toast.error("Failed to load notifications history");
+      toast.error(isScheduled ? "Failed to load scheduled messages" : "Failed to load notifications history");
     } finally {
       setLoading(false);
     }
@@ -64,6 +79,22 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
       }
     } finally {
       setClearing(false);
+    }
+  };
+
+  const handleCancelNotification = async () => {
+    if (!notificationToCancel) return;
+    setCancelling(true);
+    try {
+      await ApiRequest(`/apps/${appId}/notifications/${notificationToCancel}`, "delete");
+      toast.success("Successfully cancelled the scheduled notification.");
+      fetchNotifications();
+    } catch (error) {
+      toast.error("Failed to cancel the scheduled notification.");
+    } finally {
+      setCancelling(false);
+      setShowCancelConfirmModal(false);
+      setNotificationToCancel(null);
     }
   };
 
@@ -105,8 +136,14 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
           <div className="w-16 h-16 mx-auto mb-4 bg-theme-bg-muted rounded-full flex items-center justify-center text-theme-text-muted">
            <RiNotificationLine size={32} />
           </div>
-          <h3 className="text-lg font-medium text-theme-text-primary">No notifications sent yet</h3>
-          <p className="text-theme-text-secondary mt-1">Use the composer to send your first push notification.</p>
+          <h3 className="text-lg font-medium text-theme-text-primary">
+            {isScheduled ? "No scheduled messages" : "No notifications sent yet"}
+          </h3>
+          <p className="text-theme-text-secondary mt-1">
+            {isScheduled 
+              ? "Use the composer to schedule a push notification."
+              : "Use the composer to send your first push notification."}
+          </p>
         </div>
       </div>
     );
@@ -116,11 +153,11 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
     <div className="card overflow-hidden">
       <div className="flex justify-between items-center mb-6 px-2">
         <h2 className="text-xl font-semibold text-theme-text-primary">
-          Notification History
+          {isScheduled ? "Scheduled Messages" : "Notification History"}
         </h2>
         
         <div className="flex items-center gap-3">
-          {notifications.length > 0 && (
+          {!isScheduled && notifications.length > 0 && (
             <button
               onClick={() => setShowClearConfirmModal(true)}
               disabled={clearing || notifications.length === 0}
@@ -143,8 +180,9 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-theme-border text-sm text-theme-text-secondary">
-              <th className="p-4 font-medium">Date</th>
+              <th className="p-4 font-medium">{isScheduled ? "Scheduled For" : "Date"}</th>
               <th className="p-4 font-medium">Payload Preview</th>
+              <th className="p-4 font-medium">Target Device ID(s)</th>
               <th className="p-4 font-medium text-center">Type</th>
               <th className="p-4 font-medium text-right">Actions</th>
             </tr>
@@ -161,10 +199,10 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
                   <tr className="border-b border-theme-border hover:bg-theme-bg-secondary/50 transition-colors">
                     <td className="p-4 align-top">
                       <div className="text-sm font-medium text-theme-text-primary whitespace-nowrap">
-                        {new Date(notif.created_at).toLocaleDateString()}
+                        {new Date(isScheduled && notif.scheduled_at ? notif.scheduled_at : notif.created_at).toLocaleDateString()}
                       </div>
                       <div className="text-xs text-theme-text-secondary whitespace-nowrap">
-                        {new Date(notif.created_at).toLocaleTimeString()}
+                        {new Date(isScheduled && notif.scheduled_at ? notif.scheduled_at : notif.created_at).toLocaleTimeString()}
                       </div>
                     </td>
                     <td className="p-4 align-top max-w-sm">
@@ -174,6 +212,20 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
                       <div className="text-sm text-theme-text-secondary truncate mt-1">
                         {payloadObj.body || '{ No body }'}
                       </div>
+                    </td>
+                    <td className="p-4 align-top text-sm text-theme-text-secondary whitespace-nowrap">
+                      {(() => {
+                        if (!notif.target_user_ids) return "All Subscribers";
+                        try {
+                          const ids = JSON.parse(notif.target_user_ids);
+                          if (Array.isArray(ids)) {
+                            if (ids.length === 0) return "All Subscribers";
+                            if (ids.length === 1) return ids[0];
+                            return `${ids.length} Devices (${ids.join(", ")})`;
+                          }
+                        } catch (e) {}
+                        return notif.target_user_ids;
+                      })()}
                     </td>
                     <td className="p-4 align-top text-center">
                       {notif.is_silent ? (
@@ -187,19 +239,31 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
                       )}
                     </td>
                     <td className="p-4 align-top text-right">
-                      <button
-                        onClick={() => fetchLogs(notif.id)}
-                        className="text-theme-primary-500 hover:text-theme-primary-600 text-sm font-medium focus:outline-none"
-                      >
-                        {isSelected ? "Hide Details" : "View Details"}
-                      </button>
+                      {isScheduled ? (
+                        <button
+                          onClick={() => {
+                            setNotificationToCancel(notif.id);
+                            setShowCancelConfirmModal(true);
+                          }}
+                          className="px-3 py-1.5 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/40 rounded-lg font-medium text-xs transition-colors outline-none"
+                        >
+                          Cancel
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => fetchLogs(notif.id)}
+                          className="text-theme-primary-500 hover:text-theme-primary-600 text-sm font-medium focus:outline-none"
+                        >
+                          {isSelected ? "Hide Details" : "View Details"}
+                        </button>
+                      )}
                     </td>
                   </tr>
                   
                   {/* Expandable Logs View */}
-                  {isSelected && (
+                  {isSelected && !isScheduled && (
                     <tr>
-                      <td colSpan={4} className="bg-theme-bg-secondary/30 p-0">
+                      <td colSpan={5} className="bg-theme-bg-secondary/30 p-0">
                         <div className="p-6 border-b border-theme-border">
                           <h4 className="text-sm font-semibold text-theme-text-primary mb-3">Delivery Breakdown</h4>
                           {logsLoading ? (
@@ -220,6 +284,9 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
                                  <table className="w-full text-sm">
                                     <thead className="bg-theme-bg-muted sticky top-0">
                                       <tr>
+                                        <th className="px-4 py-2 font-medium text-left">Recipient User ID</th>
+                                        <th className="px-4 py-2 font-medium text-left">Device ID</th>
+                                        <th className="px-4 py-2 font-medium text-left">Platform</th>
                                         <th className="px-4 py-2 font-medium text-left">Status</th>
                                         <th className="px-4 py-2 font-medium text-left">Information</th>
                                       </tr>
@@ -227,10 +294,43 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
                                     <tbody className="divide-y divide-theme-border">
                                         {logs.map(log => (
                                           <tr key={log.id}>
+                                            <td className="px-4 py-2 text-theme-text-primary font-mono text-xs">
+                                              {log.device_token?.external_user_id || "Unknown"}
+                                            </td>
+                                            <td className="px-4 py-2 text-theme-text-secondary font-mono text-xs">
+                                              Device #{log.device_token?.id || log.device_token_id}
+                                            </td>
+                                            <td className="px-4 py-2 text-xs">
+                                              {log.device_token?.platform === "Chrome/Android" && (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
+                                                  Chrome/Android
+                                                </span>
+                                              )}
+                                              {log.device_token?.platform === "Safari" && (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300">
+                                                  Safari
+                                                </span>
+                                              )}
+                                              {log.device_token?.platform === "Firefox" && (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300">
+                                                  Firefox
+                                                </span>
+                                              )}
+                                              {log.device_token?.platform === "Edge/Windows" && (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                                                  Edge/Windows
+                                                </span>
+                                              )}
+                                              {!["Chrome/Android", "Safari", "Firefox", "Edge/Windows"].includes(log.device_token?.platform || "") && (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+                                                  {log.device_token?.platform || "Web Push"}
+                                                </span>
+                                              )}
+                                            </td>
                                             <td className="px-4 py-2">
-                                               {log.status === 'SENT' && <span className="text-green-600 dark:text-green-400 font-medium">● Sent</span>}
-                                               {log.status === 'FAILED' && <span className="text-red-600 dark:text-red-400 font-medium">● Failed</span>}
-                                               {log.status === 'PENDING' && <span className="text-yellow-600 dark:text-yellow-400 font-medium">● Pending</span>}
+                                               {log.status === 'SENT' && <span className="text-green-600 dark:text-green-400 font-medium text-xs">● Sent</span>}
+                                               {log.status === 'FAILED' && <span className="text-red-600 dark:text-red-400 font-medium text-xs">● Failed</span>}
+                                               {log.status === 'PENDING' && <span className="text-yellow-600 dark:text-yellow-400 font-medium text-xs">● Pending</span>}
                                             </td>
                                             <td className="px-4 py-2 text-theme-text-secondary font-mono text-xs">
                                               {log.error_message || 'Success'}
@@ -265,6 +365,20 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId 
         description="Are you sure you want to completely erase the notification history for this app? This action cannot be undone and you will lose all past delivery records and error logs."
         confirmLabel="Yes, Clear History"
         confirmingLabel="Clearing..."
+      />
+
+      <ConfirmModal
+        isOpen={showCancelConfirmModal}
+        onClose={() => {
+          setShowCancelConfirmModal(false);
+          setNotificationToCancel(null);
+        }}
+        onConfirm={handleCancelNotification}
+        loading={cancelling}
+        title="Cancel Scheduled Notification?"
+        description="Are you sure you want to cancel this scheduled notification? It will be deleted and will not be sent to any devices."
+        confirmLabel="Yes, Cancel Notification"
+        confirmingLabel="Cancelling..."
       />
     </div>
   );

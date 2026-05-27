@@ -1,5 +1,4 @@
 import { Module } from "@nestjs/common";
-import { ScheduleModule } from "@nestjs/schedule";
 import { CronService } from "./cron.service";
 import { SystemModule } from "../system/system.module";
 import { PushModule } from "../push/push.module";
@@ -12,7 +11,6 @@ import { SystemSettings } from "../system/system_settings.entity";
 
 @Module({
   imports: [
-    ScheduleModule.forRoot(),
     TypeOrmModule.forFeature([
       AppEntity,
       Notification,
