@@ -17,6 +17,7 @@ import {
 } from "../../types";
 import { generateAppId, generateSecretKey } from "../../utils/crypto";
 import { RedisService } from "../redis/redis.service";
+import { MailService } from "../mail/mail.service";
 
 @Injectable()
 export class AppService {
@@ -28,6 +29,7 @@ export class AppService {
     @InjectRepository(AppMember)
     private appMemberRepository: Repository<AppMember>,
     private redisService: RedisService,
+    private mailService: MailService,
   ) {}
 
   private getCacheKey(publicAppId: string): string {
@@ -339,6 +341,18 @@ export class AppService {
     });
 
     await this.appMemberRepository.save(newMember);
+
+    // Fire-and-forget: notify the new member by email
+    this.mailService
+      .sendAppSharedAccessEmail(targetUser.email, {
+        name: targetUser.name,
+        appName: app.name,
+        role: shareRole,
+        ownerName: (await this.userRepository.findOne({ where: { id: userId } }))?.name ?? 'App Owner',
+        isUpdate: false,
+      })
+      .catch((err: any) => console.error('[Mail] sendAppSharedAccessEmail error:', err));
+
     return {
       id: targetUser.id,
       name: targetUser.name,
@@ -371,6 +385,22 @@ export class AppService {
 
     member.role = shareRole;
     await this.appMemberRepository.save(member);
+
+    // Fire-and-forget: notify the member about their updated role
+    const memberUser = await this.userRepository.findOne({ where: { id: memberUserId } });
+    if (memberUser) {
+      const ownerUser = await this.userRepository.findOne({ where: { id: userId } });
+      this.mailService
+        .sendAppSharedAccessEmail(memberUser.email, {
+          name: memberUser.name,
+          appName: app.name,
+          role: shareRole,
+          ownerName: ownerUser?.name ?? 'App Owner',
+          isUpdate: true,
+        })
+        .catch((err: any) => console.error('[Mail] sendAppSharedAccessEmail (update) error:', err));
+    }
+
     return { success: true };
   }
 
