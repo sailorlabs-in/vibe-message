@@ -34,6 +34,14 @@ interface EnvConfig {
     host: string;
     port: number;
   };
+  mail: {
+    host: string;
+    port: number;
+    secure: boolean;
+    user: string;
+    pass: string;
+    from: string;
+  };
 }
 
 const getEnvVar = (key: string, defaultValue?: string): string => {
@@ -77,6 +85,14 @@ export const config: EnvConfig = {
   redis: {
     host: getEnvVar("REDIS_HOST", "192.168.1.2"),
     port: parseInt(getEnvVar("REDIS_PORT", "6379"), 10),
+  },
+  mail: {
+    host: getEnvVar("SMTP_HOST", ""),
+    port: parseInt(getEnvVar("SMTP_PORT", "587"), 10),
+    secure: getEnvVar("SMTP_SECURE", "false") === "true",
+    user: getEnvVar("SMTP_USER", ""),
+    pass: getEnvVar("SMTP_PASS", ""),
+    from: getEnvVar("SMTP_FROM", "Vibe Message <noreply@vibe-message.com>"),
   },
 };
 

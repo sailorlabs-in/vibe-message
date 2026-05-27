@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Suspended — <%= appName %></title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #0f0f13;
+      color: #e2e8f0;
+      min-height: 100vh;
+      padding: 40px 16px;
+    }
+    .wrapper { max-width: 580px; margin: 0 auto; }
+    .header { text-align: center; padding: 0 0 32px; }
+    .logo-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border: 1px solid rgba(239,68,68,0.25);
+      border-radius: 12px;
+      padding: 10px 20px;
+      margin-bottom: 28px;
+    }
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      border-radius: 8px;
+      font-size: 18px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-text { font-size: 15px; font-weight: 600; color: #fca5a5; letter-spacing: 0.5px; }
+    .card {
+      background: linear-gradient(145deg, #141420 0%, #1a1220 100%);
+      border: 1px solid rgba(239,68,68,0.2);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .hero {
+      background: linear-gradient(135deg, #2d0a0a 0%, #450a0a 50%, #2d0a0a 100%);
+      padding: 48px 40px 40px;
+      text-align: center;
+      position: relative;
+      border-bottom: 1px solid rgba(239,68,68,0.25);
+    }
+    .hero-glow {
+      position: absolute;
+      top: -40px; left: 50%;
+      transform: translateX(-50%);
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(239,68,68,0.3) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .ban-icon {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, #dc2626, #991b1b);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 38px;
+      box-shadow: 0 0 40px rgba(239,68,68,0.5), 0 0 80px rgba(239,68,68,0.2);
+    }
+    .hero h1 { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.5px; line-height: 1.3; margin-bottom: 10px; }
+    .hero p { font-size: 15px; color: #fca5a5; line-height: 1.6; }
+    .content { padding: 36px 40px; }
+    .greeting { font-size: 16px; color: #cbd5e1; margin-bottom: 20px; line-height: 1.7; }
+    .greeting strong { color: #e2e8f0; }
+    .alert-box {
+      background: rgba(239,68,68,0.08);
+      border: 1px solid rgba(239,68,68,0.25);
+      border-left: 3px solid #ef4444;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin: 24px 0;
+    }
+    .alert-box p { font-size: 14px; color: #fca5a5; line-height: 1.7; }
+    .info-list {
+      display: flex; flex-direction: column; gap: 12px;
+      margin: 24px 0;
+    }
+    .info-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .info-icon { font-size: 18px; min-width: 26px; margin-top: 1px; }
+    .info-text { font-size: 14px; color: #94a3b8; line-height: 1.6; }
+    .info-text strong { color: #cbd5e1; display: block; margin-bottom: 2px; }
+    .cta-wrap { text-align: center; margin: 32px 0 8px; }
+    .cta-btn {
+      display: inline-block;
+      background: transparent;
+      color: #fca5a5 !important;
+      text-decoration: none;
+      padding: 13px 36px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      border: 1.5px solid rgba(239,68,68,0.5);
+      letter-spacing: 0.3px;
+    }
+    .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(239,68,68,0.15), transparent); margin: 32px 0; }
+    .footer { text-align: center; padding: 0 40px 32px; }
+    .footer p { font-size: 12px; color: #475569; line-height: 1.8; }
+    .footer a { color: #f87171; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <div class="logo-badge">
+        <div class="logo-icon">💬</div>
+        <span class="logo-text"><%= appName %></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="hero">
+        <div class="hero-glow"></div>
+        <div class="ban-icon">🚫</div>
+        <h1>Account Suspended</h1>
+        <p>Your access to <%= appName %> has been restricted, <%= name %>.</p>
+      </div>
+
+      <div class="content">
+        <p class="greeting">
+          Hi <strong><%= name %></strong>,<br /><br />
+          We're writing to inform you that your <strong><%= appName %></strong> account has been 
+          <strong style="color:#f87171;">suspended</strong> by our administrative team due to 
+          a violation of our Terms of Service or usage guidelines.
+        </p>
+
+        <div class="alert-box">
+          <p>
+            🔒 Your account and all associated apps have been <strong>temporarily disabled</strong>. 
+            SDK keys will no longer function during the suspension period.
+          </p>
+        </div>
+
+        <div class="info-list">
+          <div class="info-item">
+            <div class="info-icon">📋</div>
+            <div class="info-text">
+              <strong>Review our Terms of Service</strong>
+              Understand what actions lead to account suspension so you can avoid them in future.
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">✉️</div>
+            <div class="info-text">
+              <strong>Appeal the decision</strong>
+              If you believe this suspension was made in error, please contact our support team to appeal.
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-icon">⏳</div>
+            <div class="info-text">
+              <strong>Await administrator review</strong>
+              Our team will review your account and contact you with further information.
+            </div>
+          </div>
+        </div>
+
+        <div class="cta-wrap">
+          <a class="cta-btn" href="#">Contact Support →</a>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="footer">
+        <p>
+          This suspension was issued by a <%= appName %> administrator.<br />
+          If you believe this is a mistake, please <a href="#">reach out to support</a>.
+        </p>
+        <p style="margin-top: 8px;">© <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

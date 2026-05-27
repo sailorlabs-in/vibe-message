@@ -31,6 +31,7 @@ import { HealthModule } from './modules/health/health.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { RedisService } from './modules/redis/redis.service';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis'
     SystemModule,
     HealthModule,
     RedisModule,
+    MailModule,
   ],
 
   controllers: [],
