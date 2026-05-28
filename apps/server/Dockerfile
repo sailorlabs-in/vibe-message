@@ -20,7 +20,7 @@ RUN npm run build -w vibe-message
 RUN npx nx run vibe-message-server:build
 
 # Production stage
-FROM node:22-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
