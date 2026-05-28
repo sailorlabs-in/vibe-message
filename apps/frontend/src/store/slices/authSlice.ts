@@ -98,6 +98,30 @@ export const deleteUserAccount = createAsyncThunk<
   }
 });
 
+export const forgotPassword = createAsyncThunk<
+  void,
+  { email: string },
+  { rejectValue: string }
+>('auth/forgotPassword', async ({ email }, { rejectWithValue }) => {
+  try {
+    await ApiRequest('/auth/forgot-password', 'post', { email }, false);
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to send reset email');
+  }
+});
+
+export const resetPassword = createAsyncThunk<
+  void,
+  { token: string; newPassword: string },
+  { rejectValue: string }
+>('auth/resetPassword', async ({ token, newPassword }, { rejectWithValue }) => {
+  try {
+    await ApiRequest('/auth/reset-password', 'post', { token, newPassword }, false);
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to reset password');
+  }
+});
+
 // Slice
 const authSlice = createSlice({
   name: 'auth',
@@ -203,6 +227,34 @@ const authSlice = createSlice({
       .addCase(deleteUserAccount.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to delete account';
+      });
+
+    // Forgot password
+    builder
+      .addCase(forgotPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(forgotPassword.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to send reset email';
+      });
+
+    // Reset password
+    builder
+      .addCase(resetPassword.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to reset password';
       });
   },
 });
