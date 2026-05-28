@@ -88,6 +88,31 @@ spec:
                 secretKeyRef:
                   name: backend-secret
                   key: REDIS_PORT
+            - name: SMTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: SMTP_HOST
+            - name: SMTP_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: SMTP_PORT
+            - name: SMTP_SECURE
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: SMTP_SECURE
+            - name: SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: SMTP_USER
+            - name: SMTP_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: SMTP_PASS
             - name: ALLOWED_ORIGINS
               valueFrom:
                 configMapKeyRef:
