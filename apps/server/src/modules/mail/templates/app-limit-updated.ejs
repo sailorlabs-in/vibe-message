@@ -3,199 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>App Limit Updated — <%= appName %></title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: #0f0f13;
-      color: #e2e8f0;
-      min-height: 100vh;
-      padding: 40px 16px;
-    }
-    .wrapper { max-width: 580px; margin: 0 auto; }
-    .header { text-align: center; padding: 0 0 32px; }
-    .logo-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      border: 1px solid rgba(14,165,233,0.25);
-      border-radius: 12px;
-      padding: 10px 20px;
-      margin-bottom: 28px;
-    }
-    .logo-icon {
-      width: 32px; height: 32px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      border-radius: 8px; font-size: 18px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .logo-text { font-size: 15px; font-weight: 600; color: #7dd3fc; letter-spacing: 0.5px; }
-    .card {
-      background: linear-gradient(145deg, #141420 0%, #0f1a20 100%);
-      border: 1px solid rgba(14,165,233,0.2);
-      border-radius: 20px;
-      overflow: hidden;
-    }
-    .hero {
-      background: linear-gradient(135deg, #0a1628 0%, #0c2240 50%, #0a1628 100%);
-      padding: 48px 40px 40px;
-      text-align: center;
-      position: relative;
-      border-bottom: 1px solid rgba(14,165,233,0.25);
-    }
-    .hero-glow {
-      position: absolute; top: -40px; left: 50%;
-      transform: translateX(-50%);
-      width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(14,165,233,0.3) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .limit-icon {
-      width: 80px; height: 80px;
-      background: linear-gradient(135deg, #0284c7, #0369a1);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 20px;
-      font-size: 38px;
-      box-shadow: 0 0 40px rgba(14,165,233,0.5), 0 0 80px rgba(14,165,233,0.2);
-    }
-    .hero h1 { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.5px; line-height: 1.3; margin-bottom: 10px; }
-    .hero p { font-size: 15px; color: #7dd3fc; line-height: 1.6; }
-    .content { padding: 36px 40px; }
-    .greeting { font-size: 16px; color: #cbd5e1; margin-bottom: 28px; line-height: 1.7; }
-    .greeting strong { color: #e2e8f0; }
-    /* Limit comparison card */
-    .limit-comparison {
-      display: flex;
-      gap: 16px;
-      margin: 8px 0 32px;
-      align-items: center;
-    }
-    .limit-box {
-      flex: 1;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      padding: 24px 20px;
-      text-align: center;
-    }
-    .limit-box.old { border-color: rgba(100,116,139,0.3); }
-    .limit-box.new { border-color: rgba(14,165,233,0.35); background: rgba(14,165,233,0.06); }
-    .limit-label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-    .limit-box.old .limit-label { color: #64748b; }
-    .limit-box.new .limit-label { color: #38bdf8; }
-    .limit-value {
-      font-size: 42px;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 6px;
-    }
-    .limit-box.old .limit-value { color: #475569; }
-    .limit-box.new .limit-value { color: #7dd3fc; }
-    .limit-desc { font-size: 12px; color: #475569; }
-    .limit-box.new .limit-desc { color: #38bdf8; opacity: 0.7; }
-    .arrow-divider {
-      font-size: 28px;
-      color: #38bdf8;
-      flex-shrink: 0;
-    }
-    /* Info note */
-    .info-box {
-      background: rgba(14,165,233,0.07);
-      border: 1px solid rgba(14,165,233,0.2);
-      border-radius: 12px;
-      padding: 16px 18px;
-      margin-bottom: 28px;
-    }
-    .info-box p { font-size: 14px; color: #7dd3fc; line-height: 1.7; }
-    .cta-wrap { text-align: center; margin: 28px 0 8px; }
-    .cta-btn {
-      display: inline-block;
-      background: linear-gradient(135deg, #0284c7, #0ea5e9);
-      color: #fff !important;
-      text-decoration: none;
-      padding: 14px 40px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      box-shadow: 0 4px 24px rgba(14,165,233,0.4);
-    }
-    .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(14,165,233,0.15), transparent); margin: 32px 0; }
-    .footer { text-align: center; padding: 0 40px 32px; }
-    .footer p { font-size: 12px; color: #475569; line-height: 1.8; }
-    .footer a { color: #0ea5e9; text-decoration: none; }
-  </style>
+  <title>App Limit Updated - Vibe-message</title>
 </head>
-<body>
-  <div class="wrapper">
-    <div class="header">
-      <div class="logo-badge">
-        <div class="logo-icon">💬</div>
-        <span class="logo-text"><%= appName %></span>
-      </div>
-    </div>
+<body style="margin:0; padding:0; background:#F8F7FC; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; color:#1F2937;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F8F7FC; padding:32px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;">
+          <tr>
+            <td style="padding:0 0 18px;">
+              <table role="presentation" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="vertical-align:middle; padding-right:10px;">
+                    <img src="https://vibemessage.sailorlabs.in/favicon.png" width="36" height="36" alt="Vibe-message" style="display:block; border-radius:10px;" />
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <div style="font-size:18px; line-height:22px; font-weight:800; color:#1F2937;">Vibe-message</div>
+                    <div style="font-size:12px; line-height:16px; color:#6B7280;">Account administration update</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-    <div class="card">
-      <div class="hero">
-        <div class="hero-glow"></div>
-        <div class="limit-icon">📊</div>
-        <h1>App Limit Updated</h1>
-        <p>Your app creation quota has been changed by an administrator.</p>
-      </div>
+          <tr>
+            <td style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:18px; overflow:hidden; box-shadow:0 18px 50px rgba(15,23,42,0.08);">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="background:#8B5CF6; padding:34px 36px 32px;">
+                    <div style="display:inline-block; background:#93C5FD; color:#1F2937; border-radius:999px; padding:7px 12px; font-size:12px; font-weight:800; letter-spacing:.4px; text-transform:uppercase;">Limit Updated</div>
+                    <h1 style="margin:18px 0 8px; color:#FFFFFF; font-size:30px; line-height:38px; font-weight:800;">Your app quota changed.</h1>
+                    <p style="margin:0; color:#F9FAFB; font-size:16px; line-height:25px;">An administrator updated the number of apps you can create.</p>
+                  </td>
+                </tr>
 
-      <div class="content">
-        <p class="greeting">
-          Hi <strong><%= name %></strong>,<br /><br />
-          An administrator has updated your <strong><%= appName %></strong> account's 
-          <strong style="color:#7dd3fc;">app creation limit</strong>. Here's a summary of the change:
-        </p>
+                <tr>
+                  <td style="padding:34px 36px 12px;">
+                    <p style="margin:0 0 22px; color:#1F2937; font-size:15px; line-height:25px;">
+                      Hi <strong><%= name %></strong>, your <strong>Vibe-message</strong> account app creation limit has been updated.
+                    </p>
 
-        <!-- Limit comparison -->
-        <div class="limit-comparison">
-          <div class="limit-box old">
-            <div class="limit-label">Previous Limit</div>
-            <div class="limit-value"><%= oldLimit === null ? '∞' : oldLimit %></div>
-            <div class="limit-desc"><%= oldLimit === null ? 'Unlimited apps' : 'apps allowed' %></div>
-          </div>
-          <div class="arrow-divider">→</div>
-          <div class="limit-box new">
-            <div class="limit-label">New Limit</div>
-            <div class="limit-value"><%= newLimit === null ? '∞' : newLimit %></div>
-            <div class="limit-desc"><%= newLimit === null ? 'Unlimited apps' : 'apps allowed' %></div>
-          </div>
-        </div>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
+                      <tr>
+                        <td width="47%" style="padding:20px; background:#F1F0FA; border:1px solid #E5E7EB; border-radius:14px; text-align:center;">
+                          <div style="font-size:11px; color:#6B7280; font-weight:800; text-transform:uppercase; letter-spacing:.8px;">Previous Limit</div>
+                          <div style="font-size:38px; line-height:46px; color:#6B7280; font-weight:900; margin-top:8px;"><%= oldLimit === null ? 'Unlimited' : oldLimit %></div>
+                          <div style="font-size:12px; color:#9CA3AF;">apps allowed</div>
+                        </td>
+                        <td width="6%" align="center" style="font-size:20px; color:#9CA3AF;">to</td>
+                        <td width="47%" style="padding:20px; background:#d3e8ff; border:1px solid #93C5FD; border-radius:14px; text-align:center;">
+                          <div style="font-size:11px; color:#1F2937; font-weight:800; text-transform:uppercase; letter-spacing:.8px;">New Limit</div>
+                          <div style="font-size:38px; line-height:46px; color:#8B5CF6; font-weight:900; margin-top:8px;"><%= newLimit === null ? 'Unlimited' : newLimit %></div>
+                          <div style="font-size:12px; color:#8B5CF6;">apps allowed</div>
+                        </td>
+                      </tr>
+                    </table>
 
-        <div class="info-box">
-          <p>
-            ℹ️ &nbsp;Your new limit is now active. You can check your current app count and usage 
-            in the dashboard at any time. If you need a higher limit, please contact our support team.
-          </p>
-        </div>
+                    <div style="background:#F1F0FA; border-left:4px solid #8B5CF6; border-radius:12px; padding:16px 18px; color:#1F2937; font-size:14px; line-height:23px;">
+                      The new limit is active immediately. You can review your current apps and usage from the dashboard.
+                    </div>
 
-        <div class="cta-wrap">
-          <a class="cta-btn" href="#">View My Apps →</a>
-        </div>
-      </div>
+                    <table role="presentation" cellspacing="0" cellpadding="0" style="margin:26px 0 24px;">
+                      <tr>
+                        <td bgcolor="#8B5CF6" style="border-radius:10px;">
+                          <a href="https://vibemessage.sailorlabs.in" style="display:inline-block; padding:13px 22px; color:#FFFFFF; text-decoration:none; font-size:14px; font-weight:800;">View My Apps</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
 
-      <div class="divider"></div>
-
-      <div class="footer">
-        <p>
-          This update was made by a <%= appName %> administrator.<br />
-          If you have questions, please <a href="#">contact support</a>.
-        </p>
-        <p style="margin-top: 8px;">© <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
+                <tr>
+                  <td style="padding:22px 36px 30px; border-top:1px solid #E5E7EB;">
+                    <p style="margin:0; color:#6B7280; font-size:12px; line-height:20px;">This update was made by a Vibe-message administrator. Contact support if you have questions.</p>
+                    <p style="margin:10px 0 0; color:#9CA3AF; font-size:12px;">Copyright <%= new Date().getFullYear() %> Vibe-message. All rights reserved.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>

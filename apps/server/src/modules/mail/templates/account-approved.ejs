@@ -3,249 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Account Approved — <%= appName %></title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: #0f0f13;
-      color: #e2e8f0;
-      min-height: 100vh;
-      padding: 40px 16px;
-    }
-    .wrapper {
-      max-width: 580px;
-      margin: 0 auto;
-    }
-    /* ── Header ── */
-    .header {
-      text-align: center;
-      padding: 0 0 32px;
-    }
-    .logo-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      border: 1px solid rgba(99,102,241,0.3);
-      border-radius: 12px;
-      padding: 10px 20px;
-      margin-bottom: 28px;
-    }
-    .logo-icon {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-    }
-    .logo-text {
-      font-size: 15px;
-      font-weight: 600;
-      color: #a5b4fc;
-      letter-spacing: 0.5px;
-    }
-    /* ── Card ── */
-    .card {
-      background: linear-gradient(145deg, #141420 0%, #1a1a2e 100%);
-      border: 1px solid rgba(99,102,241,0.2);
-      border-radius: 20px;
-      overflow: hidden;
-    }
-    /* ── Hero banner ── */
-    .hero {
-      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
-      padding: 48px 40px 40px;
-      text-align: center;
-      position: relative;
-      border-bottom: 1px solid rgba(99,102,241,0.25);
-    }
-    .hero-glow {
-      position: absolute;
-      top: -40px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 200px;
-      height: 200px;
-      background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .check-circle {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-      font-size: 38px;
-      box-shadow: 0 0 40px rgba(99,102,241,0.6), 0 0 80px rgba(99,102,241,0.25);
-    }
-    .hero h1 {
-      font-size: 28px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.5px;
-      line-height: 1.3;
-      margin-bottom: 10px;
-    }
-    .hero p {
-      font-size: 15px;
-      color: #a5b4fc;
-      line-height: 1.6;
-    }
-    /* ── Body content ── */
-    .content {
-      padding: 36px 40px;
-    }
-    .greeting {
-      font-size: 16px;
-      color: #cbd5e1;
-      margin-bottom: 20px;
-      line-height: 1.7;
-    }
-    .greeting strong { color: #e2e8f0; }
-    /* ── Feature chips ── */
-    .features {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin: 28px 0;
-    }
-    .feature-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 14px;
-      background: rgba(99,102,241,0.08);
-      border: 1px solid rgba(99,102,241,0.15);
-      border-radius: 12px;
-      padding: 14px 16px;
-    }
-    .feature-icon {
-      font-size: 20px;
-      min-width: 28px;
-      text-align: center;
-      margin-top: 1px;
-    }
-    .feature-text {
-      font-size: 14px;
-      color: #94a3b8;
-      line-height: 1.6;
-    }
-    .feature-text strong { color: #c7d2fe; display: block; margin-bottom: 2px; }
-    /* ── CTA Button ── */
-    .cta-wrap {
-      text-align: center;
-      margin: 32px 0 8px;
-    }
-    .cta-btn {
-      display: inline-block;
-      background: linear-gradient(135deg, #4f46e5, #7c3aed);
-      color: #fff !important;
-      text-decoration: none;
-      padding: 14px 40px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      letter-spacing: 0.3px;
-      box-shadow: 0 4px 24px rgba(99,102,241,0.5);
-      transition: all 0.2s;
-    }
-    /* ── Divider ── */
-    .divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.2), transparent);
-      margin: 32px 0;
-    }
-    /* ── Footer ── */
-    .footer {
-      text-align: center;
-      padding: 0 40px 32px;
-    }
-    .footer p {
-      font-size: 12px;
-      color: #475569;
-      line-height: 1.8;
-    }
-    .footer a {
-      color: #6366f1;
-      text-decoration: none;
-    }
-  </style>
+  <title>Account Approved - Vibe-message</title>
 </head>
-<body>
-  <div class="wrapper">
-    <!-- Header / Logo -->
-    <div class="header">
-      <div class="logo-badge">
-        <div class="logo-icon">💬</div>
-        <span class="logo-text"><%= appName %></span>
-      </div>
-    </div>
+<body style="margin:0; padding:0; background:#F8F7FC; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; color:#1F2937;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F8F7FC; padding:32px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;">
+          <tr>
+            <td style="padding:0 0 18px;">
+              <table role="presentation" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="vertical-align:middle; padding-right:10px;">
+                    <img src="https://vibemessage.sailorlabs.in/favicon.png" width="36" height="36" alt="Vibe-message" style="display:block; border-radius:10px;" />
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <div style="font-size:18px; line-height:22px; font-weight:800; color:#1F2937;">Vibe-message</div>
+                    <div style="font-size:12px; line-height:16px; color:#6B7280;">Notification infrastructure for modern teams</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-    <!-- Main Card -->
-    <div class="card">
-      <!-- Hero -->
-      <div class="hero">
-        <div class="hero-glow"></div>
-        <div class="check-circle">✅</div>
-        <h1>Account Approved!</h1>
-        <p>Your account is now active. Welcome aboard, <%= name %>.</p>
-      </div>
+          <tr>
+            <td style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:18px; overflow:hidden; box-shadow:0 18px 50px rgba(15,23,42,0.08);">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="background:#8B5CF6; padding:34px 36px 32px;">
+                    <div style="display:inline-block; background:#86EFAC; color:#1F2937; border-radius:999px; padding:7px 12px; font-size:12px; font-weight:800; letter-spacing:.4px; text-transform:uppercase;">Approved</div>
+                    <h1 style="margin:18px 0 8px; color:#FFFFFF; font-size:30px; line-height:38px; font-weight:800;">Your account is ready.</h1>
+                    <p style="margin:0; color:#F9FAFB; font-size:16px; line-height:25px;">Hi <%= name %>, your Vibe-message account has been approved and activated.</p>
+                  </td>
+                </tr>
 
-      <!-- Content -->
-      <div class="content">
-        <p class="greeting">
-          Hi <strong><%= name %></strong>,<br /><br />
-          Great news — your <strong><%= appName %></strong> account has been reviewed and 
-          <strong style="color:#a5b4fc;">approved</strong> by our team. You now have full 
-          access to the platform and can start building right away.
-        </p>
+                <tr>
+                  <td style="padding:34px 36px 12px;">
+                    <p style="margin:0 0 20px; color:#1F2937; font-size:15px; line-height:25px;">
+                      You now have access to the dashboard, SDK setup, app management, and delivery analytics. You can start creating apps and sending notifications right away.
+                    </p>
 
-        <div class="features">
-          <div class="feature-item">
-            <div class="feature-icon">🚀</div>
-            <div class="feature-text">
-              <strong>Create your first app</strong>
-              Head to the dashboard and create your push notification app in seconds.
-            </div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">🔔</div>
-            <div class="feature-text">
-              <strong>Start sending notifications</strong>
-              Integrate the Vibe Message SDK and start reaching your users instantly.
-            </div>
-          </div>
-          <div class="feature-item">
-            <div class="feature-icon">📊</div>
-            <div class="feature-text">
-              <strong>Monitor your analytics</strong>
-              Track notification delivery, engagement, and subscriber growth in real time.
-            </div>
-          </div>
-        </div>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
+                      <tr>
+                        <td style="padding:16px; background:#F1F0FA; border:1px solid #E5E7EB; border-radius:14px;">
+                          <div style="font-size:13px; color:#6B7280; font-weight:700; text-transform:uppercase; letter-spacing:.4px; margin-bottom:10px;">What you can do now</div>
+                          <div style="font-size:15px; line-height:26px; color:#1F2937;">
+                            Create an app, connect the SDK, manage subscribers, and review delivery performance from one dashboard.
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
 
-        <div class="cta-wrap">
-          <a class="cta-btn" href="#">Go to Dashboard →</a>
-        </div>
-      </div>
+                    <table role="presentation" cellspacing="0" cellpadding="0" style="margin:10px 0 24px;">
+                      <tr>
+                        <td bgcolor="#8B5CF6" style="border-radius:10px;">
+                          <a href="https://vibemessage.sailorlabs.in" style="display:inline-block; padding:13px 22px; color:#FFFFFF; text-decoration:none; font-size:14px; font-weight:800;">Open Dashboard</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
 
-      <div class="divider"></div>
-
-      <!-- Footer -->
-      <div class="footer">
-        <p>
-          You received this email because your account on <strong><%= appName %></strong> was approved.<br />
-          If you believe this was a mistake, please <a href="#">contact support</a>.
-        </p>
-        <p style="margin-top: 8px;">© <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
+                <tr>
+                  <td style="padding:22px 36px 30px; border-top:1px solid #E5E7EB;">
+                    <p style="margin:0; color:#6B7280; font-size:12px; line-height:20px;">
+                      This email confirms that your Vibe-message account was approved. If this does not look right, contact support.
+                    </p>
+                    <p style="margin:10px 0 0; color:#9CA3AF; font-size:12px;">Copyright <%= new Date().getFullYear() %> Vibe-message. All rights reserved.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>

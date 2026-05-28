@@ -3,185 +3,86 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Account Suspended — <%= appName %></title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: #0f0f13;
-      color: #e2e8f0;
-      min-height: 100vh;
-      padding: 40px 16px;
-    }
-    .wrapper { max-width: 580px; margin: 0 auto; }
-    .header { text-align: center; padding: 0 0 32px; }
-    .logo-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      border: 1px solid rgba(239,68,68,0.25);
-      border-radius: 12px;
-      padding: 10px 20px;
-      margin-bottom: 28px;
-    }
-    .logo-icon {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      border-radius: 8px;
-      font-size: 18px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .logo-text { font-size: 15px; font-weight: 600; color: #fca5a5; letter-spacing: 0.5px; }
-    .card {
-      background: linear-gradient(145deg, #141420 0%, #1a1220 100%);
-      border: 1px solid rgba(239,68,68,0.2);
-      border-radius: 20px;
-      overflow: hidden;
-    }
-    .hero {
-      background: linear-gradient(135deg, #2d0a0a 0%, #450a0a 50%, #2d0a0a 100%);
-      padding: 48px 40px 40px;
-      text-align: center;
-      position: relative;
-      border-bottom: 1px solid rgba(239,68,68,0.25);
-    }
-    .hero-glow {
-      position: absolute;
-      top: -40px; left: 50%;
-      transform: translateX(-50%);
-      width: 200px; height: 200px;
-      background: radial-gradient(circle, rgba(239,68,68,0.3) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .ban-icon {
-      width: 80px; height: 80px;
-      background: linear-gradient(135deg, #dc2626, #991b1b);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      margin: 0 auto 20px;
-      font-size: 38px;
-      box-shadow: 0 0 40px rgba(239,68,68,0.5), 0 0 80px rgba(239,68,68,0.2);
-    }
-    .hero h1 { font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.5px; line-height: 1.3; margin-bottom: 10px; }
-    .hero p { font-size: 15px; color: #fca5a5; line-height: 1.6; }
-    .content { padding: 36px 40px; }
-    .greeting { font-size: 16px; color: #cbd5e1; margin-bottom: 20px; line-height: 1.7; }
-    .greeting strong { color: #e2e8f0; }
-    .alert-box {
-      background: rgba(239,68,68,0.08);
-      border: 1px solid rgba(239,68,68,0.25);
-      border-left: 3px solid #ef4444;
-      border-radius: 12px;
-      padding: 16px 18px;
-      margin: 24px 0;
-    }
-    .alert-box p { font-size: 14px; color: #fca5a5; line-height: 1.7; }
-    .info-list {
-      display: flex; flex-direction: column; gap: 12px;
-      margin: 24px 0;
-    }
-    .info-item {
-      display: flex; align-items: flex-start; gap: 14px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-      padding: 14px 16px;
-    }
-    .info-icon { font-size: 18px; min-width: 26px; margin-top: 1px; }
-    .info-text { font-size: 14px; color: #94a3b8; line-height: 1.6; }
-    .info-text strong { color: #cbd5e1; display: block; margin-bottom: 2px; }
-    .cta-wrap { text-align: center; margin: 32px 0 8px; }
-    .cta-btn {
-      display: inline-block;
-      background: transparent;
-      color: #fca5a5 !important;
-      text-decoration: none;
-      padding: 13px 36px;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 600;
-      border: 1.5px solid rgba(239,68,68,0.5);
-      letter-spacing: 0.3px;
-    }
-    .divider { height: 1px; background: linear-gradient(90deg, transparent, rgba(239,68,68,0.15), transparent); margin: 32px 0; }
-    .footer { text-align: center; padding: 0 40px 32px; }
-    .footer p { font-size: 12px; color: #475569; line-height: 1.8; }
-    .footer a { color: #f87171; text-decoration: none; }
-  </style>
+  <title>Account Suspended - Vibe-message</title>
 </head>
-<body>
-  <div class="wrapper">
-    <div class="header">
-      <div class="logo-badge">
-        <div class="logo-icon">💬</div>
-        <span class="logo-text"><%= appName %></span>
-      </div>
-    </div>
+<body style="margin:0; padding:0; background:#F8F7FC; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; color:#1F2937;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F8F7FC; padding:32px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;">
+          <tr>
+            <td style="padding:0 0 18px;">
+              <table role="presentation" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="vertical-align:middle; padding-right:10px;">
+                    <img src="https://vibemessage.sailorlabs.in/favicon.png" width="36" height="36" alt="Vibe-message" style="display:block; border-radius:10px;" />
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <div style="font-size:18px; line-height:22px; font-weight:800; color:#1F2937;">Vibe-message</div>
+                    <div style="font-size:12px; line-height:16px; color:#6B7280;">Account status update</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
 
-    <div class="card">
-      <div class="hero">
-        <div class="hero-glow"></div>
-        <div class="ban-icon">🚫</div>
-        <h1>Account Suspended</h1>
-        <p>Your access to <%= appName %> has been restricted, <%= name %>.</p>
-      </div>
+          <tr>
+            <td style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:18px; overflow:hidden; box-shadow:0 18px 50px rgba(15,23,42,0.08);">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="background:#8B5CF6; padding:34px 36px 32px;">
+                    <div style="display:inline-block; background:#FCA5A5; color:#fafafa; border-radius:999px; padding:7px 12px; font-size:12px; font-weight:800; letter-spacing:.4px; text-transform:uppercase;">Suspended</div>
+                    <h1 style="margin:18px 0 8px; color:#FFFFFF; font-size:30px; line-height:38px; font-weight:800;">Your account access is restricted.</h1>
+                    <p style="margin:0; color:#F9FAFB; font-size:16px; line-height:25px;">Your Vibe-message account has been suspended by an administrator.</p>
+                  </td>
+                </tr>
 
-      <div class="content">
-        <p class="greeting">
-          Hi <strong><%= name %></strong>,<br /><br />
-          We're writing to inform you that your <strong><%= appName %></strong> account has been 
-          <strong style="color:#f87171;">suspended</strong> by our administrative team due to 
-          a violation of our Terms of Service or usage guidelines.
-        </p>
+                <tr>
+                  <td style="padding:34px 36px 12px;">
+                    <p style="margin:0 0 20px; color:#1F2937; font-size:15px; line-height:25px;">
+                      Hi <strong><%= name %></strong>, your account has been suspended due to a policy or usage review. During this time, access to the dashboard and associated app actions may be limited.
+                    </p>
 
-        <div class="alert-box">
-          <p>
-            🔒 Your account and all associated apps have been <strong>temporarily disabled</strong>. 
-            SDK keys will no longer function during the suspension period.
-          </p>
-        </div>
+                    <div style="background:#F1F0FA; border:1px solid #FCA5A5; border-left:4px solid #FCA5A5; border-radius:14px; padding:18px 20px; margin:0 0 24px;">
+                      <div style="font-size:13px; color:#1F2937; font-weight:900; text-transform:uppercase; letter-spacing:.6px; margin-bottom:8px;">What this means</div>
+                      <div style="font-size:15px; line-height:25px; color:#1F2937;">
+                        Your account and related app permissions are restricted until an administrator reviews or changes the account status.
+                      </div>
+                    </div>
 
-        <div class="info-list">
-          <div class="info-item">
-            <div class="info-icon">📋</div>
-            <div class="info-text">
-              <strong>Review our Terms of Service</strong>
-              Understand what actions lead to account suspension so you can avoid them in future.
-            </div>
-          </div>
-          <div class="info-item">
-            <div class="info-icon">✉️</div>
-            <div class="info-text">
-              <strong>Appeal the decision</strong>
-              If you believe this suspension was made in error, please contact our support team to appeal.
-            </div>
-          </div>
-          <div class="info-item">
-            <div class="info-icon">⏳</div>
-            <div class="info-text">
-              <strong>Await administrator review</strong>
-              Our team will review your account and contact you with further information.
-            </div>
-          </div>
-        </div>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
+                      <tr>
+                        <td style="padding:16px; background:#F1F0FA; border:1px solid #E5E7EB; border-radius:14px;">
+                          <div style="font-size:13px; color:#6B7280; font-weight:800; text-transform:uppercase; letter-spacing:.4px; margin-bottom:10px;">Need help?</div>
+                          <div style="font-size:15px; line-height:25px; color:#1F2937;">
+                            If you believe this was done in error, contact support with the account email and any relevant details.
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
 
-        <div class="cta-wrap">
-          <a class="cta-btn" href="#">Contact Support →</a>
-        </div>
-      </div>
+                    <table role="presentation" cellspacing="0" cellpadding="0" style="margin:10px 0 24px;">
+                      <tr>
+                        <td bgcolor="#A78BFA" style="border-radius:10px;">
+                          <a href="https://vibemessage.sailorlabs.in" style="display:inline-block; padding:13px 22px; color:#FFFFFF; text-decoration:none; font-size:14px; font-weight:800;">Contact Support</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
 
-      <div class="divider"></div>
-
-      <div class="footer">
-        <p>
-          This suspension was issued by a <%= appName %> administrator.<br />
-          If you believe this is a mistake, please <a href="#">reach out to support</a>.
-        </p>
-        <p style="margin-top: 8px;">© <%= new Date().getFullYear() %> <%= appName %>. All rights reserved.</p>
-      </div>
-    </div>
-  </div>
+                <tr>
+                  <td style="padding:22px 36px 30px; border-top:1px solid #E5E7EB;">
+                    <p style="margin:0; color:#6B7280; font-size:12px; line-height:20px;">This suspension was issued by a Vibe-message administrator.</p>
+                    <p style="margin:10px 0 0; color:#9CA3AF; font-size:12px;">Copyright <%= new Date().getFullYear() %> Vibe-message. All rights reserved.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
