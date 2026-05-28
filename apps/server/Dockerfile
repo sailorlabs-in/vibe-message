@@ -29,6 +29,9 @@ COPY package*.json ./
 COPY apps/server/package*.json ./apps/server/
 COPY libs ./libs
 
+# Copy built SDK from builder stage
+COPY --from=builder /app/libs/sdk/dist ./libs/sdk/dist
+
 # Install production dependencies only via workspace
 RUN npm install --omit=dev
 
