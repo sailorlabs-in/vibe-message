@@ -35,6 +35,15 @@ export interface App {
 export interface AppWithStats extends App {
   device_count: number;
   notification_count: number;
+  currentUserRole?: 'owner' | 'moderator' | 'viewer' | 'superadmin';
+}
+
+export interface AppMember {
+  id: number;
+  name: string;
+  email: string;
+  role: 'owner' | 'moderator' | 'viewer';
+  joined_at: string;
 }
 
 export interface Warning {

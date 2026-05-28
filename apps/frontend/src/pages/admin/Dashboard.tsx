@@ -51,6 +51,7 @@ export const Dashboard: React.FC = () => {
   }
 
   const activeAppsCount = apps.filter((app) => app.is_active).length;
+  const ownedAppsCount = apps.filter((app) => app.user_id === user?.id).length;
 
   return (
     <div className="min-h-[calc(100vh-120px)] relative overflow-hidden transition-colors duration-300 px-4 py-8">
@@ -110,7 +111,7 @@ export const Dashboard: React.FC = () => {
               </h3>
               <div className="flex flex-col">
                 <p className="text-5xl font-black text-theme-text-primary flex items-baseline gap-2 tabular-nums tracking-tighter">
-                  {apps.length}
+                  {ownedAppsCount}
                   {user?.app_limit && (
                     <span className="text-xl font-medium text-theme-text-secondary">
                       / {user.app_limit}
@@ -122,14 +123,14 @@ export const Dashboard: React.FC = () => {
                     <div className="h-2.5 w-full bg-theme-bg-muted rounded-full overflow-hidden shadow-inner">
                       <div 
                         className="h-full bg-gradient-to-r from-theme-primary-400 to-theme-primary-600 rounded-full transition-all duration-1000 ease-out relative"
-                        style={{ width: `${Math.min(100, (apps.length / user.app_limit) * 100)}%` }}
+                        style={{ width: `${Math.min(100, (ownedAppsCount / user.app_limit) * 100)}%` }}
                       >
                          <div className="absolute top-0 right-0 bottom-0 left-0 bg-[linear-gradient(45deg,rgba(255,255,255,.15)25%,transparent_25%,transparent_50%,rgba(255,255,255,.15)_50%,rgba(255,255,255,.15)_75%,transparent_75%,transparent)] bg-[length:1rem_1rem] animate-[progress_1s_linear_infinite]" />
                       </div>
                     </div>
                     <p className="text-sm text-theme-text-muted mt-3 font-medium">
-                      {user.app_limit - apps.length > 0 
-                        ? `${user.app_limit - apps.length} app(s) remaining for deployment`
+                      {user.app_limit - ownedAppsCount > 0 
+                        ? `${user.app_limit - ownedAppsCount} app(s) remaining for deployment`
                         : 'App limit reached'}
                     </p>
                   </div>

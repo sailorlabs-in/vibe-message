@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { RiAddLine, RiTimeLine, RiDeleteBinLine, RiSave3Line, RiLoaderLine, RiToggleLine, RiToggleFill } from "@remixicon/react";
+import { RiAddLine, RiTimeLine, RiDeleteBinLine, RiSave3Line, RiLoaderLine, RiToggleLine, RiToggleFill, RiAlertLine } from "@remixicon/react";
 import toast from "react-hot-toast";
 import { useAppDispatch, useAppSelector } from "../../../store/store";
 import {
@@ -17,10 +17,13 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
   const { steps: reduxSteps, is_active: reduxIsActive, loading, saving, error } = useAppSelector(
     (state) => state.drip
   );
+  const { selectedApp } = useAppSelector((state) => state.apps);
 
   // Local editable copies
   const [steps, setSteps] = useState<DripStepPayload[]>([]);
   const [isActive, setIsActive] = useState(false);
+
+  const isViewer = selectedApp?.currentUserRole === "viewer";
 
   // Fetch from API when component mounts (or appId changes)
   useEffect(() => {
@@ -42,6 +45,7 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
   }, [reduxSteps, reduxIsActive, loading]);
 
   const addStep = () => {
+    if (isViewer) return;
     const newStep: DripStepPayload = {
       id: Date.now().toString(),
       dayDelay: steps.length > 0 ? steps[steps.length - 1].dayDelay + 2 : 1,
@@ -53,14 +57,17 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
   };
 
   const updateStep = (id: string, field: keyof DripStepPayload, value: string | number) => {
+    if (isViewer) return;
     setSteps(steps.map(step => step.id === id ? { ...step, [field]: value } : step));
   };
 
   const removeStep = (id: string) => {
+    if (isViewer) return;
     setSteps(steps.filter(step => step.id !== id));
   };
 
   const handleSave = async () => {
+    if (isViewer) return;
     const result = await dispatch(saveDripCampaign({ publicAppId: appId, isActive, steps }));
     if (saveDripCampaign.fulfilled.match(result)) {
       toast.success("Drip campaign saved!");
@@ -81,7 +88,7 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
   return (
     <div className="card space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
         <div>
           <h2 className="text-xl font-semibold text-theme-text-primary">Drip Campaign</h2>
           <p className="text-sm text-theme-text-secondary mt-1">
@@ -92,12 +99,13 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
         <div className="flex items-center gap-4">
           {/* Active / Inactive toggle */}
           <button
-            onClick={() => setIsActive(!isActive)}
+            onClick={() => !isViewer && setIsActive(!isActive)}
+            disabled={isViewer}
             className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all font-medium text-sm ${
               isActive
                 ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-500 hover:bg-emerald-500/20"
                 : "bg-theme-bg-secondary border-theme-border text-theme-text-secondary hover:border-theme-primary-400"
-            }`}
+            } disabled:opacity-75 disabled:cursor-not-allowed`}
             title={isActive ? "Campaign is active – click to disable" : "Campaign is inactive – click to enable"}
           >
             {isActive ? (
@@ -109,20 +117,31 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
           </button>
 
           {/* Save button */}
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="btn-primary flex items-center gap-2 px-4 py-2 disabled:opacity-50"
-          >
-            {saving ? (
-              <RiLoaderLine size={18} className="animate-spin" />
-            ) : (
-              <RiSave3Line size={18} />
-            )}
-            {saving ? "Saving..." : "Save Campaign"}
-          </button>
+          {!isViewer && (
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="btn-primary flex items-center gap-2 px-4 py-2 disabled:opacity-50"
+            >
+              {saving ? (
+                <RiLoaderLine size={18} className="animate-spin" />
+              ) : (
+                <RiSave3Line size={18} />
+              )}
+              {saving ? "Saving..." : "Save Campaign"}
+            </button>
+          )}
         </div>
       </div>
+
+      {isViewer && (
+        <div className="bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 p-4 rounded-lg text-sm border border-amber-200 dark:border-amber-900/30 mb-6 flex items-center gap-2">
+          <RiAlertLine size={20} className="shrink-0" />
+          <div>
+            <span className="font-semibold">Viewer Access:</span> You have read-only access to this app. Modifying drip campaigns is disabled.
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="text-sm text-red-500 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/30 rounded-lg px-4 py-2">
@@ -158,7 +177,8 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
                         min="0"
                         value={step.dayDelay}
                         onChange={(e) => updateStep(step.id, "dayDelay", parseInt(e.target.value) || 0)}
-                        className="w-16 p-1 text-sm border border-theme-border rounded bg-theme-bg-primary text-theme-text-primary focus:ring-1 focus:ring-theme-primary-500 outline-none"
+                        disabled={isViewer}
+                        className="w-16 p-1 text-sm border border-theme-border rounded bg-theme-bg-primary text-theme-text-primary focus:ring-1 focus:ring-theme-primary-500 outline-none disabled:opacity-75 disabled:cursor-not-allowed"
                       />
                     </div>
                   </div>
@@ -170,13 +190,16 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
                       type="time"
                       value={step.time}
                       onChange={(e) => updateStep(step.id, "time", e.target.value)}
-                      className="p-1 text-sm border border-theme-border rounded bg-theme-bg-primary text-theme-text-primary focus:ring-1 focus:ring-theme-primary-500 outline-none"
+                      disabled={isViewer}
+                      className="p-1 text-sm border border-theme-border rounded bg-theme-bg-primary text-theme-text-primary focus:ring-1 focus:ring-theme-primary-500 outline-none disabled:opacity-75 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
-                <button onClick={() => removeStep(step.id)} className="text-red-400 hover:text-red-600 p-1 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                  <RiDeleteBinLine size={18} />
-                </button>
+                {!isViewer && (
+                  <button onClick={() => removeStep(step.id)} className="text-red-400 hover:text-red-600 p-1 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <RiDeleteBinLine size={18} />
+                  </button>
+                )}
               </div>
 
               <div className="space-y-3">
@@ -185,14 +208,16 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
                   placeholder="Notification Title"
                   value={step.title}
                   onChange={(e) => updateStep(step.id, "title", e.target.value)}
-                  className="w-full font-medium p-2 border border-theme-border rounded bg-theme-bg-primary text-theme-text-primary outline-none focus:border-theme-primary-400"
+                  disabled={isViewer}
+                  className="w-full font-medium p-2 border border-theme-border rounded bg-theme-bg-primary text-theme-text-primary outline-none focus:border-theme-primary-400 disabled:opacity-75 disabled:cursor-not-allowed"
                 />
                 <textarea
                   placeholder="Notification Body"
                   value={step.body}
                   onChange={(e) => updateStep(step.id, "body", e.target.value)}
+                  disabled={isViewer}
                   rows={2}
-                  className="w-full text-sm p-2 border border-theme-border rounded bg-theme-bg-primary text-theme-text-primary outline-none focus:border-theme-primary-400 resize-none"
+                  className="w-full text-sm p-2 border border-theme-border rounded bg-theme-bg-primary text-theme-text-primary outline-none focus:border-theme-primary-400 resize-none disabled:opacity-75 disabled:cursor-not-allowed"
                 />
               </div>
             </div>
@@ -200,15 +225,17 @@ export const DripCampaigns: React.FC<DripCampaignsProps> = ({ appId }) => {
         ))}
 
         {/* Add Step button */}
-        <div className="relative flex items-center justify-center pt-4">
-          <button
-            onClick={addStep}
-            className="flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-theme-primary-500 text-theme-primary-600 hover:bg-theme-primary-50 dark:hover:bg-theme-primary-900/20 transition-colors bg-theme-bg-primary z-10"
-          >
-            <RiAddLine size={18} />
-            Add Step
-          </button>
-        </div>
+        {!isViewer && (
+          <div className="relative flex items-center justify-center pt-4">
+            <button
+              onClick={addStep}
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-dashed border-theme-primary-500 text-theme-primary-600 hover:bg-theme-primary-50 dark:hover:bg-theme-primary-900/20 transition-colors bg-theme-bg-primary z-10"
+            >
+              <RiAddLine size={18} />
+              Add Step
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import { config } from './config/env';
 // Entities
 import { User } from './modules/user/user.entity';
 import { App } from './modules/app/app.entity';
+import { AppMember } from './modules/app/app-member.entity';
 import { DeviceToken } from './modules/device/device_token.entity';
 import { Notification } from './modules/push/notification.entity';
 import { NotificationLog } from './modules/push/notification_log.entity';
@@ -30,6 +31,7 @@ import { HealthModule } from './modules/health/health.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { RedisService } from './modules/redis/redis.service';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
+import { MailModule } from './modules/mail/mail.module';
 
 @Module({
   imports: [
@@ -52,7 +54,7 @@ import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis'
         type: 'postgres',
         url: config.database.url,
         entities: [
-          User, App, DeviceToken, Notification, NotificationLog, 
+          User, App, AppMember, DeviceToken, Notification, NotificationLog, 
           Warning, SystemSettings, DripCampaign, DripStep, DripSentLog
         ],
         synchronize: true, // We use SQL files for migration, so keep this false in prod
@@ -70,6 +72,7 @@ import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis'
     SystemModule,
     HealthModule,
     RedisModule,
+    MailModule,
   ],
 
   controllers: [],

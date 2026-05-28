@@ -35,9 +35,17 @@ export class CronService {
   async handleCleanup() {
     try {
       const lockKey = "vibe:cleanup_lock";
-      const acquired = await this.redisService.client.set(lockKey, "locked", "PX", 3600000, "NX"); // 1 hour lock
+      const acquired = await this.redisService.client.set(
+        lockKey,
+        "locked",
+        "PX",
+        3600000,
+        "NX",
+      ); // 1 hour lock
       if (acquired !== "OK") {
-        this.logger.debug("🧹 [Cron] Notification cleanup lock already acquired. Skipping.");
+        this.logger.debug(
+          "🧹 [Cron] Notification cleanup lock already acquired. Skipping.",
+        );
         return;
       }
 
@@ -76,13 +84,21 @@ export class CronService {
   async handleTimezoneScheduler() {
     const lockKey = "vibe:cron_lock";
     try {
-      const acquired = await this.redisService.client.set(lockKey, "locked", "PX", 55000, "NX"); // 55s safety TTL
+      const acquired = await this.redisService.client.set(
+        lockKey,
+        "locked",
+        "PX",
+        55000,
+        "NX",
+      ); // 55s safety TTL
       if (acquired !== "OK") {
-        this.logger.debug("🌍 [Cron] Scheduler lock already held by another replica. Skipping.");
+        this.logger.debug(
+          "🌍 [Cron] Scheduler lock already held by another replica. Skipping.",
+        );
         return;
       }
 
-      this.logger.log("🌍 [Cron] Timezone-aware scheduler tick (Lock Acquired)...");
+      // this.logger.log("🌍 [Cron] Timezone-aware scheduler tick (Lock Acquired)...");
       try {
         await this.runRegularScheduler();
       } catch (err) {

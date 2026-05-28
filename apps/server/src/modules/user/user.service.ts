@@ -18,6 +18,7 @@ import { User } from "./user.entity";
 import { Warning } from "./warning.entity";
 import { App } from "../app/app.entity";
 import { InternalNotificationService } from "../system/internal-notification.service";
+import { MailService } from "../mail/mail.service";
 
 @Injectable()
 export class UserService {
@@ -29,6 +30,7 @@ export class UserService {
     @InjectRepository(App)
     private appRepository: Repository<App>,
     private internalNotificationService: InternalNotificationService,
+    private mailService: MailService,
   ) {}
 
   private userToResponse(user: User): UserResponse {
@@ -64,10 +66,16 @@ export class UserService {
         this.internalNotificationService
           .notifyUserApproved(userId, user.name)
           .catch((err: any) => console.error(err));
+        this.mailService
+          .sendAccountApprovedEmail(user.email, { name: user.name })
+          .catch((err: any) => console.error('[Mail] sendAccountApprovedEmail error:', err));
       } else if (data.status === "BANNED") {
         this.internalNotificationService
           .notifyUserBanned(userId)
           .catch((err: any) => console.error(err));
+        this.mailService
+          .sendAccountBannedEmail(user.email, { name: user.name })
+          .catch((err: any) => console.error('[Mail] sendAccountBannedEmail error:', err));
       }
     } catch (e) {}
 
@@ -103,6 +111,7 @@ export class UserService {
       );
     }
 
+    const prevLimit = user.app_limit;
     user.app_limit = data.appLimit;
     await this.userRepository.save(user);
 
@@ -110,6 +119,13 @@ export class UserService {
       this.internalNotificationService
         .notifyUserAppLimitChanged(userId, data.appLimit)
         .catch((err: any) => console.error(err));
+      this.mailService
+        .sendAppLimitUpdatedEmail(user.email, {
+          name: user.name,
+          oldLimit: prevLimit,
+          newLimit: data.appLimit,
+        })
+        .catch((err: any) => console.error('[Mail] sendAppLimitUpdatedEmail error:', err));
     } catch (e) {}
 
     return this.userToResponse(user);
@@ -137,6 +153,12 @@ export class UserService {
       this.internalNotificationService
         .notifyUserWarned(userId, data.message)
         .catch((err: any) => console.error(err));
+      this.mailService
+        .sendAccountWarningEmail(user.email, {
+          name: user.name,
+          warningMessage: data.message,
+        })
+        .catch((err: any) => console.error('[Mail] sendAccountWarningEmail error:', err));
     } catch (e) {}
 
     return savedWarning;

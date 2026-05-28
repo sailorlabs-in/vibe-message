@@ -1,10 +1,11 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import ApiRequest from '../../services/ApiRequest';
-import { App, AppWithStats } from '../../types';
+import { App, AppWithStats, AppMember } from '../../types';
 
 interface AppsState {
   apps: App[];
   selectedApp: AppWithStats | null;
+  members: AppMember[];
   loading: boolean;
   error: string | null;
 }
@@ -12,6 +13,7 @@ interface AppsState {
 const initialState: AppsState = {
   apps: [],
   selectedApp: null,
+  members: [],
   loading: false,
   error: null,
 };
@@ -119,6 +121,58 @@ export const clearAppNotifications = createAsyncThunk<
     return appId;
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to clear notification history');
+  }
+});
+
+export const fetchAppMembers = createAsyncThunk<
+  AppMember[],
+  string,
+  { rejectValue: string }
+>('apps/fetchAppMembers', async (appId, { rejectWithValue }) => {
+  try {
+    const response = await ApiRequest(`/apps/${appId}/members`, 'get');
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to fetch members');
+  }
+});
+
+export const shareApp = createAsyncThunk<
+  AppMember,
+  { appId: string; email: string; role: 'moderator' | 'viewer' },
+  { rejectValue: string }
+>('apps/shareApp', async ({ appId, email, role }, { rejectWithValue }) => {
+  try {
+    const response = await ApiRequest(`/apps/${appId}/members`, 'post', { email, role });
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to share app');
+  }
+});
+
+export const updateAppMember = createAsyncThunk<
+  { userId: number; role: 'moderator' | 'viewer' },
+  { appId: string; userId: number; role: 'moderator' | 'viewer' },
+  { rejectValue: string }
+>('apps/updateAppMember', async ({ appId, userId, role }, { rejectWithValue }) => {
+  try {
+    await ApiRequest(`/apps/${appId}/members/${userId}`, 'patch', { role });
+    return { userId, role };
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to update member role');
+  }
+});
+
+export const removeAppMember = createAsyncThunk<
+  number,
+  { appId: string; userId: number },
+  { rejectValue: string }
+>('apps/removeAppMember', async ({ appId, userId }, { rejectWithValue }) => {
+  try {
+    await ApiRequest(`/apps/${appId}/members/${userId}`, 'delete');
+    return userId;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to remove member');
   }
 });
 
@@ -252,6 +306,51 @@ const appsSlice = createSlice({
       .addCase(unregisterAllAppDevices.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to unregister devices';
+      });
+
+    // Fetch members
+    builder
+      .addCase(fetchAppMembers.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAppMembers.fulfilled, (state, action) => {
+        state.loading = false;
+        state.members = action.payload;
+      })
+      .addCase(fetchAppMembers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to fetch members';
+      });
+
+    // Share app
+    builder
+      .addCase(shareApp.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(shareApp.fulfilled, (state, action) => {
+        state.loading = false;
+        state.members.push(action.payload);
+      })
+      .addCase(shareApp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to share app';
+      });
+
+    // Update member role
+    builder
+      .addCase(updateAppMember.fulfilled, (state, action) => {
+        const index = state.members.findIndex(m => m.id === action.payload.userId);
+        if (index !== -1) {
+          state.members[index].role = action.payload.role;
+        }
+      });
+
+    // Remove member
+    builder
+      .addCase(removeAppMember.fulfilled, (state, action) => {
+        state.members = state.members.filter(m => m.id !== action.payload);
       });
   },
 });

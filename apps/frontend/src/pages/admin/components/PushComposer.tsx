@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import ApiRequest from "../../../services/ApiRequest";
-import { RiLoader4Line } from "@remixicon/react";
+import { RiLoader4Line, RiAlertLine } from "@remixicon/react";
 import { useAppSelector } from "../../../store/store";
 import { PushPreview } from "./PushPreview";
-
 
 interface PushComposerProps {
   appId: string;
@@ -25,8 +24,12 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
   const { selectedApp } = useAppSelector((state) => state.apps);
   const appName = selectedApp?.name || "Vibe Message";
 
+  const isViewer = selectedApp?.currentUserRole === "viewer";
+
   const handleSendPush = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isViewer) return;
+
     if (!title.trim()) {
       toast.error("Title is required");
       return;
@@ -119,6 +122,16 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
       <h2 className="text-xl font-semibold mb-6 text-theme-text-primary">
         Send Push Notification
       </h2>
+
+      {isViewer && (
+        <div className="bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 p-4 rounded-lg text-sm border border-amber-200 dark:border-amber-900/30 mb-6 flex items-center gap-2">
+          <RiAlertLine size={20} className="shrink-0" />
+          <div>
+            <span className="font-semibold">Viewer Access:</span> You have read-only access to this app. Composing or sending push notifications is disabled.
+          </div>
+        </div>
+      )}
+
       <form onSubmit={handleSendPush} className="space-y-6">
         <div className="grid lg:grid-cols-12 gap-8">
           <div className="lg:col-span-7 space-y-8">
@@ -137,6 +150,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                   placeholder="New message received"
                   className="input w-full"
                   required
+                  disabled={isViewer || loading}
                 />
               </div>
               <div>
@@ -149,6 +163,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                   placeholder="User John sent you a photo."
                   className="w-full border border-theme-border rounded-lg p-3 bg-theme-bg-secondary text-theme-text-primary focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-colors"
                   rows={3}
+                  disabled={isViewer || loading}
                 />
               </div>
               <div>
@@ -161,6 +176,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                   onChange={(e) => setIcon(e.target.value)}
                   placeholder="https://example.com/icon.png"
                   className="input w-full"
+                  disabled={isViewer || loading}
                 />
               </div>
               <div>
@@ -173,6 +189,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                   onChange={(e) => setClickAction(e.target.value)}
                   placeholder="https://example.com/open"
                   className="input w-full"
+                  disabled={isViewer || loading}
                 />
               </div>
             </div>
@@ -190,6 +207,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                     checked={deliveryMode === "immediate"}
                     onChange={() => setDeliveryMode("immediate")}
                     className="text-theme-primary-500 focus:ring-theme-primary-500"
+                    disabled={isViewer || loading}
                   />
                   <span className="text-sm text-theme-text-primary">Send Immediately</span>
                 </label>
@@ -201,6 +219,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                     checked={deliveryMode === "scheduled"}
                     onChange={() => setDeliveryMode("scheduled")}
                     className="text-theme-primary-500 focus:ring-theme-primary-500"
+                    disabled={isViewer || loading}
                   />
                   <span className="text-sm text-theme-text-primary">Absolute UTC Time</span>
                 </label>
@@ -216,6 +235,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                       <button
                         type="button"
                         onClick={() => setTimezoneMode("local")}
+                        disabled={isViewer || loading}
                         className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                           timezoneMode === "local"
                             ? "bg-theme-primary-500 text-white shadow-sm"
@@ -227,6 +247,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                       <button
                         type="button"
                         onClick={() => setTimezoneMode("utc")}
+                        disabled={isViewer || loading}
                         className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
                           timezoneMode === "utc"
                             ? "bg-theme-primary-500 text-white shadow-sm"
@@ -249,6 +270,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                         onChange={(e) => setScheduledDate(e.target.value)}
                         className="input w-full"
                         required
+                        disabled={isViewer || loading}
                       />
                     </div>
                     <div>
@@ -261,6 +283,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                         onChange={(e) => setScheduledTime(e.target.value)}
                         className="input w-full"
                         required
+                        disabled={isViewer || loading}
                       />
                     </div>
                   </div>
@@ -278,59 +301,62 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
               <h3 className="text-sm font-semibold text-theme-text-secondary uppercase tracking-wider mb-2">
                 Audience
               </h3>
-            <div>
-              <label className="block text-sm font-medium mb-3 text-theme-text-primary">
-                Target Users
-              </label>
-              <div className="flex gap-4 mb-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="targetMode"
-                    value="all"
-                    checked={targetType === "all"}
-                    onChange={() => setTargetType("all")}
-                    className="text-theme-primary-500 focus:ring-theme-primary-500"
-                  />
-                  <span className="text-sm text-theme-text-primary">All Subscribers</span>
+              <div>
+                <label className="block text-sm font-medium mb-3 text-theme-text-primary">
+                  Target Users
                 </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="targetMode"
-                    value="specific"
-                    checked={targetType === "specific"}
-                    onChange={() => setTargetType("specific")}
-                    className="text-theme-primary-500 focus:ring-theme-primary-500"
-                  />
-                  <span className="text-sm text-theme-text-primary">Specific Users</span>
-                </label>
-              </div>
-
-              {targetType === "specific" && (
-                <div className="animate-in fade-in slide-in-from-top-2">
-                  <label className="block text-sm font-medium mb-2 text-theme-text-primary">
-                    External User IDs (comma separated)
+                <div className="flex gap-4 mb-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="targetMode"
+                      value="all"
+                      checked={targetType === "all"}
+                      onChange={() => setTargetType("all")}
+                      className="text-theme-primary-500 focus:ring-theme-primary-500"
+                      disabled={isViewer || loading}
+                    />
+                    <span className="text-sm text-theme-text-primary">All Subscribers</span>
                   </label>
-                  <textarea
-                    value={userIds}
-                    onChange={(e) => setUserIds(e.target.value)}
-                    placeholder="user-123, user-456"
-                    className="w-full border border-theme-border rounded-lg p-3 bg-theme-bg-secondary text-theme-text-primary focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-colors"
-                    rows={2}
-                  />
-                  <p className="text-xs text-theme-text-secondary mt-2">
-                    These are the IDs you passed to registerDevice in your client SDK.
-                  </p>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="targetMode"
+                      value="specific"
+                      checked={targetType === "specific"}
+                      onChange={() => setTargetType("specific")}
+                      className="text-theme-primary-500 focus:ring-theme-primary-500"
+                      disabled={isViewer || loading}
+                    />
+                    <span className="text-sm text-theme-text-primary">Specific Users</span>
+                  </label>
                 </div>
-              )}
-            </div>
-            
-            <div className="pt-6 border-t border-theme-border">
-                 <button
+
+                {targetType === "specific" && (
+                  <div className="animate-in fade-in slide-in-from-top-2">
+                    <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+                      External User IDs (comma separated)
+                    </label>
+                    <textarea
+                      value={userIds}
+                      onChange={(e) => setUserIds(e.target.value)}
+                      placeholder="user-123, user-456"
+                      className="w-full border border-theme-border rounded-lg p-3 bg-theme-bg-secondary text-theme-text-primary focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-colors"
+                      rows={2}
+                      disabled={isViewer || loading}
+                    />
+                    <p className="text-xs text-theme-text-secondary mt-2">
+                      These are the IDs you passed to registerDevice in your client SDK.
+                    </p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="pt-6 border-t border-theme-border">
+                <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full btn-primary py-3 px-4 shadow-lg shadow-theme-primary-500/20"
+                  disabled={loading || isViewer}
+                  className="w-full btn-primary py-3 px-4 shadow-lg shadow-theme-primary-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
@@ -341,11 +367,11 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                     deliveryMode === "scheduled" ? "Schedule Notification" : "Send Notification"
                   )}
                 </button>
+              </div>
             </div>
           </div>
-        </div>
-          
-        <div className="lg:col-span-5 relative mt-8 lg:mt-0">
+            
+          <div className="lg:col-span-5 relative mt-8 lg:mt-0">
             <div className="sticky top-6">
               <PushPreview
                 title={title}
