@@ -92,7 +92,12 @@ export const config: EnvConfig = {
     secure: getEnvVar("SMTP_SECURE", "false") === "true",
     user: getEnvVar("SMTP_USER", ""),
     pass: getEnvVar("SMTP_PASS", ""),
-    from: getEnvVar("SMTP_FROM", "Vibe Message <noreply@vibe-message.com>"),
+    from: getEnvVar(
+      "SMTP_FROM",
+      process.env.SMTP_USER
+        ? `${process.env.SMTP_USER}`
+        : "service@sailorlabs.in",
+    ),
   },
 };
 
