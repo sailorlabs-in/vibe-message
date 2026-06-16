@@ -15,6 +15,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
   const [body, setBody] = useState("");
   const [icon, setIcon] = useState("");
   const [clickAction, setClickAction] = useState("");
+  const [customData, setCustomData] = useState("");
   const [targetType, setTargetType] = useState<"all" | "specific">("all");
   const [userIds, setUserIds] = useState("");
   const [deliveryMode, setDeliveryMode] = useState<"immediate" | "scheduled">("immediate");
@@ -35,12 +36,28 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
       return;
     }
 
+    let parsedData: any = undefined;
+    if (customData.trim()) {
+      const trimmed = customData.trim();
+      if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+        try {
+          parsedData = JSON.parse(trimmed);
+        } catch (err) {
+          toast.error("Invalid JSON syntax in Custom Data");
+          return;
+        }
+      } else {
+        parsedData = trimmed;
+      }
+    }
+
     const payload: any = {
       notification: {
         title: title.trim(),
         body: body.trim() || undefined,
         icon: icon.trim() || undefined,
         click_action: clickAction.trim() || undefined,
+        data: parsedData,
       },
     };
 
@@ -105,6 +122,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
       setBody("");
       setIcon("");
       setClickAction("");
+      setCustomData("");
       setUserIds("");
       setDeliveryMode("immediate");
       setScheduledDate(new Date().toLocaleDateString('en-CA'));
@@ -191,6 +209,22 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                   className="input w-full"
                   disabled={isViewer || loading}
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+                  Custom Data (JSON or String - Optional)
+                </label>
+                <textarea
+                  value={customData}
+                  onChange={(e) => setCustomData(e.target.value)}
+                  placeholder='{"key": "value"} or simple text string'
+                  className="w-full border border-theme-border rounded-lg p-3 bg-theme-bg-secondary text-theme-text-primary focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-colors font-mono text-sm"
+                  rows={3}
+                  disabled={isViewer || loading}
+                />
+                <p className="text-xs text-theme-text-secondary mt-1">
+                  Custom data sent alongside the notification. Supports either a valid JSON object or a simple string.
+                </p>
               </div>
             </div>
 

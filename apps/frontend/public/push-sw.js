@@ -4,6 +4,16 @@
 self.addEventListener("push", (event) => {
   const data = event.data ? event.data.json() : {};
 
+  // Parse stringified JSON custom data if needed
+  let customData = data.data || {};
+  if (typeof customData === "string") {
+    try {
+      customData = JSON.parse(customData);
+    } catch (e) {
+      // Fallback if not stringified JSON
+    }
+  }
+
   // Handle silent notifications (no UI, just data sync)
   if (data.silent) {
     event.waitUntil(
@@ -14,7 +24,7 @@ self.addEventListener("push", (event) => {
           clients.forEach((client) => {
             client.postMessage({
               type: "SILENT_MESSAGE",
-              data: data.data || {},
+              data: customData,
             });
           });
         })
@@ -37,7 +47,7 @@ self.addEventListener("push", (event) => {
               title: data.title || "Notification",
               body: data.body || "",
               icon: data.icon || "/icon.png",
-              data: data.data || {},
+              data: customData,
             }
           });
         } else {
@@ -50,7 +60,7 @@ self.addEventListener("push", (event) => {
             badge: "/badge.png",
             data: {
               click_action: data.click_action || "/",
-              ...data.data,
+              ...(typeof customData === "object" && customData !== null ? customData : { data: customData }),
             },
             requireInteraction: false,
             tag: "vibe-message-notification",

@@ -86,7 +86,7 @@ export interface NotificationPayload {
   icon?: string;
   image?: string;
   click_action?: string;
-  data?: Record<string, any>;
+  data?: Record<string, any> | string;
   silent?: boolean;
 }
 

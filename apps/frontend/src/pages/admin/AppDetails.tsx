@@ -175,8 +175,6 @@ await client.registerDevice({
 
 // 2. Send push notification from your backend
 import { initServerClient } from 'vibe-message';
-import { RiCheckboxCircleLine, RiCloseCircleLine, RiLockLine } from "@remixicon/react";
-
 
 const vibe = initServerClient({
   appId: '${app.public_app_id}',
@@ -187,7 +185,8 @@ const result = await vibe.notification({
   notificationData: {
     title: 'Hello!',
     body: 'This is a push notification',
-    icon: 'https://yoursite.com/icon.png'
+    icon: 'https://yoursite.com/icon.png',
+    data: { key: 'value' } // Optional custom data (supports object or stringified JSON)
   },
   externalUsers: ['user-123']
 });`;
