@@ -20,7 +20,7 @@ RUN npm run build -w vibe-message
 RUN npx nx run vibe-message-server:build
 
 # Production stage
-FROM node:22-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
@@ -28,6 +28,9 @@ WORKDIR /app
 COPY package*.json ./
 COPY apps/server/package*.json ./apps/server/
 COPY libs ./libs
+
+# Copy built SDK from builder stage
+COPY --from=builder /app/libs/sdk/dist ./libs/sdk/dist
 
 # Install production dependencies only via workspace
 RUN npm install --omit=dev

@@ -14,6 +14,8 @@ import {
   LoginDto,
   UpdateProfileDto,
   ChangePasswordDto,
+  ForgotPasswordDto,
+  ResetPasswordDto,
 } from "./dto/auth.dto";
 import {
   ApiTags,
@@ -105,5 +107,28 @@ export class AuthController {
       changePasswordDto.newPassword,
     );
     return { success: true, message: "Password changed successfully" };
+  }
+
+  @Post("forgot-password")
+  @ApiOperation({ summary: "Request a password reset email" })
+  @ApiResponse({ status: 200, description: "Reset email sent if account exists" })
+  async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
+    await this.authService.forgotPassword(forgotPasswordDto.email);
+    return {
+      success: true,
+      message:
+        "If an account with that email exists, a password reset link has been sent.",
+    };
+  }
+
+  @Post("reset-password")
+  @ApiOperation({ summary: "Reset password using token from email" })
+  @ApiResponse({ status: 200, description: "Password reset successfully" })
+  async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    await this.authService.resetPassword(
+      resetPasswordDto.token,
+      resetPasswordDto.newPassword,
+    );
+    return { success: true, message: "Password reset successfully" };
   }
 }

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Suspended - Vibe-message</title>
+</head>
+<body style="margin:0; padding:0; background:#F8F7FC; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif; color:#1F2937;">
+  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F8F7FC; padding:32px 12px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;">
+          <tr>
+            <td style="padding:0 0 18px;">
+              <table role="presentation" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="vertical-align:middle; padding-right:10px;">
+                    <img src="https://vibemessage.sailorlabs.in/favicon.png" width="36" height="36" alt="Vibe-message" style="display:block; border-radius:10px;" />
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <div style="font-size:18px; line-height:22px; font-weight:800; color:#1F2937;">Vibe-message</div>
+                    <div style="font-size:12px; line-height:16px; color:#6B7280;">Account status update</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="background:#FFFFFF; border:1px solid #E5E7EB; border-radius:18px; overflow:hidden; box-shadow:0 18px 50px rgba(15,23,42,0.08);">
+              <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                <tr>
+                  <td style="background:#8B5CF6; padding:34px 36px 32px;">
+                    <div style="display:inline-block; background:#FCA5A5; color:#fafafa; border-radius:999px; padding:7px 12px; font-size:12px; font-weight:800; letter-spacing:.4px; text-transform:uppercase;">Suspended</div>
+                    <h1 style="margin:18px 0 8px; color:#FFFFFF; font-size:30px; line-height:38px; font-weight:800;">Your account access is restricted.</h1>
+                    <p style="margin:0; color:#F9FAFB; font-size:16px; line-height:25px;">Your Vibe-message account has been suspended by an administrator.</p>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:34px 36px 12px;">
+                    <p style="margin:0 0 20px; color:#1F2937; font-size:15px; line-height:25px;">
+                      Hi <strong><%= name %></strong>, your account has been suspended due to a policy or usage review. During this time, access to the dashboard and associated app actions may be limited.
+                    </p>
+
+                    <div style="background:#F1F0FA; border:1px solid #FCA5A5; border-left:4px solid #FCA5A5; border-radius:14px; padding:18px 20px; margin:0 0 24px;">
+                      <div style="font-size:13px; color:#1F2937; font-weight:900; text-transform:uppercase; letter-spacing:.6px; margin-bottom:8px;">What this means</div>
+                      <div style="font-size:15px; line-height:25px; color:#1F2937;">
+                        Your account and related app permissions are restricted until an administrator reviews or changes the account status.
+                      </div>
+                    </div>
+
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="margin:0 0 24px;">
+                      <tr>
+                        <td style="padding:16px; background:#F1F0FA; border:1px solid #E5E7EB; border-radius:14px;">
+                          <div style="font-size:13px; color:#6B7280; font-weight:800; text-transform:uppercase; letter-spacing:.4px; margin-bottom:10px;">Need help?</div>
+                          <div style="font-size:15px; line-height:25px; color:#1F2937;">
+                            If you believe this was done in error, contact support with the account email and any relevant details.
+                          </div>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <table role="presentation" cellspacing="0" cellpadding="0" style="margin:10px 0 24px;">
+                      <tr>
+                        <td bgcolor="#A78BFA" style="border-radius:10px;">
+                          <a href="https://vibemessage.sailorlabs.in" style="display:inline-block; padding:13px 22px; color:#FFFFFF; text-decoration:none; font-size:14px; font-weight:800;">Contact Support</a>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <tr>
+                  <td style="padding:22px 36px 30px; border-top:1px solid #E5E7EB;">
+                    <p style="margin:0; color:#6B7280; font-size:12px; line-height:20px;">This suspension was issued by a Vibe-message administrator.</p>
+                    <p style="margin:10px 0 0; color:#9CA3AF; font-size:12px;">Copyright <%= new Date().getFullYear() %> Vibe-message. All rights reserved.</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

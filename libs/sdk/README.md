@@ -131,7 +131,8 @@ await server.notification({
     body: 'You have a new message.',
     icon: '/icon.png',
     click_action: 'https://your-app.com/messages',
-    data: { messageId: '42' },
+    // Supports custom JSON objects or stringified JSON strings (parsed automatically by the SDK SW)
+    data: JSON.stringify({ messageId: '42', channel: 'general' }),
   },
   externalUsers: ['user-123', 'user-456'],  // omit to broadcast
   scheduledAt: '2026-05-25T14:30:00Z', // optional, ISO-8601 UTC timestamp string or Date object

@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 import ApiRequest from "../../../services/ApiRequest";
 import { TableSkeleton } from "../../../components/common/SkeletonLoader";
 import { RiNotificationLine, RiDeleteBinLine, RiRefreshLine } from "@remixicon/react";
-import { useAppDispatch } from "../../../store/store";
+import { useAppDispatch, useAppSelector } from "../../../store/store";
 import { clearAppNotifications } from "../../../store/slices/appsSlice";
 import { ConfirmModal } from "../../../components/common/ConfirmModal";
 
@@ -42,6 +42,8 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId,
   const [logs, setLogs] = useState<NotificationLog[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
   const dispatch = useAppDispatch();
+  const { selectedApp } = useAppSelector((state) => state.apps);
+  const isViewer = selectedApp?.currentUserRole === "viewer";
   const [clearing, setClearing] = useState(false);
   const [showClearConfirmModal, setShowClearConfirmModal] = useState(false);
   const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
@@ -157,7 +159,7 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId,
         </h2>
         
         <div className="flex items-center gap-3">
-          {!isScheduled && notifications.length > 0 && (
+          {!isScheduled && notifications.length > 0 && !isViewer && (
             <button
               onClick={() => setShowClearConfirmModal(true)}
               disabled={clearing || notifications.length === 0}
@@ -240,15 +242,17 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({ appId,
                     </td>
                     <td className="p-4 align-top text-right">
                       {isScheduled ? (
-                        <button
-                          onClick={() => {
-                            setNotificationToCancel(notif.id);
-                            setShowCancelConfirmModal(true);
-                          }}
-                          className="px-3 py-1.5 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/40 rounded-lg font-medium text-xs transition-colors outline-none"
-                        >
-                          Cancel
-                        </button>
+                        !isViewer && (
+                          <button
+                            onClick={() => {
+                              setNotificationToCancel(notif.id);
+                              setShowCancelConfirmModal(true);
+                            }}
+                            className="px-3 py-1.5 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/40 rounded-lg font-medium text-xs transition-colors outline-none"
+                          >
+                            Cancel
+                          </button>
+                        )
                       ) : (
                         <button
                           onClick={() => fetchLogs(notif.id)}

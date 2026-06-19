@@ -9,7 +9,7 @@ export interface NotificationData {
   body?: string;
   icon?: string;
   click_action?: string;
-  data?: Record<string, any>;
+  data?: Record<string, any> | string;
 }
 
 import { encryptPayload } from './utils/crypto';

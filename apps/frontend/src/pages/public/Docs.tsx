@@ -448,7 +448,7 @@ export const Docs: React.FC = () => {
                             Sends a standard visible push notification to targets or global broadcasts.
                           </p>
                           <ul className="text-xs space-y-1 text-theme-text-muted">
-                            <li><strong className="text-theme-text-secondary font-mono">notificationData: NotificationData</strong> — Title, body, icon, and custom click_action actions.</li>
+                            <li><strong className="text-theme-text-secondary font-mono">notificationData: NotificationData</strong> — Title, body, icon, custom click_action, and data (supports JSON objects or stringified JSON).</li>
                             <li><strong className="text-theme-text-secondary font-mono">externalUsers?: string[]</strong> — Target user list. Omit to broadcast.</li>
                             <li><strong className="text-theme-text-secondary font-mono">scheduledAt?: string | Date</strong> — UTC timezone timestamp (ISO-8601).</li>
                           </ul>
@@ -515,7 +515,8 @@ const server = initServerClient({
 await server.notification({
   notificationData: {
     title: 'Match Alert!',
-    body: 'Your match is starting now.'
+    body: 'Your match is starting now.',
+    data: { matchId: 'm_99' } // Optional custom data (supports object or stringified JSON)
   },
   externalUsers: ['user_123'],
   scheduledAt: new Date(Date.now() + 60000) // schedule 1 minute into the future
@@ -577,6 +578,7 @@ const result = await vibe.notification({
     body: 'Someone liked your post.',
     icon: 'https://yoursite.com/icon.png',
     click_action: 'https://yoursite.com/dashboard',
+    data: JSON.stringify({ postId: 123 }), // Optional custom data (supports object or stringified JSON)
   },
   externalUsers: ['user-123'], // ID of the user you want to notify
   scheduledAt: '2026-05-25T14:30:00Z' // Optional: ISO-8601 UTC timestamp string or Date object

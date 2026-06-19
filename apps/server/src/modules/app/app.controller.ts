@@ -9,6 +9,7 @@ import {
   Body,
   UseGuards,
   Req,
+  ForbiddenException,
 } from "@nestjs/common";
 import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 import { AppService } from "./app.service";
@@ -141,6 +142,9 @@ export class AppController {
       req.user.userId,
       req.user.role,
     );
+    if (app.currentUserRole === "viewer") {
+      throw new ForbiddenException("Viewers cannot clear notification history");
+    }
     await this.pushService.clearAppNotifications(app.id);
     return {
       success: true,
@@ -160,6 +164,9 @@ export class AppController {
       req.user.userId,
       req.user.role,
     );
+    if (app.currentUserRole === "viewer") {
+      throw new ForbiddenException("Viewers cannot delete notifications");
+    }
     await this.pushService.deleteNotification(
       app.id,
       parseInt(notificationId, 10),
@@ -227,6 +234,9 @@ export class AppController {
       req.user.userId,
       req.user.role,
     );
+    if (app.currentUserRole === "viewer") {
+      throw new ForbiddenException("Viewers cannot clear subscribers");
+    }
     await this.deviceService.unregisterAllDevicesForApp(app.id);
     return {
       success: true,
@@ -246,6 +256,9 @@ export class AppController {
       req.user.userId,
       req.user.role,
     );
+    if (app.currentUserRole === "viewer") {
+      throw new ForbiddenException("Viewers cannot send push notifications");
+    }
     let targetUserIds: string[] | undefined;
     if (body.targets?.externalUserIds?.length > 0) {
       targetUserIds = body.targets.externalUserIds;
@@ -303,6 +316,9 @@ export class AppController {
       req.user.userId,
       req.user.role,
     );
+    if (app.currentUserRole === "viewer") {
+      throw new ForbiddenException("Viewers cannot save drip campaigns");
+    }
     const campaign = await this.dripService.saveDripCampaign(
       app.id,
       campaignName,
@@ -310,5 +326,67 @@ export class AppController {
       isActive,
     );
     return { success: true, data: campaign };
+  }
+
+  @UseGuards(ApprovedGuard)
+  @Get(":id/members")
+  async getMembers(@Req() req: any, @Param("id") id: string) {
+    const members = await this.appService.getAppMembers(
+      id,
+      req.user.userId,
+      req.user.role,
+    );
+    return { success: true, data: members };
+  }
+
+  @UseGuards(ApprovedGuard)
+  @Post(":id/members")
+  async shareApp(
+    @Req() req: any,
+    @Param("id") id: string,
+    @Body() body: { email: string; role: "moderator" | "viewer" },
+  ) {
+    const result = await this.appService.shareApp(
+      id,
+      req.user.userId,
+      req.user.role,
+      body.email,
+      body.role,
+    );
+    return { success: true, data: result };
+  }
+
+  @UseGuards(ApprovedGuard)
+  @Patch(":id/members/:userId")
+  async updateMemberRole(
+    @Req() req: any,
+    @Param("id") id: string,
+    @Param("userId") memberUserId: string,
+    @Body() body: { role: "moderator" | "viewer" },
+  ) {
+    const result = await this.appService.updateAppMemberRole(
+      id,
+      req.user.userId,
+      req.user.role,
+      parseInt(memberUserId, 10),
+      body.role,
+    );
+    return { success: true, data: result };
+  }
+
+  @UseGuards(ApprovedGuard)
+  @Delete(":id/members/:userId")
+  async removeMember(
+    @Req() req: any,
+    @Param("id") id: string,
+    @Param("userId") memberUserId: string,
+  ) {
+    const result = await this.appService.removeAppMember(
+      id,
+      req.user.userId,
+      req.user.role,
+      parseInt(memberUserId, 10),
+    );
+    return { success: true, data: result };
   }
 }

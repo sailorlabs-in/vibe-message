@@ -20,7 +20,7 @@ RUN npm run build -w vibe-message
 RUN npx nx run notification-demo:build
 
 # Production stage
-FROM node:22-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
@@ -28,6 +28,9 @@ WORKDIR /app
 COPY package*.json ./
 COPY apps/notification-demo/package*.json ./apps/notification-demo/
 COPY libs ./libs
+
+# Copy built SDK from builder stage
+COPY --from=builder /app/libs/sdk/dist ./libs/sdk/dist
 
 # Install ALL dependencies (including devDependencies for TypeScript support in NextJS)
 RUN npm install
