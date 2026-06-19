@@ -14,13 +14,58 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Copy environment files and export to GITHUB_ENV
+        run: |
+          echo "Copying .env files from host workspace to runner workspace..."
+          
+          # Create target directories if they don't exist
+          mkdir -p apps/server apps/frontend
+          
+          # Copy server environment configuration
+          if [ -f "/home/umangsailor/vibe-message/apps/server/.env" ]; then
+            cp /home/umangsailor/vibe-message/apps/server/.env ./apps/server/.env
+            echo "Copied server .env successfully."
+          else
+            echo "Warning: Host server .env not found."
+          fi
+          
+          # Copy frontend environment configuration
+          if [ -f "/home/umangsailor/vibe-message/apps/frontend/.env" ]; then
+            cp /home/umangsailor/vibe-message/apps/frontend/.env ./apps/frontend/.env
+            echo "Copied frontend .env successfully."
+          else
+            echo "Warning: Host frontend .env not found."
+          fi
+
+          echo "Exporting host .env variables to GITHUB_ENV..."
+          
+          # Export server envs
+          if [ -f "./apps/server/.env" ]; then
+            while IFS= read -r line || [ -n "$line" ]; do
+              if [[ "$line" =~ ^[A-Za-z0-9_]+= ]]; then
+                echo "$line" | tr -d '\r' >> "$GITHUB_ENV"
+              fi
+            done < "./apps/server/.env"
+            echo "Exported server environment variables."
+          fi
+          
+          # Export frontend envs
+          if [ -f "./apps/frontend/.env" ]; then
+            while IFS= read -r line || [ -n "$line" ]; do
+              if [[ "$line" =~ ^[A-Za-z0-9_]+= ]]; then
+                echo "$line" | tr -d '\r' >> "$GITHUB_ENV"
+              fi
+            done < "./apps/frontend/.env"
+            echo "Exported frontend environment variables."
+          fi
+
       - name: Deploy changed components
         run: |
           echo "Checking changed files..."
-
+          
           BEFORE_SHA="${{ github.event.before }}"
           AFTER_SHA="${{ github.event.after }}"
-
+          
           # Determine the diff target
           if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] || [ -z "$BEFORE_SHA" ]; then
             if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
@@ -31,7 +76,7 @@ jobs:
           else
             DIFF_TARGET="$BEFORE_SHA $AFTER_SHA"
           fi
-
+          
           if [ -z "$DIFF_TARGET" ]; then
             echo "No previous commit context available. Rebuilding and deploying all components..."
             ./update-component.sh frontend
@@ -39,16 +84,16 @@ jobs:
             ./update-component.sh demo
             exit 0
           fi
-
+          
           echo "Comparing: $DIFF_TARGET"
           CHANGED_FILES=$(git diff --name-only $DIFF_TARGET)
           echo "Changed files:"
           echo "$CHANGED_FILES"
-
+          
           UPDATE_FRONTEND=false
           UPDATE_BACKEND=false
           UPDATE_DEMO=false
-
+          
           # Check which apps or shared libraries or root files changed
           if echo "$CHANGED_FILES" | grep -qE '^(apps/frontend/|libs/sdk/|package\.json|package-lock\.json|update-component\.sh|deploy-vibe\.sh)'; then
             UPDATE_FRONTEND=true
@@ -59,17 +104,17 @@ jobs:
           if echo "$CHANGED_FILES" | grep -qE '^(apps/notification-demo/|libs/sdk/|package\.json|package-lock\.json|update-component\.sh|deploy-vibe\.sh)'; then
             UPDATE_DEMO=true
           fi
-
+          
           if [ "$UPDATE_FRONTEND" = true ]; then
             echo "Updating Frontend..."
             ./update-component.sh frontend
           fi
-
+          
           if [ "$UPDATE_BACKEND" = true ]; then
             echo "Updating Backend..."
             ./update-component.sh backend
           fi
-
+          
           if [ "$UPDATE_DEMO" = true ]; then
             echo "Updating Demo App..."
             ./update-component.sh demo
