@@ -1,0 +1,76 @@
+name: Deploy Vibe Message
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy changed components
+        run: |
+          echo "Checking changed files..."
+
+          BEFORE_SHA="${{ github.event.before }}"
+          AFTER_SHA="${{ github.event.after }}"
+
+          # Determine the diff target
+          if [ "$BEFORE_SHA" = "0000000000000000000000000000000000000000" ] || [ -z "$BEFORE_SHA" ]; then
+            if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+              DIFF_TARGET="HEAD~1 HEAD"
+            else
+              DIFF_TARGET=""
+            fi
+          else
+            DIFF_TARGET="$BEFORE_SHA $AFTER_SHA"
+          fi
+
+          if [ -z "$DIFF_TARGET" ]; then
+            echo "No previous commit context available. Rebuilding and deploying all components..."
+            ./update-component.sh frontend
+            ./update-component.sh backend
+            ./update-component.sh demo
+            exit 0
+          fi
+
+          echo "Comparing: $DIFF_TARGET"
+          CHANGED_FILES=$(git diff --name-only $DIFF_TARGET)
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          UPDATE_FRONTEND=false
+          UPDATE_BACKEND=false
+          UPDATE_DEMO=false
+
+          # Check which apps or shared libraries or root files changed
+          if echo "$CHANGED_FILES" | grep -qE '^(apps/frontend/|libs/sdk/|package\.json|package-lock\.json|update-component\.sh|deploy-vibe\.sh)'; then
+            UPDATE_FRONTEND=true
+          fi
+          if echo "$CHANGED_FILES" | grep -qE '^(apps/server/|libs/sdk/|package\.json|package-lock\.json|update-component\.sh|deploy-vibe\.sh)'; then
+            UPDATE_BACKEND=true
+          fi
+          if echo "$CHANGED_FILES" | grep -qE '^(apps/notification-demo/|libs/sdk/|package\.json|package-lock\.json|update-component\.sh|deploy-vibe\.sh)'; then
+            UPDATE_DEMO=true
+          fi
+
+          if [ "$UPDATE_FRONTEND" = true ]; then
+            echo "Updating Frontend..."
+            ./update-component.sh frontend
+          fi
+
+          if [ "$UPDATE_BACKEND" = true ]; then
+            echo "Updating Backend..."
+            ./update-component.sh backend
+          fi
+
+          if [ "$UPDATE_DEMO" = true ]; then
+            echo "Updating Demo App..."
+            ./update-component.sh demo
+          fi
