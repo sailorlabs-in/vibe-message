@@ -7,7 +7,7 @@ import CryptoJS from 'crypto-js';
  * @returns The base64 encrypted string.
  */
 export function encryptPayload(payload: any, secret: string): string {
-    const jsonString = JSON.stringify(payload);
-    const encrypted = CryptoJS.AES.encrypt(jsonString, secret).toString();
-    return encrypted;
+  const jsonString = JSON.stringify(payload);
+  const encrypted = CryptoJS.AES.encrypt(jsonString, secret).toString();
+  return encrypted;
 }

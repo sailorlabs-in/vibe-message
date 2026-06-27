@@ -20,7 +20,7 @@ export class NotificationServerClient {
   private secretKey: string;
 
   constructor(options: ServerInitOptions) {
-    this.baseUrl = options.baseUrl || "https://vibemessage.sailorlabs.in/api";
+    this.baseUrl = options.baseUrl || 'https://vibemessage.sailorlabs.in/api';
     this.appId = options.appId;
     this.secretKey = options.secretKey;
   }
@@ -34,25 +34,28 @@ export class NotificationServerClient {
     scheduledAt?: string | Date;
   }): Promise<any> {
     const response = await fetch(`${this.baseUrl}/push/send`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         appId: this.appId,
-        payload: encryptPayload({
-          notification: options.notificationData,
-          targets: {
-            externalUserIds: options.externalUsers,
+        payload: encryptPayload(
+          {
+            notification: options.notificationData,
+            targets: {
+              externalUserIds: options.externalUsers,
+            },
+            scheduledAt: options.scheduledAt,
           },
-          scheduledAt: options.scheduledAt,
-        }, this.secretKey),
+          this.secretKey
+        ),
       }),
     });
 
     const data = await response.json();
     if (!response.ok || !data.success) {
-      throw new Error(data.message || "Failed to send notification via Vibe Message Server");
+      throw new Error(data.message || 'Failed to send notification via Vibe Message Server');
     }
 
     return data.data;
@@ -68,29 +71,34 @@ export class NotificationServerClient {
     scheduledAt?: string | Date;
   }): Promise<any> {
     const response = await fetch(`${this.baseUrl}/push/send`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         appId: this.appId,
-        payload: encryptPayload({
-          notification: {
-            // A payload with only 'data' and no 'title'/'body' behaves as a silent push
-            data: options.data,
-            silent: true,
+        payload: encryptPayload(
+          {
+            notification: {
+              // A payload with only 'data' and no 'title'/'body' behaves as a silent push
+              data: options.data,
+              silent: true,
+            },
+            targets: {
+              externalUserIds: options.externalUsers,
+            },
+            scheduledAt: options.scheduledAt,
           },
-          targets: {
-            externalUserIds: options.externalUsers,
-          },
-          scheduledAt: options.scheduledAt,
-        }, this.secretKey),
+          this.secretKey
+        ),
       }),
     });
 
     const result = await response.json();
     if (!response.ok || !result.success) {
-      throw new Error(result.message || "Failed to send silent notification via Vibe Message Server");
+      throw new Error(
+        result.message || 'Failed to send silent notification via Vibe Message Server'
+      );
     }
 
     return result.data;

@@ -42,7 +42,7 @@ const ApiRequest = async (
   method: 'get' | 'post' | 'patch' | 'delete' | 'put',
   data = {},
   isUseAccessToken = true,
-  signal?: AbortSignal,
+  signal?: AbortSignal
 ) => {
   const reqKey = `${method.toUpperCase()}:${url}`;
 
@@ -60,13 +60,13 @@ const ApiRequest = async (
   }
 
   const token = localStorage.getItem('token');
-  
+
   const headers: any = {
     'Content-Type': 'application/json',
   };
-  
+
   if (isUseAccessToken && token) {
-     headers.Authorization = `Bearer ${token}`; 
+    headers.Authorization = `Bearer ${token}`;
   }
 
   const apiRequestPayload: AxiosRequestConfig = {
@@ -91,17 +91,14 @@ const ApiRequest = async (
       activeControllers.delete(reqKey);
     }
 
-    if (
-      axios.isCancel(error) ||
-      error.name === 'AbortError' ||
-      error.name === 'CanceledError'
-    ) {
+    if (axios.isCancel(error) || error.name === 'AbortError' || error.name === 'CanceledError') {
+      // eslint-disable-next-line preserve-caught-error
       throw new Error('Request Cancelled');
     }
 
     if (error.response?.status === 401 && isUseAccessToken) {
-        localStorage.removeItem('token');
-        window.location.href = '/login';
+      localStorage.removeItem('token');
+      window.location.href = '/login';
     }
 
     throw error;

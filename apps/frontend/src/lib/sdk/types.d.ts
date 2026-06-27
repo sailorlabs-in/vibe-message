@@ -1,41 +1,41 @@
 export interface ForegroundMessage {
-    type: 'FOREGROUND_MESSAGE';
-    payload: NotificationPayload;
+  type: 'FOREGROUND_MESSAGE';
+  payload: NotificationPayload;
 }
 export interface BackgroundMessage {
-    type: 'BACKGROUND_MESSAGE';
-    payload: NotificationPayload;
+  type: 'BACKGROUND_MESSAGE';
+  payload: NotificationPayload;
 }
 export interface SilentMessage {
-    type: 'SILENT_MESSAGE';
-    data: Record<string, any>;
+  type: 'SILENT_MESSAGE';
+  data: Record<string, any>;
 }
 export type ServiceWorkerMessage = ForegroundMessage | BackgroundMessage | SilentMessage;
 export interface NotificationPayload {
-    title: string;
-    body?: string;
-    icon?: string;
-    image?: string;
-    click_action?: string;
-    data?: Record<string, any>;
-    silent?: boolean;
+  title: string;
+  body?: string;
+  icon?: string;
+  image?: string;
+  click_action?: string;
+  data?: Record<string, any>;
+  silent?: boolean;
 }
 export type MessageCallback = (payload: NotificationPayload) => void;
 export type SilentMessageCallback = (data: Record<string, any>) => void;
 export interface InitOptions {
-    baseUrl: string;
-    appId: string;
-    publicKey: string;
+  baseUrl: string;
+  appId: string;
+  publicKey: string;
 }
 export interface RegisterDeviceOptions {
-    externalUserId: string;
-    serviceWorkerPath?: string;
+  externalUserId: string;
+  serviceWorkerPath?: string;
 }
 export interface PushSubscription {
-    endpoint: string;
-    keys: {
-        p256dh: string;
-        auth: string;
-    };
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
 }
 //# sourceMappingURL=types.d.ts.map

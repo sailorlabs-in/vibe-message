@@ -1,19 +1,39 @@
-import React, { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { RiMagicLine, RiKeyLine, RiSettings3Line, RiReactjsLine, RiArrowUpLine, RiFlashlightLine, RiShieldKeyholeLine, RiRefreshLine, RiTeamLine, RiPaletteLine, RiBarChartBoxLine, RiInformationLine, RiCheckLine, RiErrorWarningLine, RiArchiveLine, RiServerLine, RiSmartphoneLine, RiCodeLine, RiFlaskLine } from "@remixicon/react";
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import {
+  RiMagicLine,
+  RiKeyLine,
+  RiSettings3Line,
+  RiReactjsLine,
+  RiArrowUpLine,
+  RiFlashlightLine,
+  RiShieldKeyholeLine,
+  RiRefreshLine,
+  RiTeamLine,
+  RiPaletteLine,
+  RiBarChartBoxLine,
+  RiInformationLine,
+  RiCheckLine,
+  RiErrorWarningLine,
+  RiArchiveLine,
+  RiServerLine,
+  RiSmartphoneLine,
+  RiCodeLine,
+  RiFlaskLine,
+} from '@remixicon/react';
 
-type TabType = "overview" | "quickstart" | "sdk" | "backend" | "react" | "nextjs";
+type TabType = 'overview' | 'quickstart' | 'sdk' | 'backend' | 'react' | 'nextjs';
 
 export const Docs: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>("overview");
+  const [activeTab, setActiveTab] = useState<TabType>('overview');
 
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
-    { id: "overview", label: "Platform Overview", icon: <RiMagicLine size={18} /> },
-    { id: "quickstart", label: "Quick Start", icon: <RiKeyLine size={18} /> },
-    { id: "sdk", label: "SDK Package", icon: <RiCodeLine size={18} /> },
-    { id: "backend", label: "Backend Integration", icon: <RiSettings3Line size={18} /> },
-    { id: "react", label: "React Frontend", icon: <RiReactjsLine size={18} /> },
-    { id: "nextjs", label: "Next.js Frontend", icon: <RiArrowUpLine size={18} /> },
+    { id: 'overview', label: 'Platform Overview', icon: <RiMagicLine size={18} /> },
+    { id: 'quickstart', label: 'Quick Start', icon: <RiKeyLine size={18} /> },
+    { id: 'sdk', label: 'SDK Package', icon: <RiCodeLine size={18} /> },
+    { id: 'backend', label: 'Backend Integration', icon: <RiSettings3Line size={18} /> },
+    { id: 'react', label: 'React Frontend', icon: <RiReactjsLine size={18} /> },
+    { id: 'nextjs', label: 'Next.js Frontend', icon: <RiArrowUpLine size={18} /> },
   ];
 
   return (
@@ -25,17 +45,17 @@ export const Docs: React.FC = () => {
           className="text-center mb-16"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
         >
           <h1 className="text-5xl md:text-7xl font-display font-extrabold mb-8 tracking-tight leading-tight">
-            Vibe Message{" "}
+            Vibe Message{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-theme-primary-500 via-theme-accent-500 to-theme-primary-500 bg-[length:200%_auto] animate-gradient">
               Docs
             </span>
           </h1>
           <p className="text-lg md:text-xl text-theme-text-secondary max-w-2xl mx-auto leading-relaxed">
-            The modern, lightweight, and incredibly powerful push notification
-            platform for the web. Drop-in Firebase Cloud Messaging alternative.
+            The modern, lightweight, and incredibly powerful push notification platform for the web.
+            Drop-in Firebase Cloud Messaging alternative.
           </p>
         </motion.div>
 
@@ -47,11 +67,13 @@ export const Docs: React.FC = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center px-6 py-3 font-semibold rounded-full transition-all duration-300 shadow-sm ${
                 activeTab === tab.id
-                  ? "bg-theme-primary-500 dark:bg-theme-primary-600 border border-theme-primary-500 text-white scale-105"
-                  : "bg-theme-bg-primary border border-theme-border text-theme-text-secondary hover:text-theme-text-primary hover:border-theme-primary-500"
+                  ? 'bg-theme-primary-500 dark:bg-theme-primary-600 border border-theme-primary-500 text-white scale-105'
+                  : 'bg-theme-bg-primary border border-theme-border text-theme-text-secondary hover:text-theme-text-primary hover:border-theme-primary-500'
               }`}
             >
-              <span className={`mr-2 ${activeTab === tab.id ? "opacity-100" : "opacity-70"}`}>{tab.icon}</span>
+              <span className={`mr-2 ${activeTab === tab.id ? 'opacity-100' : 'opacity-70'}`}>
+                {tab.icon}
+              </span>
               {tab.label}
             </button>
           ))}
@@ -60,7 +82,7 @@ export const Docs: React.FC = () => {
         {/* Content Area */}
         <div className="bg-black/5 dark:bg-white/5 backdrop-blur-sm rounded-3xl border border-theme-border p-8 md:p-12 transition-all duration-500 min-h-[500px]">
           <AnimatePresence mode="wait">
-            {activeTab === "overview" && (
+            {activeTab === 'overview' && (
               <motion.div
                 key="overview"
                 initial={{ opacity: 0, y: 20 }}
@@ -72,9 +94,9 @@ export const Docs: React.FC = () => {
                   Why Vibe Message?
                 </h2>
                 <p className="text-lg text-theme-text-secondary mb-8 leading-relaxed max-w-4xl">
-                  Vibe Message is built for modern web applications that need
-                  reliable, customizable, and fast push notifications without
-                  the heavy baggage of legacy SDKs.
+                  Vibe Message is built for modern web applications that need reliable,
+                  customizable, and fast push notifications without the heavy baggage of legacy
+                  SDKs.
                 </p>
 
                 {/* Usage Guidelines Bento */}
@@ -89,17 +111,24 @@ export const Docs: React.FC = () => {
                       </h3>
                     </div>
                     <p className="text-theme-text-secondary leading-relaxed mb-6 relative z-10">
-                      Our free hosted service is an ecosystem built primarily to support the developer community. It is designed and optimized for:
+                      Our free hosted service is an ecosystem built primarily to support the
+                      developer community. It is designed and optimized for:
                     </p>
                     <ul className="grid sm:grid-cols-2 gap-4 relative z-10">
                       {[
-                        "Students & Education",
-                        "Personal Projects",
-                        "Testing & Prototyping",
-                        "Small-scale Applications",
+                        'Students & Education',
+                        'Personal Projects',
+                        'Testing & Prototyping',
+                        'Small-scale Applications',
                       ].map((item, idx) => (
-                        <li key={idx} className="flex items-center text-sm font-semibold text-theme-text-primary bg-black/5 dark:bg-white/5 rounded-lg p-3 border border-theme-border">
-                          <RiCheckLine size={18} className="mr-3 text-theme-success flex-shrink-0" />
+                        <li
+                          key={idx}
+                          className="flex items-center text-sm font-semibold text-theme-text-primary bg-black/5 dark:bg-white/5 rounded-lg p-3 border border-theme-border"
+                        >
+                          <RiCheckLine
+                            size={18}
+                            className="mr-3 text-theme-success flex-shrink-0"
+                          />
                           {item}
                         </li>
                       ))}
@@ -112,16 +141,24 @@ export const Docs: React.FC = () => {
                         <RiErrorWarningLine size={14} className="mr-1.5" />
                         Strictly Restricted
                       </div>
-                      <h4 className="text-2xl font-display font-bold text-white mb-4">Commercial Production</h4>
+                      <h4 className="text-2xl font-display font-bold text-white mb-4">
+                        Commercial Production
+                      </h4>
                       <p className="text-base text-red-100/80 leading-relaxed mb-6">
-                        Large-scale and unmetered commercial usage is strictly restricted on the public tier. Accounts generating excessive structural load outside fair-use will be permanently banned to protect network stability.
+                        Large-scale and unmetered commercial usage is strictly restricted on the
+                        public tier. Accounts generating excessive structural load outside fair-use
+                        will be permanently banned to protect network stability.
                       </p>
                     </div>
-                    
+
                     <div className="mt-8 pt-6 border-t border-red-900/30">
                       <p className="text-sm text-red-200 flex items-start">
-                          <RiArchiveLine size={18} className="shrink-0 mr-2 opacity-50" />
-                        <span><strong className="text-white">Coming Soon:</strong> Pre-configured Docker images for self-hosted, unmetered commercial deployments on your own infrastructure.</span>
+                        <RiArchiveLine size={18} className="shrink-0 mr-2 opacity-50" />
+                        <span>
+                          <strong className="text-white">Coming Soon:</strong> Pre-configured Docker
+                          images for self-hosted, unmetered commercial deployments on your own
+                          infrastructure.
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -168,12 +205,12 @@ export const Docs: React.FC = () => {
                       Ready to build?
                     </h3>
                     <p className="text-white/80 text-lg max-w-lg">
-                      Join the platform, grab your API keys, and start sending
-                      messages in under 5 minutes.
+                      Join the platform, grab your API keys, and start sending messages in under 5
+                      minutes.
                     </p>
                   </div>
                   <button
-                    onClick={() => setActiveTab("quickstart")}
+                    onClick={() => setActiveTab('quickstart')}
                     className="relative z-10 whitespace-nowrap px-8 py-4 bg-white text-theme-primary-600 rounded-xl font-bold transition-all shadow-lg hover:scale-105"
                   >
                     View Setup Guide →
@@ -182,7 +219,7 @@ export const Docs: React.FC = () => {
               </motion.div>
             )}
 
-            {activeTab === "quickstart" && (
+            {activeTab === 'quickstart' && (
               <motion.div
                 key="quickstart"
                 initial={{ opacity: 0, y: 20 }}
@@ -195,14 +232,14 @@ export const Docs: React.FC = () => {
                     How It Works
                   </h2>
                   <p className="text-xl text-theme-text-secondary leading-relaxed">
-                    To use Vibe Message, you need two pieces: a{" "}
+                    To use Vibe Message, you need two pieces: a{' '}
                     <strong className="text-theme-primary-600 dark:text-theme-primary-400 font-semibold">
                       Frontend
-                    </strong>{" "}
-                    application (to receive messages) and a{" "}
+                    </strong>{' '}
+                    application (to receive messages) and a{' '}
                     <strong className="text-theme-primary-600 dark:text-theme-primary-400 font-semibold">
                       Backend
-                    </strong>{" "}
+                    </strong>{' '}
                     service (to send messages securely).
                   </p>
                 </div>
@@ -223,30 +260,24 @@ export const Docs: React.FC = () => {
                       Create Application
                     </h3>
                     <p className="text-theme-text-secondary leading-relaxed mb-8 text-center lg:text-left">
-                      Register an App in the dashboard to receive your API keys.
-                      Keep the secret key completely hidden.
+                      Register an App in the dashboard to receive your API keys. Keep the secret key
+                      completely hidden.
                     </p>
                     <div className="space-y-3 mt-auto">
                       <div className="bg-theme-bg-secondary border border-theme-border rounded-lg p-3 text-sm flex items-center justify-between shadow-sm">
-                        <span className="text-theme-text-muted font-mono">
-                          appId
-                        </span>
+                        <span className="text-theme-text-muted font-mono">appId</span>
                         <span className="text-xs font-semibold px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">
                           Public
                         </span>
                       </div>
                       <div className="bg-theme-bg-secondary border border-theme-border rounded-lg p-3 text-sm flex items-center justify-between shadow-sm">
-                        <span className="text-theme-text-muted font-mono">
-                          publicKey
-                        </span>
+                        <span className="text-theme-text-muted font-mono">publicKey</span>
                         <span className="text-xs font-semibold px-2 py-1 bg-theme-primary-100 dark:bg-theme-primary-900/30 text-theme-primary-700 dark:text-theme-primary-400 rounded">
                           Frontend
                         </span>
                       </div>
                       <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-lg p-3 text-sm flex items-center justify-between shadow-sm">
-                        <span className="text-red-500 dark:text-red-400 font-mono">
-                          secretKey
-                        </span>
+                        <span className="text-red-500 dark:text-red-400 font-mono">secretKey</span>
                         <span className="text-xs font-bold px-2 py-1 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 rounded">
                           Backend Only
                         </span>
@@ -266,25 +297,24 @@ export const Docs: React.FC = () => {
                       Integrate Frontend
                     </h3>
                     <p className="text-theme-text-secondary leading-relaxed mb-6 text-center lg:text-left">
-                      Use{" "}
+                      Use{' '}
                       <code className="text-sm font-mono text-theme-primary-600 dark:text-theme-primary-400">
                         publicKey
-                      </code>{" "}
-                      to authenticate the client browser and register the device
-                      with the platform.
+                      </code>{' '}
+                      to authenticate the client browser and register the device with the platform.
                     </p>
                     <div className="bg-[#1e1e1e] border border-[#2d2d2d] rounded-xl p-5 mt-auto shadow-inner relative overflow-hidden group-hover:border-theme-primary-500/50 transition-colors">
                       <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-40 transition-opacity">
                         <RiCodeLine size={32} className="text-white" />
                       </div>
                       <pre className="text-sm font-mono text-gray-300 overflow-x-auto relative z-10">
-                        <span className="text-theme-accent-400">await</span>{" "}
-                        vibe.registerDevice({"{"}
+                        <span className="text-theme-accent-400">await</span> vibe.registerDevice(
+                        {'{'}
                         <br />
-                        &nbsp;&nbsp;externalUserId:{" "}
+                        &nbsp;&nbsp;externalUserId:{' '}
                         <span className="text-theme-warning">'usr_123'</span>
                         <br />
-                        {"}"});
+                        {'}'});
                       </pre>
                     </div>
                   </div>
@@ -301,25 +331,19 @@ export const Docs: React.FC = () => {
                       Trigger from Backend
                     </h3>
                     <p className="text-theme-text-secondary leading-relaxed mb-6 text-center lg:text-left">
-                      Use{" "}
-                      <code className="text-sm font-mono text-red-500">
-                        secretKey
-                      </code>{" "}
-                      securely on your server to push messages instantly to the
-                      registered devices.
+                      Use <code className="text-sm font-mono text-red-500">secretKey</code> securely
+                      on your server to push messages instantly to the registered devices.
                     </p>
                     <div className="bg-[#1e1e1e] border border-[#2d2d2d] rounded-xl p-5 mt-auto shadow-inner relative overflow-hidden group-hover:border-red-500/30 transition-colors">
                       <pre className="text-sm font-mono text-gray-300 overflow-x-auto relative z-10">
-                        <span className="text-theme-primary-400">await</span>{" "}
-                        vibe.notification({"{"}
+                        <span className="text-theme-primary-400">await</span> vibe.notification(
+                        {'{'}
                         <br />
-                        &nbsp;&nbsp;users: [
-                        <span className="text-theme-warning">'usr_123'</span>],
+                        &nbsp;&nbsp;users: [<span className="text-theme-warning">'usr_123'</span>],
                         <br />
-                        &nbsp;&nbsp;title:{" "}
-                        <span className="text-theme-warning">'Hello!'</span>
+                        &nbsp;&nbsp;title: <span className="text-theme-warning">'Hello!'</span>
                         <br />
-                        {"}"});
+                        {'}'});
                       </pre>
                     </div>
                   </div>
@@ -327,7 +351,7 @@ export const Docs: React.FC = () => {
               </motion.div>
             )}
 
-            {activeTab === "sdk" && (
+            {activeTab === 'sdk' && (
               <motion.div
                 key="sdk"
                 initial={{ opacity: 0, y: 20 }}
@@ -341,7 +365,12 @@ export const Docs: React.FC = () => {
                     Vibe Message SDK Reference
                   </h2>
                   <p className="text-lg text-theme-text-secondary leading-relaxed">
-                    The <code className="font-mono text-theme-primary-500 bg-theme-bg-secondary px-1 py-0.5 rounded">vibe-message</code> package provides lightweight client-side API integrations for browsers and fully secure server-side SDKs for Node.js backends.
+                    The{' '}
+                    <code className="font-mono text-theme-primary-500 bg-theme-bg-secondary px-1 py-0.5 rounded">
+                      vibe-message
+                    </code>{' '}
+                    package provides lightweight client-side API integrations for browsers and fully
+                    secure server-side SDKs for Node.js backends.
                   </p>
                 </div>
 
@@ -351,7 +380,9 @@ export const Docs: React.FC = () => {
                     <div className="w-10 h-10 rounded-xl bg-theme-primary-500/10 flex items-center justify-center text-theme-primary-600 dark:text-theme-primary-400">
                       <RiFlashlightLine size={20} />
                     </div>
-                    <h3 className="text-xl font-display font-bold text-theme-text-primary m-0">Installation</h3>
+                    <h3 className="text-xl font-display font-bold text-theme-text-primary m-0">
+                      Installation
+                    </h3>
                   </div>
                   <p className="text-theme-text-secondary text-sm mb-6">
                     Get started by installing the universal SDK package into your project:
@@ -368,48 +399,93 @@ export const Docs: React.FC = () => {
                         <div className="w-10 h-10 rounded-xl bg-theme-accent-500/10 flex items-center justify-center text-theme-accent-600 dark:text-theme-accent-400">
                           <RiSmartphoneLine size={20} />
                         </div>
-                        <h3 className="text-xl font-display font-bold text-theme-text-primary m-0">Client SDK (Frontend)</h3>
+                        <h3 className="text-xl font-display font-bold text-theme-text-primary m-0">
+                          Client SDK (Frontend)
+                        </h3>
                       </div>
                       <p className="text-theme-text-secondary text-sm leading-relaxed">
-                        Responsible for requesting browser permissions, subscribing to push notification service workers, handling foreground messages, and managing silent data syncs.
+                        Responsible for requesting browser permissions, subscribing to push
+                        notification service workers, handling foreground messages, and managing
+                        silent data syncs.
                       </p>
 
                       <div className="space-y-4">
                         <div className="border-t border-theme-border pt-4">
-                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">initNotificationClient(options)</h4>
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">
+                            initNotificationClient(options)
+                          </h4>
                           <p className="text-xs text-theme-text-secondary leading-relaxed mb-2">
                             Initializes a browser-facing notification client instance.
                           </p>
                           <ul className="text-xs space-y-1 text-theme-text-muted">
-                            <li><strong className="text-theme-text-secondary font-mono">appId: string</strong> — Public ID of your application.</li>
-                            <li><strong className="text-theme-text-secondary font-mono">publicKey: string</strong> — VAPID public key.</li>
-                            <li><strong className="text-theme-text-secondary font-mono">baseUrl?: string</strong> — Override for custom hosting.</li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                appId: string
+                              </strong>{' '}
+                              — Public ID of your application.
+                            </li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                publicKey: string
+                              </strong>{' '}
+                              — VAPID public key.
+                            </li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                baseUrl?: string
+                              </strong>{' '}
+                              — Override for custom hosting.
+                            </li>
                           </ul>
                         </div>
 
                         <div className="border-t border-theme-border pt-4">
-                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">client.registerDevice(options)</h4>
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">
+                            client.registerDevice(options)
+                          </h4>
                           <p className="text-xs text-theme-text-secondary leading-relaxed mb-2">
-                            Requests push notification access permissions and registers service worker subscriptions with the server.
+                            Requests push notification access permissions and registers service
+                            worker subscriptions with the server.
                           </p>
                           <ul className="text-xs space-y-1 text-theme-text-muted">
-                            <li><strong className="text-theme-text-secondary font-mono">externalUserId: string</strong> — Unique developer ID mapping the user.</li>
-                            <li><strong className="text-theme-text-secondary font-mono">serviceWorkerPath?: string</strong> — Defaults to <code className="font-mono">/push-sw.js</code>.</li>
-                            <li><strong className="text-theme-text-secondary font-mono">serviceWorkerScope?: string</strong> — Scope (defaults to <code className="font-mono">/</code>).</li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                externalUserId: string
+                              </strong>{' '}
+                              — Unique developer ID mapping the user.
+                            </li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                serviceWorkerPath?: string
+                              </strong>{' '}
+                              — Defaults to <code className="font-mono">/push-sw.js</code>.
+                            </li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                serviceWorkerScope?: string
+                              </strong>{' '}
+                              — Scope (defaults to <code className="font-mono">/</code>).
+                            </li>
                           </ul>
                         </div>
 
                         <div className="border-t border-theme-border pt-4">
-                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">client.onMessage(callback)</h4>
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">
+                            client.onMessage(callback)
+                          </h4>
                           <p className="text-xs text-theme-text-secondary leading-relaxed">
-                            Foreground callback when the web app is visible and focused. Receives standard notification payload details.
+                            Foreground callback when the web app is visible and focused. Receives
+                            standard notification payload details.
                           </p>
                         </div>
 
                         <div className="border-t border-theme-border pt-4">
-                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">client.onSilentMessage(callback)</h4>
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">
+                            client.onSilentMessage(callback)
+                          </h4>
                           <p className="text-xs text-theme-text-secondary leading-relaxed">
-                            Bypasses UI system notifications to deliver direct data payloads to background callbacks. Perfect for syncing databases/stores.
+                            Bypasses UI system notifications to deliver direct data payloads to
+                            background callbacks. Perfect for syncing databases/stores.
                           </p>
                         </div>
                       </div>
@@ -423,46 +499,103 @@ export const Docs: React.FC = () => {
                         <div className="w-10 h-10 rounded-xl bg-theme-primary-500/10 flex items-center justify-center text-theme-primary-600 dark:text-theme-primary-400">
                           <RiServerLine size={20} />
                         </div>
-                        <h3 className="text-xl font-display font-bold text-theme-text-primary m-0">Server SDK (Backend)</h3>
+                        <h3 className="text-xl font-display font-bold text-theme-text-primary m-0">
+                          Server SDK (Backend)
+                        </h3>
                       </div>
                       <p className="text-theme-text-secondary text-sm leading-relaxed">
-                        Empowers your backend server to securely encrypt and publish system-wide or user-specific push notifications using your private credentials.
+                        Empowers your backend server to securely encrypt and publish system-wide or
+                        user-specific push notifications using your private credentials.
                       </p>
 
                       <div className="space-y-4">
                         <div className="border-t border-theme-border pt-4">
-                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">initServerClient(options)</h4>
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">
+                            initServerClient(options)
+                          </h4>
                           <p className="text-xs text-theme-text-secondary leading-relaxed mb-2">
-                            Initializes a private server-side instance. Must only be run in node backend scripts.
+                            Initializes a private server-side instance. Must only be run in node
+                            backend scripts.
                           </p>
                           <ul className="text-xs space-y-1 text-theme-text-muted">
-                            <li><strong className="text-theme-text-secondary font-mono">appId: string</strong> — Application public ID.</li>
-                            <li><strong className="text-theme-text-secondary font-mono">secretKey: string</strong> — Private administrative secret.</li>
-                            <li><strong className="text-theme-text-secondary font-mono">baseUrl?: string</strong> — Custom hosted endpoint routing.</li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                appId: string
+                              </strong>{' '}
+                              — Application public ID.
+                            </li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                secretKey: string
+                              </strong>{' '}
+                              — Private administrative secret.
+                            </li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                baseUrl?: string
+                              </strong>{' '}
+                              — Custom hosted endpoint routing.
+                            </li>
                           </ul>
                         </div>
 
                         <div className="border-t border-theme-border pt-4">
-                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">server.notification(options)</h4>
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">
+                            server.notification(options)
+                          </h4>
                           <p className="text-xs text-theme-text-secondary leading-relaxed mb-2">
-                            Sends a standard visible push notification to targets or global broadcasts.
+                            Sends a standard visible push notification to targets or global
+                            broadcasts.
                           </p>
                           <ul className="text-xs space-y-1 text-theme-text-muted">
-                            <li><strong className="text-theme-text-secondary font-mono">notificationData: NotificationData</strong> — Title, body, icon, custom click_action, and data (supports JSON objects or stringified JSON).</li>
-                            <li><strong className="text-theme-text-secondary font-mono">externalUsers?: string[]</strong> — Target user list. Omit to broadcast.</li>
-                            <li><strong className="text-theme-text-secondary font-mono">scheduledAt?: string | Date</strong> — UTC timezone timestamp (ISO-8601).</li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                notificationData: NotificationData
+                              </strong>{' '}
+                              — Title, body, icon, custom click_action, and data (supports JSON
+                              objects or stringified JSON).
+                            </li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                externalUsers?: string[]
+                              </strong>{' '}
+                              — Target user list. Omit to broadcast.
+                            </li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                scheduledAt?: string | Date
+                              </strong>{' '}
+                              — UTC timezone timestamp (ISO-8601).
+                            </li>
                           </ul>
                         </div>
 
                         <div className="border-t border-theme-border pt-4">
-                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">server.silentNotification(options)</h4>
+                          <h4 className="text-sm font-bold text-theme-text-primary font-mono mb-2">
+                            server.silentNotification(options)
+                          </h4>
                           <p className="text-xs text-theme-text-secondary leading-relaxed mb-2">
                             Sends an invisible data payload directly to user background instances.
                           </p>
                           <ul className="text-xs space-y-1 text-theme-text-muted">
-                            <li><strong className="text-theme-text-secondary font-mono">data: Record&lt;string, any&gt;</strong> — Custom structural data dictionary.</li>
-                            <li><strong className="text-theme-text-secondary font-mono">externalUsers?: string[]</strong> — Target client list.</li>
-                            <li><strong className="text-theme-text-secondary font-mono">scheduledAt?: string | Date</strong> — UTC timestamp scheduling.</li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                data: Record&lt;string, any&gt;
+                              </strong>{' '}
+                              — Custom structural data dictionary.
+                            </li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                externalUsers?: string[]
+                              </strong>{' '}
+                              — Target client list.
+                            </li>
+                            <li>
+                              <strong className="text-theme-text-secondary font-mono">
+                                scheduledAt?: string | Date
+                              </strong>{' '}
+                              — UTC timestamp scheduling.
+                            </li>
                           </ul>
                         </div>
                       </div>
@@ -476,7 +609,9 @@ export const Docs: React.FC = () => {
                     <div className="w-10 h-10 rounded-xl bg-theme-primary-500/10 flex items-center justify-center text-theme-primary-600 dark:text-theme-primary-400">
                       <RiCodeLine size={20} />
                     </div>
-                    <h3 className="text-xl font-display font-bold text-theme-text-primary m-0">Full SDK implementation Flow</h3>
+                    <h3 className="text-xl font-display font-bold text-theme-text-primary m-0">
+                      Full SDK implementation Flow
+                    </h3>
                   </div>
                   <p className="text-theme-text-secondary text-sm mb-6">
                     A typical setup importing client listeners and secure server dispatch modules:
@@ -527,7 +662,7 @@ await server.notification({
               </motion.div>
             )}
 
-            {activeTab === "backend" && (
+            {activeTab === 'backend' && (
               <motion.div
                 key="backend"
                 initial={{ opacity: 0, y: 20 }}
@@ -541,13 +676,11 @@ await server.notification({
                     Backend Integration (Sending)
                   </h2>
                   <p className="text-lg text-theme-text-secondary mb-10 leading-relaxed p-4 bg-theme-warning/10 border-l-4 border-theme-warning rounded-r-lg inline-block text-left">
-                    Your backend server is responsible for triggering
-                    notifications. You should{" "}
-                    <strong className="text-theme-error">never</strong> expose
-                    your{" "}
+                    Your backend server is responsible for triggering notifications. You should{' '}
+                    <strong className="text-theme-error">never</strong> expose your{' '}
                     <code className="font-mono text-sm bg-theme-bg-secondary px-1 py-0.5 rounded">
                       secretKey
-                    </code>{" "}
+                    </code>{' '}
                     to your frontend code.
                   </p>
                 </div>
@@ -613,7 +746,7 @@ await vibe.silentNotification({
               </motion.div>
             )}
 
-            {activeTab === "react" && (
+            {activeTab === 'react' && (
               <motion.div
                 key="react"
                 initial={{ opacity: 0, y: 20 }}
@@ -627,10 +760,9 @@ await vibe.silentNotification({
                     React Integration Guide
                   </h2>
                   <p className="text-lg text-theme-text-secondary leading-relaxed">
-                    The best way to integrate Vibe Message in SPAs (Create React
-                    App, Vite, etc.) is by using a global Context to manage your
-                    notification client. This allows you to easily tie
-                    notifications to your user's authentication state.
+                    The best way to integrate Vibe Message in SPAs (Create React App, Vite, etc.) is
+                    by using a global Context to manage your notification client. This allows you to
+                    easily tie notifications to your user's authentication state.
                   </p>
                 </div>
 
@@ -745,7 +877,7 @@ function AuthButtons() {
               </motion.div>
             )}
 
-            {activeTab === "nextjs" && (
+            {activeTab === 'nextjs' && (
               <motion.div
                 key="nextjs"
                 initial={{ opacity: 0, y: 20 }}
@@ -759,9 +891,8 @@ function AuthButtons() {
                     Next.js App Router Integration
                   </h2>
                   <p className="text-lg text-theme-text-secondary leading-relaxed">
-                    Designed for Next.js 13+ App Router. Because the Vibe
-                    Message SDK relies on browser APIs (like Service Workers and
-                    Notification), we use Client Components (
+                    Designed for Next.js 13+ App Router. Because the Vibe Message SDK relies on
+                    browser APIs (like Service Workers and Notification), we use Client Components (
                     <code className="text-sm font-mono text-theme-primary-500 bg-theme-bg-muted p-1 rounded">
                       'use client'
                     </code>
@@ -916,22 +1047,16 @@ const FeatureCard = ({
       {icon}
     </div>
     <h3 className="text-xl font-display font-bold text-theme-text-primary mb-3">{title}</h3>
-    <p className="text-theme-text-secondary leading-relaxed text-sm">
-      {description}
-    </p>
+    <p className="text-theme-text-secondary leading-relaxed text-sm">{description}</p>
   </motion.div>
 );
-
 
 const highlightCode = (code: string): string => {
   const tokens: string[] = [];
   const placeholder = (idx: number) => `\x00T${idx}\x00`;
 
   // 1. Escape HTML entities first
-  let result = code
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+  let result = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
   // 2. Tokenise single-line comments  (must come before strings so // inside a string isn't matched)
   result = result.replace(/(\/\/.*)$/gm, (match) => {
@@ -951,30 +1076,30 @@ const highlightCode = (code: string): string => {
   result = result
     .replace(
       /\b(import|from|const|let|var|await|async|export|default|function|return|if|else|true|false|new|typeof|window|null)\b/g,
-      '<span class="text-[#c678dd]">$1</span>',
+      '<span class="text-[#c678dd]">$1</span>'
     )
     .replace(
       /\b(npm|npx|install|init|React|useEffect|useContext|useRef|createContext|console|NotificationContext|NotificationProvider|vibe|Notification|initServerClient|initNotificationClient)\b/g,
-      '<span class="text-[#e5c07b]">$1</span>',
+      '<span class="text-[#e5c07b]">$1</span>'
     )
     .replace(/([a-zA-Z0-9_]+)(?=\()/g, (match, p1) => {
-      if (["function", "if", "span", "class"].includes(p1)) return match;
+      if (['function', 'if', 'span', 'class'].includes(p1)) return match;
       return `<span class="text-[#61afef]">${p1}</span>`;
     });
 
   // 5. Restore all tokenised strings & comments
+  // eslint-disable-next-line no-control-regex
   result = result.replace(/\x00T(\d+)\x00/g, (_, idx) => tokens[parseInt(idx, 10)]);
 
   return result;
 };
-
 
 const CodeBlock = ({ code, language }: { code: string; language: string }) => (
   <motion.div
     className="rounded-2xl overflow-hidden border border-theme-border bg-[#0F172A] shadow-xl mt-6"
     initial={{ opacity: 0, scale: 0.98 }}
     whileInView={{ opacity: 1, scale: 1 }}
-    viewport={{ once: true, margin: "-50px" }}
+    viewport={{ once: true, margin: '-50px' }}
     transition={{ duration: 0.4 }}
   >
     <div className="flex items-center justify-between px-4 py-3 border-b border-black/20 bg-[#1E293B]">
@@ -1019,13 +1144,9 @@ const StepBlock = ({
       <h3 className="text-2xl font-display font-bold text-theme-text-primary m-0">{title}</h3>
     </div>
     <div className="hidden md:block">
-      <h3 className="text-2xl font-display font-bold text-theme-text-primary mb-3">
-        {title}
-      </h3>
+      <h3 className="text-2xl font-display font-bold text-theme-text-primary mb-3">{title}</h3>
     </div>
-    <p className="text-theme-text-secondary leading-relaxed">
-      {description}
-    </p>
+    <p className="text-theme-text-secondary leading-relaxed">{description}</p>
     <CodeBlock code={code} language={language} />
   </div>
 );

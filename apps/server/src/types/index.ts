@@ -1,6 +1,6 @@
 // User types
-export type UserRole = "SUPER_ADMIN" | "ADMIN";
-export type UserStatus = "PENDING" | "APPROVED" | "BANNED";
+export type UserRole = 'SUPER_ADMIN' | 'ADMIN';
+export type UserStatus = 'PENDING' | 'APPROVED' | 'BANNED';
 
 export interface User {
   id: number;
@@ -45,7 +45,7 @@ export interface App {
 export interface AppWithStats extends App {
   device_count: number;
   notification_count: number;
-  currentUserRole?: "owner" | "moderator" | "viewer" | "superadmin";
+  currentUserRole?: 'owner' | 'moderator' | 'viewer' | 'superadmin';
 }
 
 // Device token types
@@ -90,7 +90,7 @@ export interface NotificationPayload {
   silent?: boolean;
 }
 
-export type NotificationLogStatus = "PENDING" | "SENT" | "FAILED";
+export type NotificationLogStatus = 'PENDING' | 'SENT' | 'FAILED';
 
 export interface NotificationLog {
   id: number;
@@ -210,6 +210,7 @@ export interface JwtPayload {
 
 // Express Request with user
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       user?: JwtPayload;

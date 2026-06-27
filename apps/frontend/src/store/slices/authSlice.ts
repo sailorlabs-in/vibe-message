@@ -47,18 +47,17 @@ export const signupUser = createAsyncThunk<
   }
 });
 
-export const getCurrentUser = createAsyncThunk<
-  User,
-  void,
-  { rejectValue: string }
->('auth/getCurrentUser', async (_, { rejectWithValue }) => {
-  try {
-    const response = await ApiRequest('/auth/me', 'get');
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to fetch user');
+export const getCurrentUser = createAsyncThunk<User, void, { rejectValue: string }>(
+  'auth/getCurrentUser',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await ApiRequest('/auth/me', 'get');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch user');
+    }
   }
-});
+);
 
 export const updateUserProfile = createAsyncThunk<
   User,
@@ -85,30 +84,28 @@ export const changeUserPassword = createAsyncThunk<
   }
 });
 
-export const deleteUserAccount = createAsyncThunk<
-  void,
-  void,
-  { rejectValue: string }
->('auth/deleteAccount', async (_, { rejectWithValue }) => {
-  try {
-    await ApiRequest('/auth/account', 'delete');
-    localStorage.removeItem('token');
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to delete account');
+export const deleteUserAccount = createAsyncThunk<void, void, { rejectValue: string }>(
+  'auth/deleteAccount',
+  async (_, { rejectWithValue }) => {
+    try {
+      await ApiRequest('/auth/account', 'delete');
+      localStorage.removeItem('token');
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete account');
+    }
   }
-});
+);
 
-export const forgotPassword = createAsyncThunk<
-  void,
-  { email: string },
-  { rejectValue: string }
->('auth/forgotPassword', async ({ email }, { rejectWithValue }) => {
-  try {
-    await ApiRequest('/auth/forgot-password', 'post', { email }, false);
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to send reset email');
+export const forgotPassword = createAsyncThunk<void, { email: string }, { rejectValue: string }>(
+  'auth/forgotPassword',
+  async ({ email }, { rejectWithValue }) => {
+    try {
+      await ApiRequest('/auth/forgot-password', 'post', { email }, false);
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to send reset email');
+    }
   }
-});
+);
 
 export const resetPassword = createAsyncThunk<
   void,

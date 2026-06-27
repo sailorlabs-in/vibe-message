@@ -4,29 +4,23 @@ import {
   ConflictException,
   NotFoundException,
   BadRequestException,
-} from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import * as bcrypt from "bcrypt";
-import * as jwt from "jsonwebtoken";
-import * as crypto from "crypto";
-import { config } from "../../config/env";
-import {
-  UserResponse,
-  SignupRequest,
-  LoginRequest,
-  AuthResponse,
-  JwtPayload,
-} from "../../types";
-import { User } from "../user/user.entity";
-import { RedisService } from "../redis/redis.service";
-import { MailService } from "../mail/mail.service";
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import * as jwt from 'jsonwebtoken';
+import * as crypto from 'crypto';
+import { config } from '../../config/env';
+import { UserResponse, SignupRequest, LoginRequest, AuthResponse, JwtPayload } from '../../types';
+import { User } from '../user/user.entity';
+import { RedisService } from '../redis/redis.service';
+import { MailService } from '../mail/mail.service';
 
-import { InternalNotificationService } from "../system/internal-notification.service";
+import { InternalNotificationService } from '../system/internal-notification.service';
 
 const SALT_ROUNDS = 10;
 const RESET_TOKEN_TTL_SECONDS = 15 * 60; // 15 minutes
-const RESET_TOKEN_PREFIX = "pwd_reset:";
+const RESET_TOKEN_PREFIX = 'pwd_reset:';
 
 @Injectable()
 export class AuthService {
@@ -35,11 +29,12 @@ export class AuthService {
     private userRepository: Repository<User>,
     private internalNotificationService: InternalNotificationService,
     private redisService: RedisService,
-    private mailService: MailService,
+    private mailService: MailService
   ) {}
 
   private userToResponse(user: User): UserResponse {
     const { password_hash, ...userResponse } = user;
+    console.log('🚀 ~ AuthService ~ userToResponse ~ password_hash:', password_hash);
     return userResponse;
   }
 
@@ -50,7 +45,7 @@ export class AuthService {
       role: user.role,
       status: user.status,
     };
-    return jwt.sign(payload, config.jwt.secret, { expiresIn: "7d" });
+    return jwt.sign(payload, config.jwt.secret, { expiresIn: '7d' });
   }
 
   async signup(data: SignupRequest): Promise<AuthResponse> {
@@ -60,7 +55,7 @@ export class AuthService {
       where: { email },
     });
     if (existingUser) {
-      throw new ConflictException("User with this email already exists");
+      throw new ConflictException('User with this email already exists');
     }
 
     const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
@@ -69,8 +64,8 @@ export class AuthService {
       name,
       email,
       password_hash,
-      role: "ADMIN",
-      status: "PENDING",
+      role: 'ADMIN',
+      status: 'PENDING',
       app_limit: 5,
     });
 
@@ -81,10 +76,10 @@ export class AuthService {
     try {
       this.internalNotificationService
         .notifySuperAdminNewUser(name, email)
-        .catch((err: any) =>
-          console.error("Failed to send new user notification:", err),
-        );
-    } catch (e) {}
+        .catch((err: any) => console.error('Failed to send new user notification:', err));
+    } catch {
+      //error
+    }
 
     return { token, user: this.userToResponse(user) };
   }
@@ -94,13 +89,13 @@ export class AuthService {
 
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password_hash);
 
     if (!isValidPassword) {
-      throw new UnauthorizedException("Invalid credentials");
+      throw new UnauthorizedException('Invalid credentials');
     }
 
     const token = this.generateToken(user);
@@ -111,7 +106,7 @@ export class AuthService {
   async getUserById(userId: number): Promise<UserResponse> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException('User not found');
     }
     return this.userToResponse(user);
   }
@@ -119,29 +114,23 @@ export class AuthService {
   async deleteAccount(userId: number): Promise<void> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException('User not found');
     }
-    if (user.role === "SUPER_ADMIN") {
-      throw new BadRequestException(
-        "Super admins cannot delete their own accounts",
-      );
+    if (user.role === 'SUPER_ADMIN') {
+      throw new BadRequestException('Super admins cannot delete their own accounts');
     }
     await this.userRepository.remove(user);
   }
 
-  async changePassword(
-    userId: number,
-    oldPassword: string,
-    newPassword: string,
-  ): Promise<void> {
+  async changePassword(userId: number, oldPassword: string, newPassword: string): Promise<void> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException('User not found');
     }
 
     const isValid = await bcrypt.compare(oldPassword, user.password_hash);
     if (!isValid) {
-      throw new BadRequestException("Current password is incorrect");
+      throw new BadRequestException('Current password is incorrect');
     }
 
     user.password_hash = await bcrypt.hash(newPassword, SALT_ROUNDS);
@@ -155,15 +144,10 @@ export class AuthService {
       return;
     }
 
-    const token = crypto.randomBytes(32).toString("hex");
+    const token = crypto.randomBytes(32).toString('hex');
     const redisKey = `${RESET_TOKEN_PREFIX}${token}`;
 
-    await this.redisService.client.set(
-      redisKey,
-      String(user.id),
-      "EX",
-      RESET_TOKEN_TTL_SECONDS,
-    );
+    await this.redisService.client.set(redisKey, String(user.id), 'EX', RESET_TOKEN_TTL_SECONDS);
 
     const frontendUrl = config.frontendUrl;
     const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
@@ -175,7 +159,7 @@ export class AuthService {
       });
     } catch (err) {
       // Don't leak errors — just log
-      console.error("Failed to send password reset email:", err);
+      console.error('Failed to send password reset email:', err);
     }
   }
 
@@ -185,14 +169,14 @@ export class AuthService {
 
     if (!userIdStr) {
       throw new BadRequestException(
-        "Invalid or expired password reset token. Please request a new one.",
+        'Invalid or expired password reset token. Please request a new one.'
       );
     }
 
     const userId = parseInt(userIdStr, 10);
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException('User not found');
     }
 
     user.password_hash = await bcrypt.hash(newPassword, SALT_ROUNDS);

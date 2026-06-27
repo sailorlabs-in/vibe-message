@@ -1,33 +1,33 @@
-import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import { NotificationProvider } from "./context/NotificationContext";
-import { ThemeProvider } from "./context/ThemeContext";
-import { Header } from "./components/layout/Header";
-import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { Header } from './components/layout/Header';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
 // Public pages
-import { Landing } from "./pages/public/Landing";
-import { Login } from "./pages/public/Login";
-import { Signup } from "./pages/public/Signup";
-import { Docs } from "./pages/public/Docs";
-import { License } from "./pages/public/License";
-import { TermsOfService } from "./pages/public/TermsOfService";
-import { ForgotPassword } from "./pages/public/ForgotPassword";
-import { ResetPassword } from "./pages/public/ResetPassword";
+import { Landing } from './pages/public/Landing';
+import { Login } from './pages/public/Login';
+import { Signup } from './pages/public/Signup';
+import { Docs } from './pages/public/Docs';
+import { License } from './pages/public/License';
+import { TermsOfService } from './pages/public/TermsOfService';
+import { ForgotPassword } from './pages/public/ForgotPassword';
+import { ResetPassword } from './pages/public/ResetPassword';
 
 // Admin pages
-import { Dashboard } from "./pages/admin/Dashboard";
-import { Apps } from "./pages/admin/Apps";
-import { AppDetails } from "./pages/admin/AppDetails";
-import Profile from "./pages/admin/Profile";
-import { Pending } from "./pages/admin/Pending";
+import { Dashboard } from './pages/admin/Dashboard';
+import { Apps } from './pages/admin/Apps';
+import { AppDetails } from './pages/admin/AppDetails';
+import Profile from './pages/admin/Profile';
+import { Pending } from './pages/admin/Pending';
 
 // Super admin pages
-import { Users } from "./pages/super/Users";
-import { ScrollToTop } from "./components/common/ScrollToTop";
-import { AnimatedBackground } from "./components/common/AnimatedBackground";
-import Footer from "./components/layout/Footer";
+import { Users } from './pages/super/Users';
+import { ScrollToTop } from './components/common/ScrollToTop';
+import { AnimatedBackground } from './components/common/AnimatedBackground';
+import Footer from './components/layout/Footer';
 
 const AppContent: React.FC = () => {
   return (
@@ -107,7 +107,7 @@ const AppContent: React.FC = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-        <Footer />
+      <Footer />
     </BrowserRouter>
   );
 };

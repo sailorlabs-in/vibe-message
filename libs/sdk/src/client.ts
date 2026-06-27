@@ -5,7 +5,6 @@ import {
   MessageCallback,
   SilentMessageCallback,
   ServiceWorkerMessage,
-  NotificationPayload,
 } from './types';
 import { encryptPayload } from './utils/crypto';
 
@@ -21,7 +20,7 @@ export class NotificationClient {
   private silentMessageCallback: SilentMessageCallback | null = null;
 
   constructor(options: InitOptions) {
-    this.baseUrl = options.baseUrl || "https://vibemessage.sailorlabs.in/api";
+    this.baseUrl = options.baseUrl || 'https://vibemessage.sailorlabs.in/api';
     this.appId = options.appId;
     this.publicKey = options.publicKey;
 
@@ -103,9 +102,8 @@ export class NotificationClient {
    */
   private urlBase64ToUint8Array(base64String: string): Uint8Array {
     const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-    const base64 = (base64String + padding)
-      .replace(/\-/g, '+')
-      .replace(/_/g, '/');
+    // eslint-disable-next-line no-useless-escape
+    const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
 
     const rawData = window.atob(base64);
     const outputArray = new Uint8Array(rawData.length);
@@ -129,8 +127,8 @@ export class NotificationClient {
     }
 
     // Check for Notification support before requesting permission
-    if (typeof window === "undefined" || !("Notification" in window)) {
-      throw new Error("Push notifications are not supported in this browser");
+    if (typeof window === 'undefined' || !('Notification' in window)) {
+      throw new Error('Push notifications are not supported in this browser');
     }
 
     // Only request permission if not already granted (avoids macOS double-prompt issues)
@@ -155,20 +153,23 @@ export class NotificationClient {
         type: 'classic',
       });
     } catch (swError: any) {
-      // On macOS, a stale/corrupt cached SW can cause "An unknown error" — 
+      // On macOS, a stale/corrupt cached SW can cause "An unknown error" —
       // clear all old registrations and retry once
-      console.warn('Service worker registration failed, clearing stale registrations and retrying...', swError);
+      console.warn(
+        'Service worker registration failed, clearing stale registrations and retrying...',
+        swError
+      );
       const existingRegistrations = await navigator.serviceWorker.getRegistrations();
       for (const reg of existingRegistrations) {
         await reg.unregister();
       }
       // Give the browser a moment to fully clean up before retrying
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       // Mac Chrome sometimes maintains a corrupted cache entry for the exact URL
       // that even updateViaCache: 'none' doesn't bypass. Append a cache-buster:
       const cacheBuster = swPath.includes('?') ? `&t=${Date.now()}` : `?t=${Date.now()}`;
-      
+
       registration = await navigator.serviceWorker.register(swPath + cacheBuster, {
         scope: swScope,
         updateViaCache: 'none',
@@ -181,8 +182,14 @@ export class NotificationClient {
     if (registration.installing || registration.waiting) {
       await new Promise<void>((resolve) => {
         const sw = registration.installing || registration.waiting;
-        if (!sw) { resolve(); return; }
-        if (sw.state === 'activated') { resolve(); return; }
+        if (!sw) {
+          resolve();
+          return;
+        }
+        if (sw.state === 'activated') {
+          resolve();
+          return;
+        }
         sw.addEventListener('statechange', function listener() {
           if (sw.state === 'activated') {
             sw.removeEventListener('statechange', listener);
@@ -206,7 +213,10 @@ export class NotificationClient {
       });
     } catch (error: any) {
       // If there's an existing subscription with a different key, unsubscribe and retry
-      if (error.name === 'InvalidStateError' || error.message?.includes('different application server key')) {
+      if (
+        error.name === 'InvalidStateError' ||
+        error.message?.includes('different application server key')
+      ) {
         const existingSubscription = await registration.pushManager.getSubscription();
         if (existingSubscription) {
           await existingSubscription.unsubscribe();
@@ -242,12 +252,15 @@ export class NotificationClient {
       },
       body: JSON.stringify({
         appId: this.appId,
-        payload: encryptPayload({
-          publicKey: this.publicKey,
-          externalUserId: options.externalUserId,
-          subscription: subscriptionObject,
-          timezone,
-        }, this.publicKey),
+        payload: encryptPayload(
+          {
+            publicKey: this.publicKey,
+            externalUserId: options.externalUserId,
+            subscription: subscriptionObject,
+            timezone,
+          },
+          this.publicKey
+        ),
       }),
     });
 
@@ -286,10 +299,13 @@ export class NotificationClient {
       },
       body: JSON.stringify({
         appId: this.appId,
-        payload: encryptPayload({
-          externalUserId,
-          endpoint,
-        }, this.publicKey),
+        payload: encryptPayload(
+          {
+            externalUserId,
+            endpoint,
+          },
+          this.publicKey
+        ),
       }),
     });
 

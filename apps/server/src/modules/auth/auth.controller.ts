@@ -1,14 +1,5 @@
-import {
-  Controller,
-  Post,
-  Body,
-  Get,
-  Patch,
-  Delete,
-  UseGuards,
-  Request,
-} from "@nestjs/common";
-import { AuthService } from "./auth.service";
+import { Controller, Post, Body, Get, Patch, Delete, UseGuards, Request } from '@nestjs/common';
+import { AuthService } from './auth.service';
 import {
   SignupDto,
   LoginDto,
@@ -16,119 +7,104 @@ import {
   ChangePasswordDto,
   ForgotPasswordDto,
   ResetPasswordDto,
-} from "./dto/auth.dto";
-import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiBearerAuth,
-} from "@nestjs/swagger";
-import { AuthGuard } from "../../common/guards/auth.guard";
-import { ThrottlerGuard } from "@nestjs/throttler";
+} from './dto/auth.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '../../common/guards/auth.guard';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 // We import userService dynamically in routes to prevent circular dependency,
 // but in Nest we should properly inject UserService later.
-import { UserService } from "../user/user.service";
+import { UserService } from '../user/user.service';
 
-@ApiTags("Internal App APIs")
-@Controller("auth")
+@ApiTags('Internal App APIs')
+@Controller('auth')
 @UseGuards(ThrottlerGuard)
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly userService: UserService,
+    private readonly userService: UserService
   ) {}
 
-  @Post("signup")
-  @ApiOperation({ summary: "Register a new user" })
-  @ApiResponse({ status: 201, description: "User created successfully" })
+  @Post('signup')
+  @ApiOperation({ summary: 'Register a new user' })
+  @ApiResponse({ status: 201, description: 'User created successfully' })
   async signup(@Body() signupDto: SignupDto) {
     const result = await this.authService.signup(signupDto);
     return { success: true, data: result };
   }
 
-  @Post("login")
-  @ApiOperation({ summary: "Login user" })
-  @ApiResponse({ status: 200, description: "Login successful" })
+  @Post('login')
+  @ApiOperation({ summary: 'Login user' })
+  @ApiResponse({ status: 200, description: 'Login successful' })
   async login(@Body() loginDto: LoginDto) {
     const result = await this.authService.login(loginDto);
     return { success: true, data: result };
   }
 
-  @Get("me")
+  @Get('me')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @ApiOperation({ summary: "Get current user profile" })
+  @ApiOperation({ summary: 'Get current user profile' })
   async getProfile(@Request() req: any) {
     const user = await this.authService.getUserById(req.user.userId);
     return { success: true, data: user };
   }
 
-  @Patch("profile")
+  @Patch('profile')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @ApiOperation({ summary: "Update user profile" })
-  async updateProfile(
-    @Request() req: any,
-    @Body() updateProfileDto: UpdateProfileDto,
-  ) {
+  @ApiOperation({ summary: 'Update user profile' })
+  async updateProfile(@Request() req: any, @Body() updateProfileDto: UpdateProfileDto) {
     const user = await this.userService.updateUserProfile(
       req.user.userId,
       updateProfileDto.name,
-      updateProfileDto.email,
+      updateProfileDto.email
     );
     return {
       success: true,
       data: user,
-      message: "Profile updated successfully",
+      message: 'Profile updated successfully',
     };
   }
 
-  @Delete("account")
+  @Delete('account')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @ApiOperation({ summary: "Delete user account" })
+  @ApiOperation({ summary: 'Delete user account' })
   async deleteAccount(@Request() req: any) {
     await this.userService.deleteUserAccount(req.user.userId);
-    return { success: true, message: "Account deleted successfully" };
+    return { success: true, message: 'Account deleted successfully' };
   }
 
-  @Patch("change-password")
+  @Patch('change-password')
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
-  @ApiOperation({ summary: "Change user password" })
-  async changePassword(
-    @Request() req: any,
-    @Body() changePasswordDto: ChangePasswordDto,
-  ) {
+  @ApiOperation({ summary: 'Change user password' })
+  async changePassword(@Request() req: any, @Body() changePasswordDto: ChangePasswordDto) {
     await this.authService.changePassword(
       req.user.userId,
       changePasswordDto.oldPassword,
-      changePasswordDto.newPassword,
+      changePasswordDto.newPassword
     );
-    return { success: true, message: "Password changed successfully" };
+    return { success: true, message: 'Password changed successfully' };
   }
 
-  @Post("forgot-password")
-  @ApiOperation({ summary: "Request a password reset email" })
-  @ApiResponse({ status: 200, description: "Reset email sent if account exists" })
+  @Post('forgot-password')
+  @ApiOperation({ summary: 'Request a password reset email' })
+  @ApiResponse({ status: 200, description: 'Reset email sent if account exists' })
   async forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
     await this.authService.forgotPassword(forgotPasswordDto.email);
     return {
       success: true,
-      message:
-        "If an account with that email exists, a password reset link has been sent.",
+      message: 'If an account with that email exists, a password reset link has been sent.',
     };
   }
 
-  @Post("reset-password")
-  @ApiOperation({ summary: "Reset password using token from email" })
-  @ApiResponse({ status: 200, description: "Password reset successfully" })
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reset password using token from email' })
+  @ApiResponse({ status: 200, description: 'Password reset successfully' })
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
-    await this.authService.resetPassword(
-      resetPasswordDto.token,
-      resetPasswordDto.newPassword,
-    );
-    return { success: true, message: "Password reset successfully" };
+    await this.authService.resetPassword(resetPasswordDto.token, resetPasswordDto.newPassword);
+    return { success: true, message: 'Password reset successfully' };
   }
 }

@@ -1,35 +1,29 @@
-import React from "react";
+import React from 'react';
 
 interface SkeletonProps {
   className?: string;
 }
 
-export const SkeletonBox: React.FC<SkeletonProps> = ({ className = "" }) => (
-  <div
-    className={`animate-pulse bg-theme-bg-muted rounded-lg ${className}`}
-  />
+export const SkeletonBox: React.FC<SkeletonProps> = ({ className = '' }) => (
+  <div className={`animate-pulse bg-theme-bg-muted rounded-lg ${className}`} />
 );
 
 export const SkeletonText: React.FC<SkeletonProps & { lines?: number }> = ({
-  className = "",
+  className = '',
   lines = 1,
 }) => (
   <div className={`space-y-2 ${className}`}>
     {Array.from({ length: lines }).map((_, i) => (
       <div
         key={i}
-        className={`animate-pulse bg-theme-bg-muted rounded h-4 ${i === lines - 1 && lines > 1 ? "w-3/4" : "w-full"}`}
+        className={`animate-pulse bg-theme-bg-muted rounded h-4 ${i === lines - 1 && lines > 1 ? 'w-3/4' : 'w-full'}`}
       />
     ))}
   </div>
 );
 
-export const SkeletonCircle: React.FC<SkeletonProps> = ({
-  className = "",
-}) => (
-  <div
-    className={`animate-pulse bg-theme-bg-muted rounded-full ${className}`}
-  />
+export const SkeletonCircle: React.FC<SkeletonProps> = ({ className = '' }) => (
+  <div className={`animate-pulse bg-theme-bg-muted rounded-full ${className}`} />
 );
 
 /* ─── Page-Specific Skeletons ──────────────────────────────── */
@@ -167,13 +161,11 @@ export const UsersSkeleton: React.FC = () => (
       <table className="w-full">
         <thead>
           <tr className="border-b border-theme-border">
-            {["Name", "Email", "Status", "Role", "App Limit", "Actions"].map(
-              (h) => (
-                <th key={h} className="py-4 px-4">
-                  <SkeletonBox className="h-4 w-16 rounded" />
-                </th>
-              ),
-            )}
+            {['Name', 'Email', 'Status', 'Role', 'App Limit', 'Actions'].map((h) => (
+              <th key={h} className="py-4 px-4">
+                <SkeletonBox className="h-4 w-16 rounded" />
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>

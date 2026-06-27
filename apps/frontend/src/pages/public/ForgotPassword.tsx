@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "motion/react";
-import { useAppDispatch, useAppSelector } from "../../store/store";
-import { forgotPassword, clearError } from "../../store/slices/authSlice";
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { forgotPassword, clearError } from '../../store/slices/authSlice';
 import {
   RiErrorWarningLine,
   RiLoader4Line,
@@ -10,10 +10,10 @@ import {
   RiArrowLeftLine,
   RiCheckboxCircleFill,
   RiMailLine,
-} from "@remixicon/react";
+} from '@remixicon/react';
 
 export const ForgotPassword: React.FC = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
   const dispatch = useAppDispatch();
@@ -44,7 +44,7 @@ export const ForgotPassword: React.FC = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { type: "spring" as const, stiffness: 300, damping: 24 },
+      transition: { type: 'spring' as const, stiffness: 300, damping: 24 },
     },
   };
 
@@ -56,12 +56,12 @@ export const ForgotPassword: React.FC = () => {
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
             <motion.div
               animate={{ x: [0, 40, 0], y: [0, -40, 0], rotate: [0, 60, 0] }}
-              transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
               className="absolute -top-20 -left-20 w-96 h-96 bg-violet-500/20 rounded-full blur-[80px]"
             />
             <motion.div
               animate={{ x: [0, -40, 0], y: [0, 40, 0], rotate: [0, -60, 0] }}
-              transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
               className="absolute bottom-10 -right-10 w-80 h-80 bg-amber-500/10 rounded-full blur-[60px]"
             />
           </div>
@@ -90,8 +90,8 @@ export const ForgotPassword: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="text-lg text-theme-text-secondary leading-relaxed max-w-md"
             >
-              No worries — it happens to the best of us. Enter your email and
-              we'll send you a secure reset link valid for 15 minutes.
+              No worries — it happens to the best of us. Enter your email and we'll send you a
+              secure reset link valid for 15 minutes.
             </motion.p>
           </div>
 
@@ -102,9 +102,9 @@ export const ForgotPassword: React.FC = () => {
             className="relative z-10 space-y-4 mt-12"
           >
             {[
-              "One-time secure reset link",
-              "Expires in 15 minutes",
-              "Token invalidated after use",
+              'One-time secure reset link',
+              'Expires in 15 minutes',
+              'Token invalidated after use',
             ].map((feature, idx) => (
               <div
                 key={idx}
@@ -144,7 +144,7 @@ export const ForgotPassword: React.FC = () => {
                   {error && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
+                      animate={{ opacity: 1, height: 'auto' }}
                       className="bg-red-500/10 text-red-500 dark:text-red-400 p-4 rounded-2xl border border-red-500/20 text-sm font-bold flex items-center gap-3 backdrop-blur-md"
                     >
                       <RiErrorWarningLine size={20} className="shrink-0" />
@@ -210,13 +210,13 @@ export const ForgotPassword: React.FC = () => {
                 key="success"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 24 }}
                 className="max-w-md w-full mx-auto text-center"
               >
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 18, delay: 0.1 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 18, delay: 0.1 }}
                   className="w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center mx-auto mb-6 shadow-xl shadow-green-500/30"
                 >
                   <RiMailLine size={36} className="text-white" />
@@ -235,7 +235,11 @@ export const ForgotPassword: React.FC = () => {
 
                 <div className="space-y-3">
                   <button
-                    onClick={() => { setSubmitted(false); setEmail(""); dispatch(clearError()); }}
+                    onClick={() => {
+                      setSubmitted(false);
+                      setEmail('');
+                      dispatch(clearError());
+                    }}
                     className="w-full py-3.5 border-2 border-theme-border text-theme-text-primary rounded-2xl font-bold hover:border-theme-primary-500 hover:text-theme-primary-500 transition-all"
                   >
                     Try a different email

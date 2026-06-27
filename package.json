@@ -1,6 +1,7 @@
 {
   "name": "vibe-message-workspace",
   "version": "1.0.0",
+  "type": "module",
   "private": true,
   "workspaces": [
     "apps/*",
@@ -18,12 +19,25 @@
     "preview:server": "npm run preview --workspace=apps/server",
     "preview:frontend": "npm run preview --workspace=apps/frontend",
     "preview:notification-demo": "npm run preview --workspace=apps/notification-demo",
-    "preview-all": "concurrently \"npm run preview:server\" \"npm run preview:frontend\" \"npm run preview:notification-demo\""
+    "preview-all": "concurrently \"npm run preview:server\" \"npm run preview:frontend\" \"npm run preview:notification-demo\"",
+    "lint": "eslint apps/frontend apps/server libs/sdk --ext .ts,.tsx,.js,.jsx",
+    "lint:fix": "eslint apps/frontend apps/server libs/sdk --ext .ts,.tsx,.js,.jsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\""
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.61.1",
+    "@typescript-eslint/parser": "^8.61.1",
     "baseline-browser-mapping": "^2.10.10",
     "concurrently": "^9.2.1",
-    "nx": "22.5.4"
+    "eslint": "^10.5.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^17.6.0",
+    "nx": "22.5.4",
+    "prettier": "^3.8.4",
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "@nest-lab/throttler-storage-redis": "^1.2.0",

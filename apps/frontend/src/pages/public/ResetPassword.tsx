@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
-import { motion } from "motion/react";
-import { useAppDispatch, useAppSelector } from "../../store/store";
-import { resetPassword, clearError } from "../../store/slices/authSlice";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { resetPassword, clearError } from '../../store/slices/authSlice';
 import {
   RiErrorWarningLine,
   RiEyeLine,
@@ -11,17 +11,17 @@ import {
   RiShieldCheckLine,
   RiArrowLeftLine,
   RiLockPasswordLine,
-} from "@remixicon/react";
+} from '@remixicon/react';
 
 export const ResetPassword: React.FC = () => {
   const [searchParams] = useSearchParams();
-  const token = searchParams.get("token") ?? "";
+  const token = searchParams.get('token') ?? '';
 
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [localError, setLocalError] = useState("");
+  const [localError, setLocalError] = useState('');
 
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -56,20 +56,20 @@ export const ResetPassword: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLocalError("");
+    setLocalError('');
 
     if (newPassword !== confirmPassword) {
-      setLocalError("Passwords do not match.");
+      setLocalError('Passwords do not match.');
       return;
     }
     if (newPassword.length < 6) {
-      setLocalError("Password must be at least 6 characters.");
+      setLocalError('Password must be at least 6 characters.');
       return;
     }
 
     const result = await dispatch(resetPassword({ token, newPassword }));
     if (resetPassword.fulfilled.match(result)) {
-      navigate("/login", { state: { passwordResetSuccess: true } });
+      navigate('/login', { state: { passwordResetSuccess: true } });
     }
   };
 
@@ -86,7 +86,7 @@ export const ResetPassword: React.FC = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { type: "spring" as const, stiffness: 300, damping: 24 },
+      transition: { type: 'spring' as const, stiffness: 300, damping: 24 },
     },
   };
 
@@ -100,12 +100,12 @@ export const ResetPassword: React.FC = () => {
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
             <motion.div
               animate={{ x: [0, 50, 0], y: [0, -50, 0], rotate: [0, 90, 0] }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
               className="absolute -top-20 -left-20 w-96 h-96 bg-violet-500/20 rounded-full blur-[80px]"
             />
             <motion.div
               animate={{ x: [0, -50, 0], y: [0, 50, 0], rotate: [0, -90, 0] }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
               className="absolute bottom-10 -right-10 w-80 h-80 bg-emerald-500/10 rounded-full blur-[60px]"
             />
           </div>
@@ -134,8 +134,8 @@ export const ResetPassword: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="text-lg text-theme-text-secondary leading-relaxed max-w-md"
             >
-              Pick a strong, unique password for your Vibe-message account. Once
-              set, the reset link will be invalidated automatically.
+              Pick a strong, unique password for your Vibe-message account. Once set, the reset link
+              will be invalidated automatically.
             </motion.p>
           </div>
 
@@ -145,21 +145,19 @@ export const ResetPassword: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="relative z-10 space-y-4 mt-12"
           >
-            {[
-              "Minimum 6 characters",
-              "Token used only once",
-              "Existing sessions unaffected",
-            ].map((feature, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-4 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/20 dark:border-slate-700/50 shadow-sm w-max"
-              >
-                <RiShieldCheckLine size={20} className="text-theme-success" />
-                <span className="font-bold text-theme-text-primary text-sm tracking-wide">
-                  {feature}
-                </span>
-              </div>
-            ))}
+            {['Minimum 6 characters', 'Token used only once', 'Existing sessions unaffected'].map(
+              (feature, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-4 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/20 dark:border-slate-700/50 shadow-sm w-max"
+                >
+                  <RiShieldCheckLine size={20} className="text-theme-success" />
+                  <span className="font-bold text-theme-text-primary text-sm tracking-wide">
+                    {feature}
+                  </span>
+                </div>
+              )
+            )}
           </motion.div>
         </div>
 
@@ -184,7 +182,7 @@ export const ResetPassword: React.FC = () => {
               {displayError && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
+                  animate={{ opacity: 1, height: 'auto' }}
                   className="bg-red-500/10 text-red-500 dark:text-red-400 p-4 rounded-2xl border border-red-500/20 text-sm font-bold flex items-center gap-3 backdrop-blur-md"
                 >
                   <RiErrorWarningLine size={20} className="shrink-0" />
@@ -196,7 +194,7 @@ export const ResetPassword: React.FC = () => {
                 {/* New Password */}
                 <motion.div variants={itemVariants} className="relative group">
                   <input
-                    type={showNew ? "text" : "password"}
+                    type={showNew ? 'text' : 'password'}
                     id="new-password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
@@ -218,7 +216,7 @@ export const ResetPassword: React.FC = () => {
                     type="button"
                     onClick={() => setShowNew(!showNew)}
                     className="absolute right-4 top-4 text-theme-text-muted hover:text-theme-primary-500 transition-colors focus:outline-none"
-                    aria-label={showNew ? "Hide password" : "Show password"}
+                    aria-label={showNew ? 'Hide password' : 'Show password'}
                   >
                     {showNew ? <RiEyeOffLine size={24} /> : <RiEyeLine size={24} />}
                   </button>
@@ -227,7 +225,7 @@ export const ResetPassword: React.FC = () => {
                 {/* Confirm Password */}
                 <motion.div variants={itemVariants} className="relative group">
                   <input
-                    type={showConfirm ? "text" : "password"}
+                    type={showConfirm ? 'text' : 'password'}
                     id="confirm-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
@@ -248,7 +246,7 @@ export const ResetPassword: React.FC = () => {
                     type="button"
                     onClick={() => setShowConfirm(!showConfirm)}
                     className="absolute right-4 top-4 text-theme-text-muted hover:text-theme-primary-500 transition-colors focus:outline-none"
-                    aria-label={showConfirm ? "Hide password" : "Show password"}
+                    aria-label={showConfirm ? 'Hide password' : 'Show password'}
                   >
                     {showConfirm ? <RiEyeOffLine size={24} /> : <RiEyeLine size={24} />}
                   </button>

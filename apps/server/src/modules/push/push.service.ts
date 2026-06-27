@@ -1,12 +1,12 @@
-import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, DataSource } from "typeorm";
-import { Notification as NotificationEntity } from "./notification.entity";
-import { NotificationLog as NotificationLogEntity } from "./notification_log.entity";
-import { DeviceToken as DeviceTokenEntity } from "../device/device_token.entity";
-import { NotificationPayload, PushSubscription } from "../../types";
-import { webpush } from "../../utils/webPush";
-import { RedisService } from "../redis/redis.service";
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, DataSource } from 'typeorm';
+import { Notification as NotificationEntity } from './notification.entity';
+import { NotificationLog as NotificationLogEntity } from './notification_log.entity';
+import { DeviceToken as DeviceTokenEntity } from '../device/device_token.entity';
+import { NotificationPayload, PushSubscription } from '../../types';
+import { webpush } from '../../utils/webPush';
+import { RedisService } from '../redis/redis.service';
 
 const RETRY_CONFIG = {
   maxRetries: 3,
@@ -15,13 +15,10 @@ const RETRY_CONFIG = {
   backoffMultiplier: 2,
 };
 
-const sleep = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getRetryDelay = (attempt: number): number => {
-  const delay =
-    RETRY_CONFIG.initialDelay *
-    Math.pow(RETRY_CONFIG.backoffMultiplier, attempt);
+  const delay = RETRY_CONFIG.initialDelay * Math.pow(RETRY_CONFIG.backoffMultiplier, attempt);
   return Math.min(delay, RETRY_CONFIG.maxDelay);
 };
 
@@ -34,11 +31,7 @@ const isRetryableError = (error: any): boolean => {
       return true;
     }
   }
-  if (
-    error.code === "ECONNRESET" ||
-    error.code === "ETIMEDOUT" ||
-    error.code === "ENOTFOUND"
-  ) {
+  if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT' || error.code === 'ENOTFOUND') {
     return true;
   }
   return false;
@@ -54,13 +47,13 @@ export class PushService {
     @InjectRepository(DeviceTokenEntity)
     private deviceTokenRepository: Repository<DeviceTokenEntity>,
     private dataSource: DataSource,
-    private redisService: RedisService,
+    private redisService: RedisService
   ) {}
 
   private async sendToDevice(
     subscription: PushSubscription,
     payload: string,
-    attempt: number = 0,
+    attempt: number = 0
   ): Promise<void> {
     try {
       await webpush.sendNotification(subscription as any, payload);
@@ -71,7 +64,7 @@ export class PushService {
       if (isRetryableError(error) && attempt < RETRY_CONFIG.maxRetries) {
         const delay = getRetryDelay(attempt);
         console.log(
-          `[Push Service] Retry attempt ${attempt + 1}/${RETRY_CONFIG.maxRetries} after ${delay}ms`,
+          `[Push Service] Retry attempt ${attempt + 1}/${RETRY_CONFIG.maxRetries} after ${delay}ms`
         );
         await sleep(delay);
         return this.sendToDevice(subscription, payload, attempt + 1);
@@ -84,7 +77,7 @@ export class PushService {
     appId: number,
     notification: NotificationPayload,
     targetUserIds?: string[],
-    scheduledAt?: Date | string,
+    scheduledAt?: Date | string
   ): Promise<{ notificationId: number; sent: number; failed: number; queued?: boolean }> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -108,12 +101,12 @@ export class PushService {
 
       // Enqueue job in Redis for async delivery
       await this.redisService.client.rpush(
-        "vibe:push_queue",
+        'vibe:push_queue',
         JSON.stringify({
           notificationId: savedNotification.id,
           appId,
           targetUserIds,
-        }),
+        })
       );
 
       return {
@@ -133,7 +126,7 @@ export class PushService {
   async executePushDelivery(
     notificationId: number,
     appId: number,
-    targetUserIds?: string[],
+    targetUserIds?: string[]
   ): Promise<{ sent: number; failed: number }> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -153,12 +146,12 @@ export class PushService {
       const notification: NotificationPayload = JSON.parse(savedNotification.payload_json);
 
       const queryBuilder = queryRunner.manager
-        .createQueryBuilder(DeviceTokenEntity, "dt")
-        .where("dt.app_id = :appId", { appId })
-        .andWhere("dt.is_active = true");
+        .createQueryBuilder(DeviceTokenEntity, 'dt')
+        .where('dt.app_id = :appId', { appId })
+        .andWhere('dt.is_active = true');
 
       if (targetUserIds && targetUserIds.length > 0) {
-        queryBuilder.andWhere("dt.external_user_id IN (:...targetUserIds)", {
+        queryBuilder.andWhere('dt.external_user_id IN (:...targetUserIds)', {
           targetUserIds,
         });
       }
@@ -183,7 +176,7 @@ export class PushService {
           const log = this.notificationLogRepository.create({
             notification_id: savedNotification.id,
             device_token_id: device.id,
-            status: "SENT",
+            status: 'SENT',
             sent_at: new Date(),
           });
           await queryRunner.manager.save(log);
@@ -192,16 +185,16 @@ export class PushService {
         } catch (error: any) {
           const errorCategory =
             error.statusCode === 410
-              ? "SUBSCRIPTION_EXPIRED"
+              ? 'SUBSCRIPTION_EXPIRED'
               : isRetryableError(error)
-                ? "TRANSIENT_ERROR"
-                : "PERMANENT_ERROR";
-          const errorMessage = `${errorCategory}: ${error.message || "Unknown error"}`;
+                ? 'TRANSIENT_ERROR'
+                : 'PERMANENT_ERROR';
+          const errorMessage = `${errorCategory}: ${error.message || 'Unknown error'}`;
 
           const log = this.notificationLogRepository.create({
             notification_id: savedNotification.id,
             device_token_id: device.id,
-            status: "FAILED",
+            status: 'FAILED',
             error_message: errorMessage,
             sent_at: new Date(),
           });
@@ -232,36 +225,35 @@ export class PushService {
     }
   }
 
-
-  async getNotificationLogs(
-    notificationId: number,
-  ): Promise<NotificationLogEntity[]> {
+  async getNotificationLogs(notificationId: number): Promise<NotificationLogEntity[]> {
     return this.notificationLogRepository.find({
       where: { notification_id: notificationId },
-      relations: ["device_token"],
-      order: { sent_at: "DESC" },
+      relations: ['device_token'],
+      order: { sent_at: 'DESC' },
     });
   }
 
   async getAppNotifications(
     appId: number,
     limit: number = 50,
-    scheduled: boolean = false,
+    scheduled: boolean = false
   ): Promise<NotificationEntity[]> {
     const now = new Date();
     if (scheduled) {
-      return this.notificationRepository.createQueryBuilder("n")
-        .where("n.app_id = :appId", { appId })
-        .andWhere("n.scheduled_at IS NOT NULL")
-        .andWhere("n.scheduled_at > :now", { now })
-        .orderBy("n.scheduled_at", "ASC")
+      return this.notificationRepository
+        .createQueryBuilder('n')
+        .where('n.app_id = :appId', { appId })
+        .andWhere('n.scheduled_at IS NOT NULL')
+        .andWhere('n.scheduled_at > :now', { now })
+        .orderBy('n.scheduled_at', 'ASC')
         .take(limit)
         .getMany();
     } else {
-      return this.notificationRepository.createQueryBuilder("n")
-        .where("n.app_id = :appId", { appId })
-        .andWhere("(n.scheduled_at IS NULL OR n.scheduled_at <= :now)", { now })
-        .orderBy("n.created_at", "DESC")
+      return this.notificationRepository
+        .createQueryBuilder('n')
+        .where('n.app_id = :appId', { appId })
+        .andWhere('(n.scheduled_at IS NULL OR n.scheduled_at <= :now)', { now })
+        .orderBy('n.created_at', 'DESC')
         .take(limit)
         .getMany();
     }

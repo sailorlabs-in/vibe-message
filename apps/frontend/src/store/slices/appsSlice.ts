@@ -19,32 +19,30 @@ const initialState: AppsState = {
 };
 
 // Async thunks
-export const fetchApps = createAsyncThunk<
-  App[],
-  number | undefined,
-  { rejectValue: string }
->('apps/fetchApps', async (userId, { rejectWithValue }) => {
-  try {
-    const url = userId ? `/apps?userId=${userId}` : '/apps';
-    const response = await ApiRequest(url, 'get');
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to fetch apps');
+export const fetchApps = createAsyncThunk<App[], number | undefined, { rejectValue: string }>(
+  'apps/fetchApps',
+  async (userId, { rejectWithValue }) => {
+    try {
+      const url = userId ? `/apps?userId=${userId}` : '/apps';
+      const response = await ApiRequest(url, 'get');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch apps');
+    }
   }
-});
+);
 
-export const fetchAppById = createAsyncThunk<
-  AppWithStats,
-  string,
-  { rejectValue: string }
->('apps/fetchAppById', async (id, { rejectWithValue }) => {
-  try {
-    const response = await ApiRequest(`/apps/${id}`, 'get');
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to fetch app');
+export const fetchAppById = createAsyncThunk<AppWithStats, string, { rejectValue: string }>(
+  'apps/fetchAppById',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await ApiRequest(`/apps/${id}`, 'get');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch app');
+    }
   }
-});
+);
 
 export const createNewApp = createAsyncThunk<
   App,
@@ -61,7 +59,15 @@ export const createNewApp = createAsyncThunk<
 
 export const updateExistingApp = createAsyncThunk<
   App,
-  { id: string; data: { name?: string; description?: string; is_active?: boolean; retention_days?: number | null } },
+  {
+    id: string;
+    data: {
+      name?: string;
+      description?: string;
+      is_active?: boolean;
+      retention_days?: number | null;
+    };
+  },
   { rejectValue: string }
 >('apps/updateApp', async ({ id, data }, { rejectWithValue }) => {
   try {
@@ -72,70 +78,67 @@ export const updateExistingApp = createAsyncThunk<
   }
 });
 
-export const rotateSecret = createAsyncThunk<
-  App,
-  string,
-  { rejectValue: string }
->('apps/rotateSecret', async (id, { rejectWithValue }) => {
-  try {
-    const response = await ApiRequest(`/apps/${id}/rotate-secret`, 'post');
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to rotate secret');
+export const rotateSecret = createAsyncThunk<App, string, { rejectValue: string }>(
+  'apps/rotateSecret',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await ApiRequest(`/apps/${id}/rotate-secret`, 'post');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to rotate secret');
+    }
   }
-});
+);
 
-export const removeApp = createAsyncThunk<
-  string,
-  string,
-  { rejectValue: string }
->('apps/deleteApp', async (id, { rejectWithValue }) => {
-  try {
-    await ApiRequest(`/apps/${id}`, 'delete');
-    return id;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to delete app');
+export const removeApp = createAsyncThunk<string, string, { rejectValue: string }>(
+  'apps/deleteApp',
+  async (id, { rejectWithValue }) => {
+    try {
+      await ApiRequest(`/apps/${id}`, 'delete');
+      return id;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete app');
+    }
   }
-});
+);
 
-export const unregisterAllAppDevices = createAsyncThunk<
-  string,
-  string,
-  { rejectValue: string }
->('apps/unregisterAllDevices', async (appId, { rejectWithValue }) => {
-  try {
-    await ApiRequest(`/apps/${appId}/subscribers`, 'delete');
-    return appId;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to unregister app devices');
+export const unregisterAllAppDevices = createAsyncThunk<string, string, { rejectValue: string }>(
+  'apps/unregisterAllDevices',
+  async (appId, { rejectWithValue }) => {
+    try {
+      await ApiRequest(`/apps/${appId}/subscribers`, 'delete');
+      return appId;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to unregister app devices');
+    }
   }
-});
+);
 
-export const clearAppNotifications = createAsyncThunk<
-  string,
-  string,
-  { rejectValue: string }
->('apps/clearAppNotifications', async (appId, { rejectWithValue }) => {
-  try {
-    await ApiRequest(`/apps/${appId}/notifications`, 'delete');
-    return appId;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to clear notification history');
+export const clearAppNotifications = createAsyncThunk<string, string, { rejectValue: string }>(
+  'apps/clearAppNotifications',
+  async (appId, { rejectWithValue }) => {
+    try {
+      await ApiRequest(`/apps/${appId}/notifications`, 'delete');
+      return appId;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Failed to clear notification history'
+      );
+    }
   }
-});
+);
 
-export const fetchAppMembers = createAsyncThunk<
-  AppMember[],
-  string,
-  { rejectValue: string }
->('apps/fetchAppMembers', async (appId, { rejectWithValue }) => {
-  try {
-    const response = await ApiRequest(`/apps/${appId}/members`, 'get');
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to fetch members');
+export const fetchAppMembers = createAsyncThunk<AppMember[], string, { rejectValue: string }>(
+  'apps/fetchAppMembers',
+  async (appId, { rejectWithValue }) => {
+    try {
+      const response = await ApiRequest(`/apps/${appId}/members`, 'get');
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch members');
+    }
   }
-});
+);
 
 export const shareApp = createAsyncThunk<
   AppMember,
@@ -242,7 +245,9 @@ const appsSlice = createSlice({
       })
       .addCase(updateExistingApp.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.apps.findIndex(app => app.public_app_id === action.payload.public_app_id);
+        const index = state.apps.findIndex(
+          (app) => app.public_app_id === action.payload.public_app_id
+        );
         if (index !== -1) {
           state.apps[index] = action.payload;
         }
@@ -263,7 +268,9 @@ const appsSlice = createSlice({
       })
       .addCase(rotateSecret.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.apps.findIndex(app => app.public_app_id === action.payload.public_app_id);
+        const index = state.apps.findIndex(
+          (app) => app.public_app_id === action.payload.public_app_id
+        );
         if (index !== -1) {
           state.apps[index] = action.payload;
         }
@@ -284,7 +291,7 @@ const appsSlice = createSlice({
       })
       .addCase(removeApp.fulfilled, (state, action) => {
         state.loading = false;
-        state.apps = state.apps.filter(app => app.public_app_id !== action.payload);
+        state.apps = state.apps.filter((app) => app.public_app_id !== action.payload);
         if (state.selectedApp && state.selectedApp.public_app_id === action.payload) {
           state.selectedApp = null;
         }
@@ -339,19 +346,17 @@ const appsSlice = createSlice({
       });
 
     // Update member role
-    builder
-      .addCase(updateAppMember.fulfilled, (state, action) => {
-        const index = state.members.findIndex(m => m.id === action.payload.userId);
-        if (index !== -1) {
-          state.members[index].role = action.payload.role;
-        }
-      });
+    builder.addCase(updateAppMember.fulfilled, (state, action) => {
+      const index = state.members.findIndex((m) => m.id === action.payload.userId);
+      if (index !== -1) {
+        state.members[index].role = action.payload.role;
+      }
+    });
 
     // Remove member
-    builder
-      .addCase(removeAppMember.fulfilled, (state, action) => {
-        state.members = state.members.filter(m => m.id !== action.payload);
-      });
+    builder.addCase(removeAppMember.fulfilled, (state, action) => {
+      state.members = state.members.filter((m) => m.id !== action.payload);
+    });
   },
 });
 

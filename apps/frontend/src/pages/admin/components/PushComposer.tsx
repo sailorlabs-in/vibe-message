@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import toast from "react-hot-toast";
-import ApiRequest from "../../../services/ApiRequest";
-import { RiLoader4Line, RiAlertLine } from "@remixicon/react";
-import { useAppSelector } from "../../../store/store";
-import { PushPreview } from "./PushPreview";
+import React, { useState } from 'react';
+import toast from 'react-hot-toast';
+import ApiRequest from '../../../services/ApiRequest';
+import { RiLoader4Line, RiAlertLine } from '@remixicon/react';
+import { useAppSelector } from '../../../store/store';
+import { PushPreview } from './PushPreview';
 
 interface PushComposerProps {
   appId: string;
@@ -11,39 +11,39 @@ interface PushComposerProps {
 
 export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
   const [loading, setLoading] = useState(false);
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [icon, setIcon] = useState("");
-  const [clickAction, setClickAction] = useState("");
-  const [customData, setCustomData] = useState("");
-  const [targetType, setTargetType] = useState<"all" | "specific">("all");
-  const [userIds, setUserIds] = useState("");
-  const [deliveryMode, setDeliveryMode] = useState<"immediate" | "scheduled">("immediate");
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [icon, setIcon] = useState('');
+  const [clickAction, setClickAction] = useState('');
+  const [customData, setCustomData] = useState('');
+  const [targetType, setTargetType] = useState<'all' | 'specific'>('all');
+  const [userIds, setUserIds] = useState('');
+  const [deliveryMode, setDeliveryMode] = useState<'immediate' | 'scheduled'>('immediate');
   const [scheduledDate, setScheduledDate] = useState(() => new Date().toLocaleDateString('en-CA'));
-  const [scheduledTime, setScheduledTime] = useState("09:00");
-  const [timezoneMode, setTimezoneMode] = useState<"local" | "utc">("local");
+  const [scheduledTime, setScheduledTime] = useState('09:00');
+  const [timezoneMode, setTimezoneMode] = useState<'local' | 'utc'>('local');
   const { selectedApp } = useAppSelector((state) => state.apps);
-  const appName = selectedApp?.name || "Vibe Message";
+  const appName = selectedApp?.name || 'Vibe Message';
 
-  const isViewer = selectedApp?.currentUserRole === "viewer";
+  const isViewer = selectedApp?.currentUserRole === 'viewer';
 
   const handleSendPush = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isViewer) return;
 
     if (!title.trim()) {
-      toast.error("Title is required");
+      toast.error('Title is required');
       return;
     }
 
     let parsedData: any = undefined;
     if (customData.trim()) {
       const trimmed = customData.trim();
-      if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
         try {
           parsedData = JSON.parse(trimmed);
-        } catch (err) {
-          toast.error("Invalid JSON syntax in Custom Data");
+        } catch {
+          toast.error('Invalid JSON syntax in Custom Data');
           return;
         }
       } else {
@@ -61,33 +61,33 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
       },
     };
 
-    if (targetType === "specific") {
+    if (targetType === 'specific') {
       const ids = userIds
-        .split(",")
+        .split(',')
         .map((id) => id.trim())
         .filter((id) => id.length > 0);
-      
+
       if (ids.length === 0) {
-        toast.error("Please enter at least one user ID");
+        toast.error('Please enter at least one user ID');
         return;
       }
       payload.targets = { externalUserIds: ids };
     }
 
-    if (deliveryMode === "scheduled") {
+    if (deliveryMode === 'scheduled') {
       if (!scheduledDate) {
-        toast.error("Scheduled date is required");
+        toast.error('Scheduled date is required');
         return;
       }
       if (!scheduledTime) {
-        toast.error("Scheduled time is required");
+        toast.error('Scheduled time is required');
         return;
       }
-      const [year, month, day] = scheduledDate.split("-").map(Number);
-      const [hours, minutes] = scheduledTime.split(":").map(Number);
-      
+      const [year, month, day] = scheduledDate.split('-').map(Number);
+      const [hours, minutes] = scheduledTime.split(':').map(Number);
+
       let targetDate: Date;
-      if (timezoneMode === "local") {
+      if (timezoneMode === 'local') {
         targetDate = new Date(year, month - 1, day, hours, minutes, 0);
       } else {
         targetDate = new Date(Date.UTC(year, month - 1, day, hours, minutes, 0));
@@ -95,7 +95,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
 
       const now = new Date();
       if (targetDate.getTime() < now.getTime()) {
-        toast.error("Scheduled date and time must be in the future");
+        toast.error('Scheduled date and time must be in the future');
         return;
       }
 
@@ -104,32 +104,33 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
 
     try {
       setLoading(true);
-      const response = await ApiRequest(`/apps/${appId}/push`, "post", payload);
-      
-      if (deliveryMode === "scheduled") {
-        const [year, month, day] = scheduledDate.split("-").map(Number);
-        const [hours, minutes] = scheduledTime.split(":").map(Number);
-        const targetDate = timezoneMode === "local"
-          ? new Date(year, month - 1, day, hours, minutes, 0)
-          : new Date(Date.UTC(year, month - 1, day, hours, minutes, 0));
+      const response = await ApiRequest(`/apps/${appId}/push`, 'post', payload);
+
+      if (deliveryMode === 'scheduled') {
+        const [year, month, day] = scheduledDate.split('-').map(Number);
+        const [hours, minutes] = scheduledTime.split(':').map(Number);
+        const targetDate =
+          timezoneMode === 'local'
+            ? new Date(year, month - 1, day, hours, minutes, 0)
+            : new Date(Date.UTC(year, month - 1, day, hours, minutes, 0));
         toast.success(`Message scheduled successfully at ${targetDate.toLocaleString()}`);
       } else {
-        toast.success(response.data?.message || "Push notification configured successfully");
+        toast.success(response.data?.message || 'Push notification configured successfully');
       }
 
       // Reset form on success
-      setTitle("");
-      setBody("");
-      setIcon("");
-      setClickAction("");
-      setCustomData("");
-      setUserIds("");
-      setDeliveryMode("immediate");
+      setTitle('');
+      setBody('');
+      setIcon('');
+      setClickAction('');
+      setCustomData('');
+      setUserIds('');
+      setDeliveryMode('immediate');
       setScheduledDate(new Date().toLocaleDateString('en-CA'));
-      setScheduledTime("09:00");
-      setTimezoneMode("local");
+      setScheduledTime('09:00');
+      setTimezoneMode('local');
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to send push notification");
+      toast.error(error.response?.data?.message || 'Failed to send push notification');
     } finally {
       setLoading(false);
     }
@@ -137,15 +138,14 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
 
   return (
     <div className="card">
-      <h2 className="text-xl font-semibold mb-6 text-theme-text-primary">
-        Send Push Notification
-      </h2>
+      <h2 className="text-xl font-semibold mb-6 text-theme-text-primary">Send Push Notification</h2>
 
       {isViewer && (
         <div className="bg-amber-50 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 p-4 rounded-lg text-sm border border-amber-200 dark:border-amber-900/30 mb-6 flex items-center gap-2">
           <RiAlertLine size={20} className="shrink-0" />
           <div>
-            <span className="font-semibold">Viewer Access:</span> You have read-only access to this app. Composing or sending push notifications is disabled.
+            <span className="font-semibold">Viewer Access:</span> You have read-only access to this
+            app. Composing or sending push notifications is disabled.
           </div>
         </div>
       )}
@@ -223,7 +223,8 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                   disabled={isViewer || loading}
                 />
                 <p className="text-xs text-theme-text-secondary mt-1">
-                  Custom data sent alongside the notification. Supports either a valid JSON object or a simple string.
+                  Custom data sent alongside the notification. Supports either a valid JSON object
+                  or a simple string.
                 </p>
               </div>
             </div>
@@ -238,8 +239,8 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                     type="radio"
                     name="deliveryMode"
                     value="immediate"
-                    checked={deliveryMode === "immediate"}
-                    onChange={() => setDeliveryMode("immediate")}
+                    checked={deliveryMode === 'immediate'}
+                    onChange={() => setDeliveryMode('immediate')}
                     className="text-theme-primary-500 focus:ring-theme-primary-500"
                     disabled={isViewer || loading}
                   />
@@ -250,8 +251,8 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                     type="radio"
                     name="deliveryMode"
                     value="scheduled"
-                    checked={deliveryMode === "scheduled"}
-                    onChange={() => setDeliveryMode("scheduled")}
+                    checked={deliveryMode === 'scheduled'}
+                    onChange={() => setDeliveryMode('scheduled')}
                     className="text-theme-primary-500 focus:ring-theme-primary-500"
                     disabled={isViewer || loading}
                   />
@@ -259,7 +260,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                 </label>
               </div>
 
-              {deliveryMode === "scheduled" && (
+              {deliveryMode === 'scheduled' && (
                 <div className="space-y-4 animate-in fade-in slide-in-from-top-2">
                   <div>
                     <label className="block text-sm font-medium mb-2 text-theme-text-primary">
@@ -268,24 +269,24 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                     <div className="inline-flex rounded-lg p-0.5 bg-theme-bg-secondary border border-theme-border">
                       <button
                         type="button"
-                        onClick={() => setTimezoneMode("local")}
+                        onClick={() => setTimezoneMode('local')}
                         disabled={isViewer || loading}
                         className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                          timezoneMode === "local"
-                            ? "bg-theme-primary-500 text-white shadow-sm"
-                            : "text-theme-text-secondary hover:text-theme-text-primary"
+                          timezoneMode === 'local'
+                            ? 'bg-theme-primary-500 text-white shadow-sm'
+                            : 'text-theme-text-secondary hover:text-theme-text-primary'
                         }`}
                       >
                         Local Time
                       </button>
                       <button
                         type="button"
-                        onClick={() => setTimezoneMode("utc")}
+                        onClick={() => setTimezoneMode('utc')}
                         disabled={isViewer || loading}
                         className={`px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
-                          timezoneMode === "utc"
-                            ? "bg-theme-primary-500 text-white shadow-sm"
-                            : "text-theme-text-secondary hover:text-theme-text-primary"
+                          timezoneMode === 'utc'
+                            ? 'bg-theme-primary-500 text-white shadow-sm'
+                            : 'text-theme-text-secondary hover:text-theme-text-primary'
                         }`}
                       >
                         UTC Time
@@ -323,9 +324,9 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                   </div>
 
                   <p className="text-xs text-theme-text-secondary">
-                    {timezoneMode === "local"
-                      ? "Message will be sent using your local timezone (translated to UTC for delivery)."
-                      : "Message will be sent using absolute UTC timezone."}
+                    {timezoneMode === 'local'
+                      ? 'Message will be sent using your local timezone (translated to UTC for delivery).'
+                      : 'Message will be sent using absolute UTC timezone.'}
                   </p>
                 </div>
               )}
@@ -345,8 +346,8 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                       type="radio"
                       name="targetMode"
                       value="all"
-                      checked={targetType === "all"}
-                      onChange={() => setTargetType("all")}
+                      checked={targetType === 'all'}
+                      onChange={() => setTargetType('all')}
                       className="text-theme-primary-500 focus:ring-theme-primary-500"
                       disabled={isViewer || loading}
                     />
@@ -357,8 +358,8 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                       type="radio"
                       name="targetMode"
                       value="specific"
-                      checked={targetType === "specific"}
-                      onChange={() => setTargetType("specific")}
+                      checked={targetType === 'specific'}
+                      onChange={() => setTargetType('specific')}
                       className="text-theme-primary-500 focus:ring-theme-primary-500"
                       disabled={isViewer || loading}
                     />
@@ -366,7 +367,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                   </label>
                 </div>
 
-                {targetType === "specific" && (
+                {targetType === 'specific' && (
                   <div className="animate-in fade-in slide-in-from-top-2">
                     <label className="block text-sm font-medium mb-2 text-theme-text-primary">
                       External User IDs (comma separated)
@@ -385,7 +386,7 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                   </div>
                 )}
               </div>
-              
+
               <div className="pt-6 border-t border-theme-border">
                 <button
                   type="submit"
@@ -395,24 +396,21 @@ export const PushComposer: React.FC<PushComposerProps> = ({ appId }) => {
                   {loading ? (
                     <span className="flex items-center justify-center gap-2">
                       <RiLoader4Line size={20} className="animate-spin" />
-                      {deliveryMode === "scheduled" ? "Scheduling..." : "Sending..."}
+                      {deliveryMode === 'scheduled' ? 'Scheduling...' : 'Sending...'}
                     </span>
+                  ) : deliveryMode === 'scheduled' ? (
+                    'Schedule Notification'
                   ) : (
-                    deliveryMode === "scheduled" ? "Schedule Notification" : "Send Notification"
+                    'Send Notification'
                   )}
                 </button>
               </div>
             </div>
           </div>
-            
+
           <div className="lg:col-span-5 relative mt-8 lg:mt-0">
             <div className="sticky top-6">
-              <PushPreview
-                title={title}
-                body={body}
-                icon={icon}
-                appName={appName}
-              />
+              <PushPreview title={title} body={body} icon={icon} appName={appName} />
             </div>
           </div>
         </div>

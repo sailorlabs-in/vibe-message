@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import { useAppDispatch, useAppSelector } from "../../../store/store";
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import { useAppDispatch, useAppSelector } from '../../../store/store';
 import {
   fetchAppMembers,
   shareApp,
   updateAppMember,
   removeAppMember,
-} from "../../../store/slices/appsSlice";
-import { TableSkeleton } from "../../../components/common/SkeletonLoader";
-import { RiUserSharedLine, RiDeleteBinLine, RiUserAddLine, RiRefreshLine } from "@remixicon/react";
-import { ConfirmModal } from "../../../components/common/ConfirmModal";
+} from '../../../store/slices/appsSlice';
+import { TableSkeleton } from '../../../components/common/SkeletonLoader';
+import { RiUserSharedLine, RiDeleteBinLine, RiUserAddLine, RiRefreshLine } from '@remixicon/react';
+import { ConfirmModal } from '../../../components/common/ConfirmModal';
 
 interface MembersProps {
   appId: string;
@@ -18,11 +18,11 @@ interface MembersProps {
 export const Members: React.FC<MembersProps> = ({ appId }) => {
   const dispatch = useAppDispatch();
   const { members, loading, selectedApp: app } = useAppSelector((state) => state.apps);
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState<"moderator" | "viewer">("viewer");
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState<'moderator' | 'viewer'>('viewer');
   const [inviteLoading, setInviteLoading] = useState(false);
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
-  
+
   // Custom Modal States
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<{ id: number; name: string } | null>(null);
@@ -40,24 +40,24 @@ export const Members: React.FC<MembersProps> = ({ appId }) => {
       const result = await dispatch(shareApp({ appId, email: email.trim(), role }));
       if (shareApp.fulfilled.match(result)) {
         toast.success(`App shared successfully with ${email}`);
-        setEmail("");
-        setRole("viewer");
+        setEmail('');
+        setRole('viewer');
       } else {
-        toast.error(result.payload || "Failed to share app");
+        toast.error(result.payload || 'Failed to share app');
       }
     } finally {
       setInviteLoading(false);
     }
   };
 
-  const handleRoleChange = async (userId: number, newRole: "moderator" | "viewer") => {
+  const handleRoleChange = async (userId: number, newRole: 'moderator' | 'viewer') => {
     setActionLoadingId(userId);
     try {
       const result = await dispatch(updateAppMember({ appId, userId, role: newRole }));
       if (updateAppMember.fulfilled.match(result)) {
-        toast.success("Member role updated successfully");
+        toast.success('Member role updated successfully');
       } else {
-        toast.error(result.payload || "Failed to update role");
+        toast.error(result.payload || 'Failed to update role');
       }
     } finally {
       setActionLoadingId(null);
@@ -71,7 +71,7 @@ export const Members: React.FC<MembersProps> = ({ appId }) => {
 
   const handleRemoveConfirm = async () => {
     if (!memberToRemove) return;
-    
+
     const { id: userId, name: memberName } = memberToRemove;
     setActionLoadingId(userId);
     try {
@@ -79,7 +79,7 @@ export const Members: React.FC<MembersProps> = ({ appId }) => {
       if (removeAppMember.fulfilled.match(result)) {
         toast.success(`${memberName} removed successfully`);
       } else {
-        toast.error(result.payload || "Failed to remove member");
+        toast.error(result.payload || 'Failed to remove member');
       }
     } finally {
       setActionLoadingId(null);
@@ -89,7 +89,7 @@ export const Members: React.FC<MembersProps> = ({ appId }) => {
   };
 
   // Determine permissions
-  const isOwnerOrSuper = app?.currentUserRole === "owner" || app?.currentUserRole === "superadmin";
+  const isOwnerOrSuper = app?.currentUserRole === 'owner' || app?.currentUserRole === 'superadmin';
 
   return (
     <div className="space-y-6">
@@ -101,7 +101,8 @@ export const Members: React.FC<MembersProps> = ({ appId }) => {
             Share App Access
           </h2>
           <p className="text-sm text-theme-text-secondary mb-6">
-            Grant other registered users access to this application. Choose their role carefully to restrict permissions.
+            Grant other registered users access to this application. Choose their role carefully to
+            restrict permissions.
           </p>
           <form onSubmit={handleShare} className="grid md:grid-cols-4 gap-4 items-end">
             <div className="md:col-span-2">
@@ -139,7 +140,7 @@ export const Members: React.FC<MembersProps> = ({ appId }) => {
                 className="btn-primary w-full h-11 flex items-center justify-center gap-2 font-medium"
               >
                 <RiUserSharedLine size={18} />
-                {inviteLoading ? "Sharing..." : "Share Access"}
+                {inviteLoading ? 'Sharing...' : 'Share Access'}
               </button>
             </div>
           </form>
@@ -177,7 +178,7 @@ export const Members: React.FC<MembersProps> = ({ appId }) => {
               </thead>
               <tbody>
                 {members.map((member) => {
-                  const isMemberOwner = member.role === "owner";
+                  const isMemberOwner = member.role === 'owner';
                   return (
                     <tr
                       key={member.id}
@@ -207,9 +208,9 @@ export const Members: React.FC<MembersProps> = ({ appId }) => {
                         ) : (
                           <span
                             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${
-                              member.role === "moderator"
-                                ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800/50"
-                                : "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700"
+                              member.role === 'moderator'
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 border-green-200 dark:border-green-800/50'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-400 border-gray-200 dark:border-gray-700'
                             }`}
                           >
                             {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
@@ -249,7 +250,7 @@ export const Members: React.FC<MembersProps> = ({ appId }) => {
         onConfirm={handleRemoveConfirm}
         loading={actionLoadingId !== null}
         title="Remove Collaborator?"
-        description={`Are you sure you want to remove ${memberToRemove?.name || "this collaborator"} from this app? They will lose all access immediately.`}
+        description={`Are you sure you want to remove ${memberToRemove?.name || 'this collaborator'} from this app? They will lose all access immediately.`}
         confirmLabel="Yes, Remove"
         confirmingLabel="Removing..."
         variant="danger"
