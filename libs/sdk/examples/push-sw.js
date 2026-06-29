@@ -87,14 +87,15 @@ self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
   const urlToOpen = event.notification.data?.click_action || "/";
+  const absoluteUrl = new URL(urlToOpen, self.location.origin).href;
 
   event.waitUntil(
     self.clients
       .matchAll({ type: "window", includeUncontrolled: true })
       .then((clientList) => {
-        // Check if there's already a window open with this URL
+        // 1. Try to find a window with the exact URL
         for (const client of clientList) {
-          if (client.url === urlToOpen && "focus" in client) {
+          if (client.url === absoluteUrl && "focus" in client) {
             // Send background message callback
             client.postMessage({
               type: "BACKGROUND_MESSAGE",
@@ -104,9 +105,22 @@ self.addEventListener("notificationclick", (event) => {
           }
         }
 
-        // If not, open a new window
+        // 2. If no exact match, try to find any open window under the same origin/scope
+        for (const client of clientList) {
+          if ("focus" in client && "navigate" in client) {
+            // Send background message callback
+            client.postMessage({
+              type: "BACKGROUND_MESSAGE",
+              payload: event.notification.data,
+            });
+            client.navigate(absoluteUrl);
+            return client.focus();
+          }
+        }
+
+        // 3. If no window is open, open a new one
         if (self.clients.openWindow) {
-          return self.clients.openWindow(urlToOpen).then((client) => {
+          return self.clients.openWindow(absoluteUrl).then((client) => {
             if (client) {
               // Send background message to new window
               client.postMessage({
