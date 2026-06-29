@@ -90,7 +90,7 @@ export interface NotificationPayload {
   silent?: boolean;
 }
 
-export type NotificationLogStatus = 'PENDING' | 'SENT' | 'FAILED';
+export type NotificationLogStatus = 'PENDING' | 'SENT' | 'FAILED' | 'DELIVERED';
 
 export interface NotificationLog {
   id: number;

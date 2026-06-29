@@ -140,10 +140,10 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
 
         <MenuDivider />
 
-        {user.status !== 'APPROVED' && (
+        {user.status === 'BANNED' && (
           <MenuItem
             icon={<RiCheckboxCircleLine size={16} />}
-            label="Approve User"
+            label="Unban User"
             variant="success"
             disabled={isSelf}
             onClick={() => {

@@ -15,6 +15,7 @@ import { License } from './pages/public/License';
 import { TermsOfService } from './pages/public/TermsOfService';
 import { ForgotPassword } from './pages/public/ForgotPassword';
 import { ResetPassword } from './pages/public/ResetPassword';
+import { VerifyEmail } from './pages/public/VerifyEmail';
 
 // Admin pages
 import { Dashboard } from './pages/admin/Dashboard';
@@ -46,6 +47,7 @@ const AppContent: React.FC = () => {
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
 
           {/* Protected routes */}
           <Route

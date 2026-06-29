@@ -167,19 +167,29 @@ export class PushService {
       let failedCount = 0;
 
       const sendPromises = devices.map(async (device) => {
+        let savedLog: NotificationLogEntity | null = null;
         try {
-          const subscription = JSON.parse(device.subscription_json);
-          const payload = JSON.stringify(notification);
-
-          await this.sendToDevice(subscription, payload);
-
           const log = this.notificationLogRepository.create({
             notification_id: savedNotification.id,
             device_token_id: device.id,
-            status: 'SENT',
-            sent_at: new Date(),
+            status: 'PENDING',
           });
-          await queryRunner.manager.save(log);
+          savedLog = await queryRunner.manager.save(log);
+
+          const subscription = JSON.parse(device.subscription_json);
+          
+          // Inject the log ID as metadata into the payload so clients/SDK can report back
+          const payloadWithMeta = {
+            ...notification,
+            notificationLogId: savedLog.id,
+          };
+          const payload = JSON.stringify(payloadWithMeta);
+
+          await this.sendToDevice(subscription, payload);
+
+          savedLog.status = 'SENT';
+          savedLog.sent_at = new Date();
+          await queryRunner.manager.save(savedLog);
 
           sentCount++;
         } catch (error: any) {
@@ -191,14 +201,21 @@ export class PushService {
                 : 'PERMANENT_ERROR';
           const errorMessage = `${errorCategory}: ${error.message || 'Unknown error'}`;
 
-          const log = this.notificationLogRepository.create({
-            notification_id: savedNotification.id,
-            device_token_id: device.id,
-            status: 'FAILED',
-            error_message: errorMessage,
-            sent_at: new Date(),
-          });
-          await queryRunner.manager.save(log);
+          if (savedLog) {
+            savedLog.status = 'FAILED';
+            savedLog.error_message = errorMessage;
+            savedLog.sent_at = new Date();
+            await queryRunner.manager.save(savedLog);
+          } else {
+            const log = this.notificationLogRepository.create({
+              notification_id: savedNotification.id,
+              device_token_id: device.id,
+              status: 'FAILED',
+              error_message: errorMessage,
+              sent_at: new Date(),
+            });
+            await queryRunner.manager.save(log);
+          }
 
           failedCount++;
 
@@ -265,5 +282,16 @@ export class PushService {
 
   async clearAppNotifications(appId: number): Promise<void> {
     await this.notificationRepository.delete({ app_id: appId });
+  }
+
+  async updateLogStatus(
+    logId: number,
+    status: 'DELIVERED' | 'FAILED',
+    errorMessage?: string
+  ): Promise<void> {
+    await this.notificationLogRepository.update(logId, {
+      status,
+      error_message: errorMessage || null,
+    });
   }
 }

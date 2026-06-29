@@ -143,11 +143,19 @@ export class NotificationClient {
     const swPath = options.serviceWorkerPath || '/push-sw.js';
     const swScope = options.serviceWorkerScope || '/';
 
+    // Append baseUrl to swPath query parameters so the SW can access it
+    let swPathWithParams = swPath;
+    if (swPath.includes('?')) {
+      swPathWithParams += `&baseUrl=${encodeURIComponent(this.baseUrl)}`;
+    } else {
+      swPathWithParams += `?baseUrl=${encodeURIComponent(this.baseUrl)}`;
+    }
+
     let registration: ServiceWorkerRegistration;
     try {
       // updateViaCache: 'none' forces the browser to bypass its HTTP cache for the SW script,
       // which fixes macOS Chrome's "unknown error occurred when fetching the script" issue
-      registration = await navigator.serviceWorker.register(swPath, {
+      registration = await navigator.serviceWorker.register(swPathWithParams, {
         scope: swScope,
         updateViaCache: 'none',
         type: 'classic',
@@ -168,9 +176,9 @@ export class NotificationClient {
 
       // Mac Chrome sometimes maintains a corrupted cache entry for the exact URL
       // that even updateViaCache: 'none' doesn't bypass. Append a cache-buster:
-      const cacheBuster = swPath.includes('?') ? `&t=${Date.now()}` : `?t=${Date.now()}`;
+      const cacheBuster = `&t=${Date.now()}`;
 
-      registration = await navigator.serviceWorker.register(swPath + cacheBuster, {
+      registration = await navigator.serviceWorker.register(swPathWithParams + cacheBuster, {
         scope: swScope,
         updateViaCache: 'none',
         type: 'classic',

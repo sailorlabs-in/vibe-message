@@ -36,6 +36,11 @@ export interface PasswordResetData {
   resetUrl: string;
 }
 
+export interface EmailVerificationData {
+  name: string;
+  verifyUrl: string;
+}
+
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
@@ -221,6 +226,18 @@ export class MailService {
     await this.sendMail({
       to,
       subject: 'Reset Your Vibe-message Password',
+      html,
+    });
+  }
+
+  async sendEmailVerificationEmail(to: string, data: EmailVerificationData): Promise<void> {
+    const html = await this.renderTemplate('verify-email', {
+      name: data.name,
+      verifyUrl: data.verifyUrl,
+    });
+    await this.sendMail({
+      to,
+      subject: 'Verify Your Vibe-message Email Address',
       html,
     });
   }

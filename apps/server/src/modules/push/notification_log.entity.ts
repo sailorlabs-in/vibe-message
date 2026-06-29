@@ -24,7 +24,7 @@ export class NotificationLog {
   device_token!: DeviceToken;
 
   @Column({ length: 20 })
-  status!: 'PENDING' | 'SENT' | 'FAILED';
+  status!: 'PENDING' | 'SENT' | 'FAILED' | 'DELIVERED';
 
   @Column({ name: 'error_message', type: 'text', nullable: true })
   error_message!: string | null;

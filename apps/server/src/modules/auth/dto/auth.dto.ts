@@ -63,3 +63,15 @@ export class ResetPasswordDto {
   @MinLength(6)
   newPassword!: string;
 }
+
+export class VerifyEmailDto {
+  @ApiProperty()
+  @IsString()
+  token!: string;
+}
+
+export class ResendVerificationDto {
+  @ApiProperty()
+  @IsEmail()
+  email!: string;
+}

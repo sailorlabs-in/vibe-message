@@ -12,7 +12,7 @@ interface AuthState {
 const initialState: AuthState = {
   user: null,
   token: localStorage.getItem('token'),
-  loading: false,
+  loading: !!localStorage.getItem('token'),
   error: null,
 };
 
@@ -179,6 +179,9 @@ const authSlice = createSlice({
       .addCase(getCurrentUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to fetch user';
+        state.user = null;
+        state.token = null;
+        localStorage.removeItem('token');
       });
 
     // Update profile

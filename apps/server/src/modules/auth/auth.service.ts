@@ -73,12 +73,22 @@ export class AuthService {
 
     const token = this.generateToken(user);
 
+    // Send email verification
+    const VERIFICATION_TOKEN_PREFIX = 'email_verify:';
+    const VERIFICATION_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 hours
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const redisKey = `${VERIFICATION_TOKEN_PREFIX}${verifyToken}`;
+    await this.redisService.client.set(redisKey, String(user.id), 'EX', VERIFICATION_TOKEN_TTL_SECONDS);
+
+    const verifyUrl = `${config.frontendUrl}/verify-email?token=${verifyToken}`;
+
     try {
-      this.internalNotificationService
-        .notifySuperAdminNewUser(name, email)
-        .catch((err: any) => console.error('Failed to send new user notification:', err));
-    } catch {
-      //error
+      await this.mailService.sendEmailVerificationEmail(user.email, {
+        name: user.name,
+        verifyUrl,
+      });
+    } catch (err) {
+      console.error('Failed to send email verification email:', err);
     }
 
     return { token, user: this.userToResponse(user) };
@@ -184,5 +194,60 @@ export class AuthService {
 
     // Invalidate the token immediately after use
     await this.redisService.client.del(redisKey);
+  }
+
+  async verifyEmail(token: string): Promise<UserResponse> {
+    const VERIFICATION_TOKEN_PREFIX = 'email_verify:';
+    const redisKey = `${VERIFICATION_TOKEN_PREFIX}${token}`;
+    const userIdStr = await this.redisService.client.get(redisKey);
+
+    if (!userIdStr) {
+      throw new BadRequestException(
+        'Invalid or expired email verification token. Please request a new verification link.'
+      );
+    }
+
+    const userId = parseInt(userIdStr, 10);
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Set user status to APPROVED since they verified their email successfully
+    user.status = 'APPROVED';
+    await this.userRepository.save(user);
+
+    // Invalidate the verification token
+    await this.redisService.client.del(redisKey);
+
+    return this.userToResponse(user);
+  }
+
+  async resendVerificationEmail(email: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    if (user.status !== 'PENDING') {
+      throw new BadRequestException('Account is already verified or banned');
+    }
+
+    const VERIFICATION_TOKEN_PREFIX = 'email_verify:';
+    const VERIFICATION_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 hours
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const redisKey = `${VERIFICATION_TOKEN_PREFIX}${verifyToken}`;
+    await this.redisService.client.set(redisKey, String(user.id), 'EX', VERIFICATION_TOKEN_TTL_SECONDS);
+
+    const verifyUrl = `${config.frontendUrl}/verify-email?token=${verifyToken}`;
+
+    try {
+      await this.mailService.sendEmailVerificationEmail(user.email, {
+        name: user.name,
+        verifyUrl,
+      });
+    } catch (err) {
+      console.error('Failed to send email verification email:', err);
+      throw new BadRequestException('Failed to send verification email');
+    }
   }
 }

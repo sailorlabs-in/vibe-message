@@ -18,7 +18,7 @@ interface Notification {
 
 interface NotificationLog {
   id: number;
-  status: 'PENDING' | 'SENT' | 'FAILED';
+  status: 'PENDING' | 'SENT' | 'FAILED' | 'DELIVERED';
   error_message: string | null;
   sent_at: string;
   device_token_id: number;
@@ -227,7 +227,7 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
                         {payloadObj.body || '{ No body }'}
                       </div>
                     </td>
-                    <td className="p-4 align-top text-sm text-theme-text-secondary whitespace-nowrap">
+                    <td className="p-4 align-top text-sm text-theme-text-secondary max-w-[250px] break-all">
                       {(() => {
                         if (!notif.target_user_ids) return 'All Subscribers';
                         try {
@@ -299,9 +299,15 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
                               <div className="flex gap-4 mb-4 text-sm">
                                 <div className="px-3 py-1.5 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg">
                                   <span className="font-bold">
-                                    {logs.filter((l) => l.status === 'SENT').length}
+                                    {logs.filter((l) => l.status === 'DELIVERED').length}
                                   </span>{' '}
                                   Delivered
+                                </div>
+                                <div className="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg">
+                                  <span className="font-bold">
+                                    {logs.filter((l) => l.status === 'SENT').length}
+                                  </span>{' '}
+                                  Sent
                                 </div>
                                 <div className="px-3 py-1.5 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg">
                                   <span className="font-bold">
@@ -367,8 +373,13 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
                                           )}
                                         </td>
                                         <td className="px-4 py-2">
-                                          {log.status === 'SENT' && (
+                                          {log.status === 'DELIVERED' && (
                                             <span className="text-green-600 dark:text-green-400 font-medium text-xs">
+                                              ● Delivered
+                                            </span>
+                                          )}
+                                          {log.status === 'SENT' && (
+                                            <span className="text-blue-600 dark:text-blue-400 font-medium text-xs">
                                               ● Sent
                                             </span>
                                           )}
