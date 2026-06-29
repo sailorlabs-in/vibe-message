@@ -204,7 +204,7 @@ const result = await vibe.notification({
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
       }}
-      className="max-w-7xl mx-auto px-4 py-8"
+      className="max-w-5xl mx-auto px-4 py-8"
     >
       <motion.div variants={fadeUpVariants} className="flex justify-between items-start mb-8">
         <div className="flex-1">

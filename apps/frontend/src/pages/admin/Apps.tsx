@@ -60,7 +60,7 @@ export const Apps: React.FC = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-5xl mx-auto px-4 py-8">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -68,7 +68,7 @@ export const Apps: React.FC = () => {
         className="flex justify-between items-center mb-8"
       >
         <div>
-          <h1 className="text-3xl font-bold text-theme-text-primary">
+          <h1 className="text-2xl font-bold text-theme-text-primary">
             {userId ? `Apps for User #${userId}` : 'My Apps'}
           </h1>
           {userId && (

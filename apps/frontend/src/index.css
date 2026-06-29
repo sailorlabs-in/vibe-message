@@ -76,7 +76,7 @@
 
   /* Premium Buttons */
   .btn {
-    @apply px-6 py-3 rounded-xl font-bold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95;
+    @apply px-5 py-2 rounded-xl font-bold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95 text-sm;
   }
 
   .btn-primary {
@@ -93,7 +93,7 @@
 
   /* Premium Inputs — applies to both input and textarea */
   .input {
-    @apply w-full px-5 py-3.5 bg-white dark:bg-slate-800 backdrop-blur-sm text-theme-text-primary border border-theme-border rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:border-theme-primary-500;
+    @apply w-full px-4 py-2 bg-white dark:bg-slate-800 backdrop-blur-sm text-theme-text-primary border border-theme-border rounded-xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed hover:border-theme-primary-500 text-sm;
   }
 
   /* Fix disabled inputs — ensure text doesn't clash with the floating label */
@@ -111,11 +111,11 @@
 
   /* Bento Grid Cards */
   .card {
-    @apply bg-black/5 dark:bg-white/5 backdrop-blur-2xl rounded-3xl shadow-sm border border-theme-border p-8 transition-colors duration-300 relative overflow-hidden;
+    @apply bg-black/5 dark:bg-white/5 backdrop-blur-2xl rounded-2xl shadow-sm border border-theme-border p-6 transition-colors duration-300 relative overflow-hidden;
   }
 
   .card-2 {
-    @apply bg-slate-200/5 dark:bg-white/5 backdrop-blur-2xl rounded-3xl shadow-sm border border-theme-border p-8 transition-colors duration-300 relative overflow-hidden;
+    @apply bg-slate-200/5 dark:bg-white/5 backdrop-blur-2xl rounded-2xl shadow-sm border border-theme-border p-6 transition-colors duration-300 relative overflow-hidden;
   }
 }
 

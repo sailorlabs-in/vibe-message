@@ -138,7 +138,7 @@ export const Users: React.FC = () => {
   if (loading && users.length === 0) return <UsersSkeleton />;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
@@ -146,7 +146,7 @@ export const Users: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="mb-8"
       >
-        <h1 className="text-4xl font-display font-extrabold text-theme-text-primary tracking-tight">
+        <h1 className="text-2xl font-display font-extrabold text-theme-text-primary tracking-tight">
           User Management
         </h1>
         <p className="text-theme-text-secondary mt-2">

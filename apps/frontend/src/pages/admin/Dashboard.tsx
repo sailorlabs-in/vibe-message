@@ -55,7 +55,7 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-[calc(100vh-120px)] relative overflow-hidden transition-colors duration-300 px-4 py-8">
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="max-w-5xl mx-auto relative z-10">
         {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -68,7 +68,7 @@ export const Dashboard: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-theme-primary-500 flex items-center justify-center shadow-inner">
                 <RiDashboardLine size={24} />
               </div>
-              <h1 className="text-4xl sm:text-5xl font-black tracking-tight drop-shadow-sm text-transparent bg-clip-text bg-gradient-to-r from-theme-text-primary to-theme-primary-500">
+              <h1 className="text-2xl sm:text-3xl font-black tracking-tight drop-shadow-sm text-transparent bg-clip-text bg-gradient-to-r from-theme-text-primary to-theme-primary-500">
                 Dashboard
               </h1>
             </div>
@@ -97,9 +97,9 @@ export const Dashboard: React.FC = () => {
           {/* Card 1: App Limit */}
           <motion.div
             variants={itemVariants}
-            className="backdrop-blur-3xl bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 rounded-[2.5rem] shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-8 transform hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group cursor-pointer"
+            className="backdrop-blur-3xl bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-6 transform hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group cursor-pointer"
           >
-            <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl rounded-[3rem]" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl rounded-2xl" />
             <div className="absolute -right-10 -top-10 w-40 h-40 bg-violet-500/10 rounded-full blur-3xl group-hover:scale-150 group-hover:bg-violet-500/20 transition-all duration-500"></div>
 
             <div className="relative z-10">
@@ -144,9 +144,9 @@ export const Dashboard: React.FC = () => {
           {/* Card 2: Active Apps */}
           <motion.div
             variants={itemVariants}
-            className="backdrop-blur-3xl bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 rounded-[2.5rem] shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-8 transform hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group cursor-pointer"
+            className="backdrop-blur-3xl bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-6 transform hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group cursor-pointer"
           >
-            <div className="absolute -inset-1 bg-gradient-to-r from-green-300/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl rounded-[3rem]" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-green-300/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl rounded-2xl" />
             <div className="absolute -right-6 -bottom-6 w-40 h-40 bg-green-300/10 rounded-full blur-3xl group-hover:scale-150 group-hover:bg-green-300/20 transition-all duration-500"></div>
 
             <div className="relative z-10 flex flex-col h-full">
@@ -171,7 +171,7 @@ export const Dashboard: React.FC = () => {
           {/* Card 3: Quick Actions Dashboard */}
           <motion.div
             variants={itemVariants}
-            className="backdrop-blur-3xl bg-violet-500/5 dark:bg-violet-500/10 border border-violet-500/30 rounded-[2.5rem] shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-8 transform hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center relative overflow-hidden group"
+            className="backdrop-blur-3xl bg-violet-500/5 dark:bg-violet-500/10 border border-violet-500/30 rounded-2xl shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-6 transform hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center relative overflow-hidden group"
           >
             <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-violet-500/5 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="absolute -top-24 -left-24 w-64 h-64 bg-violet-500/20 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
@@ -202,9 +202,9 @@ export const Dashboard: React.FC = () => {
           initial={{ opacity: 0, scale: 0.98, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
-          className="backdrop-blur-3xl bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/50 rounded-[2.5rem] shadow-2xl dark:shadow-[0_10px_50px_rgba(0,0,0,0.5)] overflow-hidden"
+          className="backdrop-blur-3xl bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-2xl dark:shadow-[0_10px_50px_rgba(0,0,0,0.5)] overflow-hidden"
         >
-          <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-700/50 flex justify-between items-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
+          <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 flex justify-between items-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-violet-500/10 text-theme-primary-500 flex items-center justify-center">
                 <RiSmartphoneLine size={18} />
