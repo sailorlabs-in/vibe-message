@@ -4,9 +4,9 @@ import ApiRequest from '../../services/ApiRequest';
 // ── Types ────────────────────────────────────────────────────────────────────
 
 export interface DripStepPayload {
-  id: string;          // local UI id (string date / uuid)
+  id: string; // local UI id (string date / uuid)
   dayDelay: number;
-  time: string;        // "HH:MM"
+  time: string; // "HH:MM"
   title: string;
   body: string;
 }
@@ -36,7 +36,7 @@ const initialState: DripCampaignState = {
 /** Fetch the active drip campaign for an app (by public_app_id) */
 export const fetchDripCampaign = createAsyncThunk<
   DripCampaignState | null,
-  string,         // publicAppId
+  string, // publicAppId
   { rejectValue: string }
 >('drip/fetchDripCampaign', async (publicAppId, { rejectWithValue }) => {
   try {
@@ -47,7 +47,11 @@ export const fetchDripCampaign = createAsyncThunk<
     // Map DB drip_steps -> DripStepPayload
     const steps: DripStepPayload[] = (data.steps ?? []).map((s: any, idx: number) => {
       let payload: { title?: string; body?: string } = {};
-      try { payload = JSON.parse(s.notification_payload_json); } catch {}
+      try {
+        payload = JSON.parse(s.notification_payload_json);
+      } catch {
+        //error
+      }
       return {
         id: String(s.id ?? idx),
         dayDelay: s.delay_days ?? 0,
@@ -92,7 +96,9 @@ export const saveDripCampaign = createAsyncThunk<
     const data = response.data;
     const mappedSteps: DripStepPayload[] = (data.steps ?? []).map((s: any, idx: number) => {
       let payload: { title?: string; body?: string } = {};
-      try { payload = JSON.parse(s.notification_payload_json); } catch {}
+      try {
+        payload = JSON.parse(s.notification_payload_json);
+      } catch {}
       return {
         id: String(s.id ?? idx),
         dayDelay: s.delay_days ?? 0,

@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import { useAuth } from "../../context/AuthContext";
-import { useNotifications } from "../../context/NotificationContext";
-import { useAppDispatch, useAppSelector } from "../../store/store";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../context/NotificationContext';
+import { useAppDispatch, useAppSelector } from '../../store/store';
 import {
   updateUserProfile,
   changeUserPassword,
   deleteUserAccount,
-} from "../../store/slices/authSlice";
-import { unregisterAllSystemDevices } from "../../store/slices/adminSlice";
-import { systemService } from "../../services/systemService";
-import { ConfirmModal } from "../../components/common/ConfirmModal";
-import { motion, AnimatePresence } from "motion/react";
+} from '../../store/slices/authSlice';
+import { unregisterAllSystemDevices } from '../../store/slices/adminSlice';
+import { systemService } from '../../services/systemService';
+import { ConfirmModal } from '../../components/common/ConfirmModal';
+import { motion, AnimatePresence } from 'motion/react';
 import {
   RiEyeLine,
   RiEyeOffLine,
@@ -25,7 +25,7 @@ import {
   RiShieldKeyholeLine,
   RiUser3Line,
   RiSettings3Line,
-} from "@remixicon/react";
+} from '@remixicon/react';
 
 // ─── Reusable floating-label input ────────────────────────────────────────────
 const FloatingInput = ({
@@ -33,7 +33,7 @@ const FloatingInput = ({
   label,
   value,
   onChange,
-  type = "text",
+  type = 'text',
   disabled = false,
   required = false,
   minLength,
@@ -59,7 +59,7 @@ const FloatingInput = ({
       required={required}
       minLength={minLength}
       placeholder={label}
-      className={`w-full px-5 py-4 ${rightSlot ? "pr-12" : ""} bg-white dark:bg-slate-800 text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all placeholder-transparent peer disabled:opacity-60 disabled:cursor-not-allowed`}
+      className={`w-full px-5 py-4 ${rightSlot ? 'pr-12' : ''} bg-white dark:bg-slate-800 text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-2 focus:ring-theme-primary-500 focus:border-transparent transition-all placeholder-transparent peer disabled:opacity-60 disabled:cursor-not-allowed`}
     />
     {/* Label — always floated when disabled (disabled inputs always show a value) */}
     <label
@@ -67,15 +67,13 @@ const FloatingInput = ({
       className={`absolute left-5 px-1 rounded pointer-events-none text-theme-text-secondary transition-all bg-theme-bg-secondary
         ${
           disabled
-            ? "-top-2.5 text-xs"
-            : "top-4 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-theme-primary-500 peer-focus:bg-theme-bg-secondary peer-valid:-top-2.5 peer-valid:text-xs peer-valid:bg-theme-bg-secondary"
+            ? '-top-2.5 text-xs'
+            : 'top-4 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:top-4 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-theme-primary-500 peer-focus:bg-theme-bg-secondary peer-valid:-top-2.5 peer-valid:text-xs peer-valid:bg-theme-bg-secondary'
         }`}
     >
       {label}
     </label>
-    {rightSlot && (
-      <div className="absolute right-4 top-5">{rightSlot}</div>
-    )}
+    {rightSlot && <div className="absolute right-4 top-5">{rightSlot}</div>}
   </div>
 );
 
@@ -94,22 +92,20 @@ const SectionCard = ({
   <motion.div
     variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
     className={`rounded-3xl border p-8 backdrop-blur-2xl shadow-sm ${
-      danger
-        ? "bg-red-500/5 border-red-500/20"
-        : "bg-white/20 dark:bg-white/5 border-theme-border"
+      danger ? 'bg-red-500/5 border-red-500/20' : 'bg-white/20 dark:bg-white/5 border-theme-border'
     }`}
   >
     <div className="flex items-center gap-3 mb-6 pb-5 border-b border-theme-border/60">
       <div
         className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-          danger
-            ? "bg-red-500/10 text-red-500"
-            : "bg-theme-primary-500/10 text-theme-primary-500"
+          danger ? 'bg-red-500/10 text-red-500' : 'bg-theme-primary-500/10 text-theme-primary-500'
         }`}
       >
         {icon}
       </div>
-      <h2 className={`text-xl font-display font-bold ${danger ? "text-red-500" : "text-theme-text-primary"}`}>
+      <h2
+        className={`text-xl font-display font-bold ${danger ? 'text-red-500' : 'text-theme-text-primary'}`}
+      >
         {title}
       </h2>
     </div>
@@ -125,12 +121,12 @@ const Profile: React.FC = () => {
   const { loading } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
 
-  const [name, setName] = useState(user?.name || "");
-  const [email, setEmail] = useState(user?.email || "");
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
 
-  const [oldPassword, setOldPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -142,7 +138,7 @@ const Profile: React.FC = () => {
   const [globalRetention, setGlobalRetention] = useState(14);
   const [retentionSaving, setRetentionSaving] = useState(false);
 
-  const isSuperAdmin = user?.role === "SUPER_ADMIN";
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
 
   useEffect(() => {
     if (user) {
@@ -164,24 +160,24 @@ const Profile: React.FC = () => {
     e.preventDefault();
     const result = await dispatch(updateUserProfile({ name, email }));
     if (updateUserProfile.fulfilled.match(result)) {
-      toast.success("Profile updated successfully!");
+      toast.success('Profile updated successfully!');
     } else {
-      toast.error("Failed to update profile");
+      toast.error('Failed to update profile');
     }
   };
 
   const handleChangePassword = async () => {
-    if (newPassword !== confirmPassword) return toast.error("Passwords do not match");
-    if (newPassword.length < 6) return toast.error("Minimum 6 characters required");
+    if (newPassword !== confirmPassword) return toast.error('Passwords do not match');
+    if (newPassword.length < 6) return toast.error('Minimum 6 characters required');
 
     const result = await dispatch(changeUserPassword({ oldPassword, newPassword }));
     if (changeUserPassword.fulfilled.match(result)) {
-      toast.success("Password changed successfully!");
-      setOldPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
+      toast.success('Password changed successfully!');
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
     } else {
-      toast.error("Failed to change password");
+      toast.error('Failed to change password');
     }
   };
 
@@ -189,9 +185,9 @@ const Profile: React.FC = () => {
     setRetentionSaving(true);
     try {
       await systemService.updateSettings(globalRetention);
-      toast.success("Global retention updated");
+      toast.success('Global retention updated');
     } catch (err: any) {
-      toast.error(err.response?.data?.message || "Failed to update settings");
+      toast.error(err.response?.data?.message || 'Failed to update settings');
     } finally {
       setRetentionSaving(false);
     }
@@ -200,20 +196,20 @@ const Profile: React.FC = () => {
   const handleUnregisterSystemWide = async () => {
     const result = await dispatch(unregisterAllSystemDevices());
     if (unregisterAllSystemDevices.fulfilled.match(result)) {
-      toast.success("Successfully unregistered all devices globally.");
+      toast.success('Successfully unregistered all devices globally.');
     } else {
-      toast.error("Failed to unregister devices globally.");
+      toast.error('Failed to unregister devices globally.');
     }
   };
 
   const handleDeleteAccount = async () => {
     const result = await dispatch(deleteUserAccount());
     if (deleteUserAccount.fulfilled.match(result)) {
-      toast.success("Account deleted successfully");
+      toast.success('Account deleted successfully');
       logout();
-      navigate("/");
+      navigate('/');
     } else {
-      toast.error("Failed to delete account");
+      toast.error('Failed to delete account');
     }
   };
 
@@ -222,7 +218,7 @@ const Profile: React.FC = () => {
       type="button"
       onClick={toggle}
       className="text-theme-text-muted hover:text-theme-text-primary transition-colors focus:outline-none"
-      aria-label={show ? "Hide password" : "Show password"}
+      aria-label={show ? 'Hide password' : 'Show password'}
     >
       {show ? <RiEyeOffLine size={20} /> : <RiEyeLine size={20} />}
     </button>
@@ -232,7 +228,10 @@ const Profile: React.FC = () => {
     <motion.div
       initial="hidden"
       animate="visible"
-      variants={{ hidden: { opacity: 0 }, visible: { opacity: 1, transition: { staggerChildren: 0.1 } } }}
+      variants={{
+        hidden: { opacity: 0 },
+        visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+      }}
       className="min-h-[calc(100vh-120px)] py-12 px-4"
     >
       <div className="max-w-3xl mx-auto">
@@ -254,20 +253,33 @@ const Profile: React.FC = () => {
           <SectionCard icon={<RiUser3Line size={20} />} title="Account Information">
             <form onSubmit={handleUpdateProfile} className="space-y-5">
               <div className="grid sm:grid-cols-2 gap-5">
-                <FloatingInput id="profile-name" label="Full Name" value={name} onChange={(e) => setName(e.target.value)} required />
-                <FloatingInput id="profile-email" label="Email Address" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <FloatingInput
+                  id="profile-name"
+                  label="Full Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+                <FloatingInput
+                  id="profile-email"
+                  label="Email Address"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
               </div>
 
               <div className="grid sm:grid-cols-2 gap-5">
-                <FloatingInput id="profile-role" label="Role" value={user?.role ?? ""} disabled />
+                <FloatingInput id="profile-role" label="Role" value={user?.role ?? ''} disabled />
                 <div className="flex items-center">
                   <span
                     className={`inline-flex px-4 py-2 rounded-full text-sm font-bold ring-1 ring-inset ${
-                      user?.status === "APPROVED"
-                        ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-300 dark:ring-green-800/40"
-                        : user?.status === "PENDING"
-                          ? "bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 ring-amber-300 dark:ring-amber-800/40"
-                          : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-red-300 dark:ring-red-800/40"
+                      user?.status === 'APPROVED'
+                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-300 dark:ring-green-800/40'
+                        : user?.status === 'PENDING'
+                          ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 ring-amber-300 dark:ring-amber-800/40'
+                          : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 ring-red-300 dark:ring-red-800/40'
                     }`}
                   >
                     Status: {user?.status}
@@ -287,7 +299,7 @@ const Profile: React.FC = () => {
                       Saving...
                     </>
                   ) : (
-                    "Save Changes"
+                    'Save Changes'
                   )}
                 </button>
               </div>
@@ -303,34 +315,49 @@ const Profile: React.FC = () => {
               <FloatingInput
                 id="old-password"
                 label="Current Password"
-                type={showOldPassword ? "text" : "password"}
+                type={showOldPassword ? 'text' : 'password'}
                 value={oldPassword}
                 onChange={(e) => setOldPassword(e.target.value)}
                 required
-                rightSlot={<EyeToggle show={showOldPassword} toggle={() => setShowOldPassword(!showOldPassword)} />}
+                rightSlot={
+                  <EyeToggle
+                    show={showOldPassword}
+                    toggle={() => setShowOldPassword(!showOldPassword)}
+                  />
+                }
               />
               <div>
                 <FloatingInput
                   id="new-password"
                   label="New Password"
-                  type={showNewPassword ? "text" : "password"}
+                  type={showNewPassword ? 'text' : 'password'}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
                   minLength={6}
-                  rightSlot={<EyeToggle show={showNewPassword} toggle={() => setShowNewPassword(!showNewPassword)} />}
+                  rightSlot={
+                    <EyeToggle
+                      show={showNewPassword}
+                      toggle={() => setShowNewPassword(!showNewPassword)}
+                    />
+                  }
                 />
                 <p className="text-xs text-theme-text-muted mt-1.5 ml-1">Minimum 6 characters</p>
               </div>
               <FloatingInput
                 id="confirm-new-password"
                 label="Confirm New Password"
-                type={showConfirmPassword ? "text" : "password"}
+                type={showConfirmPassword ? 'text' : 'password'}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={6}
-                rightSlot={<EyeToggle show={showConfirmPassword} toggle={() => setShowConfirmPassword(!showConfirmPassword)} />}
+                rightSlot={
+                  <EyeToggle
+                    show={showConfirmPassword}
+                    toggle={() => setShowConfirmPassword(!showConfirmPassword)}
+                  />
+                }
               />
             </div>
 
@@ -341,7 +368,7 @@ const Profile: React.FC = () => {
                 disabled={loading || !oldPassword || !newPassword || !confirmPassword}
                 className="btn-primary"
               >
-                {loading ? "Updating..." : "Update Password"}
+                {loading ? 'Updating...' : 'Update Password'}
               </button>
             </div>
           </SectionCard>
@@ -353,7 +380,7 @@ const Profile: React.FC = () => {
               <FloatingInput
                 id="profile-external-id"
                 label="Unique User Identifier"
-                value={user?.email || ""}
+                value={user?.email || ''}
                 disabled
               />
               <p className="text-xs text-theme-text-muted -mt-2 ml-1">
@@ -370,35 +397,41 @@ const Profile: React.FC = () => {
                 </div>
                 <span
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide ${
-                    permissionStatus === "granted"
-                      ? "bg-green-500/10 text-green-600 dark:text-green-400"
-                      : permissionStatus === "denied"
-                        ? "bg-red-500/10 text-red-600 dark:text-red-400"
-                        : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                    permissionStatus === 'granted'
+                      ? 'bg-green-500/10 text-green-600 dark:text-green-400'
+                      : permissionStatus === 'denied'
+                        ? 'bg-red-500/10 text-red-600 dark:text-red-400'
+                        : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                   }`}
                 >
-                  {permissionStatus === "granted" ? (
-                    <><RiCheckboxCircleLine size={14} /> Enabled</>
-                  ) : permissionStatus === "denied" ? (
-                    <><RiCloseCircleLine size={14} /> Blocked</>
+                  {permissionStatus === 'granted' ? (
+                    <>
+                      <RiCheckboxCircleLine size={14} /> Enabled
+                    </>
+                  ) : permissionStatus === 'denied' ? (
+                    <>
+                      <RiCloseCircleLine size={14} /> Blocked
+                    </>
                   ) : (
-                    <><RiErrorWarningLine size={14} /> Disabled</>
+                    <>
+                      <RiErrorWarningLine size={14} /> Disabled
+                    </>
                   )}
                 </span>
               </div>
 
               {/* Enable prompt */}
-              {permissionStatus !== "granted" && (
+              {permissionStatus !== 'granted' && (
                 <div className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-dashed border-theme-border flex flex-col sm:flex-row gap-4 items-center justify-between">
                   <p className="text-sm text-theme-text-primary">
-                    {permissionStatus === "denied"
-                      ? "Notifications are blocked in your browser. Manually allow them from the address bar."
-                      : "Enable notifications to stay updated on account status and app activity."}
+                    {permissionStatus === 'denied'
+                      ? 'Notifications are blocked in your browser. Manually allow them from the address bar.'
+                      : 'Enable notifications to stay updated on account status and app activity.'}
                   </p>
                   <button
                     type="button"
                     onClick={() => requestPermission()}
-                    disabled={permissionStatus === "denied"}
+                    disabled={permissionStatus === 'denied'}
                     className="btn-primary shrink-0"
                   >
                     Enable Access
@@ -407,7 +440,7 @@ const Profile: React.FC = () => {
               )}
 
               {/* Success state */}
-              {permissionStatus === "granted" && (
+              {permissionStatus === 'granted' && (
                 <div className="bg-green-500/5 border border-green-500/20 rounded-2xl p-5 relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
                     <RiNotificationLine size={80} className="text-green-500" />
@@ -443,7 +476,8 @@ const Profile: React.FC = () => {
                     className="input"
                   />
                   <p className="text-xs text-theme-text-muted mt-2">
-                    Notification logs are auto-deleted after this many days across all apps without a custom override.
+                    Notification logs are auto-deleted after this many days across all apps without
+                    a custom override.
                   </p>
                 </div>
 
@@ -453,7 +487,7 @@ const Profile: React.FC = () => {
                     disabled={retentionSaving}
                     className="btn-primary"
                   >
-                    {retentionSaving ? "Saving..." : "Save System Settings"}
+                    {retentionSaving ? 'Saving...' : 'Save System Settings'}
                   </button>
                 </div>
 
@@ -471,7 +505,8 @@ const Profile: React.FC = () => {
                     Unregister All Devices (System-Wide)
                   </button>
                   <p className="text-xs text-theme-text-muted mt-2">
-                    Forcibly unregisters all devices across every app. Users must re-register to receive push notifications.
+                    Forcibly unregisters all devices across every app. Users must re-register to
+                    receive push notifications.
                   </p>
                 </div>
               </div>
@@ -482,7 +517,8 @@ const Profile: React.FC = () => {
           {!isSuperAdmin && (
             <SectionCard icon={<RiAlertLine size={20} />} title="Danger Zone" danger>
               <p className="text-theme-text-primary mb-6">
-                Permanently delete your account and all its contents from our servers. This is irreversible — all apps, API keys, and configurations will be dropped.
+                Permanently delete your account and all its contents from our servers. This is
+                irreversible — all apps, API keys, and configurations will be dropped.
               </p>
 
               <AnimatePresence mode="wait">
@@ -517,7 +553,8 @@ const Profile: React.FC = () => {
                           Are you absolutely sure?
                         </h4>
                         <p className="text-red-800/80 dark:text-red-200/80 text-sm mb-6 max-w-lg">
-                          You will immediately lose access to the platform. We cannot recover any metrics, notifications, or configurations once confirmed.
+                          You will immediately lose access to the platform. We cannot recover any
+                          metrics, notifications, or configurations once confirmed.
                         </p>
                         <div className="flex flex-wrap gap-3">
                           <button
@@ -525,7 +562,7 @@ const Profile: React.FC = () => {
                             disabled={loading}
                             className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all active:scale-95 disabled:opacity-50"
                           >
-                            {loading ? "Deleting..." : "Yes, Purge My Data"}
+                            {loading ? 'Deleting...' : 'Yes, Purge My Data'}
                           </button>
                           <button
                             onClick={() => setShowDeleteConfirm(false)}
@@ -554,7 +591,17 @@ const Profile: React.FC = () => {
         }}
         loading={loading}
         title="Critical Warning"
-        description={<>Are you sure you want to unregister <strong className="text-red-500 font-bold tracking-wide">ALL DEVICES SYSTEM-WIDE?</strong><br/><br/>Every user across every app will stop receiving notifications until they re-register!</>}
+        description={
+          <>
+            Are you sure you want to unregister{' '}
+            <strong className="text-red-500 font-bold tracking-wide">
+              ALL DEVICES SYSTEM-WIDE?
+            </strong>
+            <br />
+            <br />
+            Every user across every app will stop receiving notifications until they re-register!
+          </>
+        }
         confirmLabel="Execute Purge"
         confirmingLabel="Purging..."
         icon={<RiAlertLine size={28} />}

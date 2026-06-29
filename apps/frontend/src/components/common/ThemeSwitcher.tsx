@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import { RiSunLine, RiComputerLine, RiMoonLine } from "@remixicon/react";
+import { RiSunLine, RiComputerLine, RiMoonLine } from '@remixicon/react';
 
 export const ThemeSwitcher: React.FC = () => {
   const { theme, setTheme } = useTheme();

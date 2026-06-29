@@ -26,40 +26,52 @@ case $COMPONENT in
     IMAGE="local/server:latest"
     DEPLOYMENT="backend"
     
-    # Refresh the backend secret so latest .env changes are picked up
-    echo "Updating backend-secret from apps/server/.env..."
-    if command -v ip &> /dev/null; then
-        HOST_IP=$(ip -4 route get 1.1.1.1 | grep -P -o 'src \K\S+')
-    else
-        HOST_IP="host.docker.internal"
+    # Refresh the backend secret/configmap if .env is available
+    ENV_FILE="apps/server/.env"
+    if [ ! -f "$ENV_FILE" ]; then
+        if [ -f ".env" ]; then
+            ENV_FILE=".env"
+        fi
     fi
-    cp apps/server/.env .env.k8s
-    sed -i "s/localhost/$HOST_IP/g" .env.k8s
-    sed -i "s/127.0.0.1/$HOST_IP/g" .env.k8s
-    kubectl create secret generic backend-secret \
-        --from-env-file=.env.k8s \
-        -n $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
-    
-    # Refresh the backend configmap
-    echo "Updating backend-config ConfigMap from apps/server/.env..."
-    PORT_VAL=$(grep '^PORT=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
-    ENV_VAL=$(grep '^NODE_ENV=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
-    CORS_VAL=$(grep '^FRONTEND_URL=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
-    ALLOWED_VAL=$(grep '^ALLOWED_ORIGINS=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
-    
-    # Assign actual default values if missing
-    [ -z "$PORT_VAL" ] && PORT_VAL="5000"
-    [ -z "$ENV_VAL" ] && ENV_VAL="production"
-    [ -z "$CORS_VAL" ] && CORS_VAL="http://localhost"
-    
-    kubectl create configmap backend-config \
-        --from-literal=PORT="${PORT_VAL}" \
-        --from-literal=NODE_ENV="${ENV_VAL}" \
-        --from-literal=CORS_ORIGIN="${CORS_VAL}" \
-        --from-literal=ALLOWED_ORIGINS="${ALLOWED_VAL}" \
-        -n $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+
+    if [ -f "$ENV_FILE" ]; then
+        echo "Updating backend-secret from $ENV_FILE..."
+        if command -v ip &> /dev/null; then
+            HOST_IP=$(ip -4 route get 1.1.1.1 | grep -P -o 'src \K\S+')
+        else
+            HOST_IP="host.docker.internal"
+        fi
+        cp "$ENV_FILE" .env.k8s
+        sed -i "s/localhost/$HOST_IP/g" .env.k8s
+        sed -i "s/127.0.0.1/$HOST_IP/g" .env.k8s
+        kubectl create secret generic backend-secret \
+            --from-env-file=.env.k8s \
+            -n $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
         
-    rm .env.k8s
+        # Refresh the backend configmap
+        echo "Updating backend-config ConfigMap from $ENV_FILE..."
+        PORT_VAL=$(grep '^PORT=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
+        ENV_VAL=$(grep '^NODE_ENV=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
+        CORS_VAL=$(grep '^FRONTEND_URL=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
+        ALLOWED_VAL=$(grep '^ALLOWED_ORIGINS=' .env.k8s | cut -d '=' -f2 | tr -d '\r')
+        
+        # Assign actual default values if missing
+        [ -z "$PORT_VAL" ] && PORT_VAL="5000"
+        [ -z "$ENV_VAL" ] && ENV_VAL="production"
+        [ -z "$CORS_VAL" ] && CORS_VAL="http://localhost"
+        
+        kubectl create configmap backend-config \
+            --from-literal=PORT="${PORT_VAL}" \
+            --from-literal=NODE_ENV="${ENV_VAL}" \
+            --from-literal=CORS_ORIGIN="${CORS_VAL}" \
+            --from-literal=ALLOWED_ORIGINS="${ALLOWED_VAL}" \
+            -n $NAMESPACE --dry-run=client -o yaml | kubectl apply -f -
+            
+        rm .env.k8s
+    else
+        echo "⚠️ Warning: .env file not found at apps/server/.env or root. Skipping secret and configmap updates."
+        echo "The deployment will proceed using the existing backend-secret and backend-config."
+    fi
     ;;
   demo|demo-new)
     DOCKERFILE="./apps/notification-demo/Dockerfile"
@@ -74,10 +86,10 @@ case $COMPONENT in
 esac
 
 echo "Step 1/3: Rebuilding Docker image for $COMPONENT (using Monorepo Root Context)..."
-sudo docker build -f $DOCKERFILE -t $IMAGE .
+ docker build -f $DOCKERFILE -t $IMAGE .
 
 echo "Step 2/3: Loading image into KIND cluster '$CLUSTER_NAME'..."
-sudo kind load docker-image $IMAGE --name $CLUSTER_NAME
+ kind load docker-image $IMAGE --name $CLUSTER_NAME
 
 echo "Step 3/3: Restarting Kubernetes deployment to pick up the new image..."
 kubectl rollout restart deployment/$DEPLOYMENT -n $NAMESPACE

@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { useHealthStatus } from "../../hooks/useHealthStatus";
+import { Link } from 'react-router-dom';
+import { useHealthStatus } from '../../hooks/useHealthStatus';
 
 export default function Footer() {
   const health = useHealthStatus();
@@ -13,8 +13,8 @@ export default function Footer() {
               <span>Vibe Message</span>
             </div>
             <p className="text-theme-text-secondary mb-6 max-w-xs leading-relaxed">
-              Enterprise push notification engine architected to empower
-              developers building realtime network applications.
+              Enterprise push notification engine architected to empower developers building
+              realtime network applications.
             </p>
             <div className="flex space-x-4">
               <a
@@ -30,26 +30,17 @@ export default function Footer() {
             <h4 className="font-bold text-theme-text-primary mb-4">Product</h4>
             <ul className="space-y-3 text-sm text-theme-text-secondary">
               <li>
-                <Link
-                  to="/login"
-                  className="hover:text-theme-primary-500 transition-colors"
-                >
+                <Link to="/login" className="hover:text-theme-primary-500 transition-colors">
                   Dashboard Login
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/signup"
-                  className="hover:text-theme-primary-500 transition-colors"
-                >
+                <Link to="/signup" className="hover:text-theme-primary-500 transition-colors">
                   Create Account
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/docs"
-                  className="hover:text-theme-primary-500 transition-colors"
-                >
+                <Link to="/docs" className="hover:text-theme-primary-500 transition-colors">
                   Documentation
                 </Link>
               </li>
@@ -68,10 +59,7 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link
-                  to="/license"
-                  className="hover:text-theme-primary-500 transition-colors"
-                >
+                <Link to="/license" className="hover:text-theme-primary-500 transition-colors">
                   License Agreement
                 </Link>
               </li>
@@ -84,13 +72,13 @@ export default function Footer() {
             &copy; {new Date().getFullYear()} SailorLabs.in All rights reserved.
           </div>
           <div className="flex items-center space-x-2">
-            {health.status === "loading" && (
+            {health.status === 'loading' && (
               <>
                 <div className="w-2 h-2 rounded-full bg-theme-text-muted animate-pulse" />
                 <span>Checking services…</span>
               </>
             )}
-            {health.status === "ok" && (
+            {health.status === 'ok' && (
               <>
                 <div className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-theme-success opacity-75" />
@@ -99,20 +87,18 @@ export default function Footer() {
                 <span>
                   All services operational
                   {health.checks?.server?.uptimeHuman && (
-                    <span className="ml-1 opacity-60">
-                      · up {health.checks.server.uptimeHuman}
-                    </span>
+                    <span className="ml-1 opacity-60">· up {health.checks.server.uptimeHuman}</span>
                   )}
                 </span>
               </>
             )}
-            {health.status === "degraded" && (
+            {health.status === 'degraded' && (
               <>
                 <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
                 <span>Some services degraded</span>
               </>
             )}
-            {health.status === "error" && (
+            {health.status === 'error' && (
               <>
                 <div className="w-2 h-2 rounded-full bg-theme-error" />
                 <span>Backend unreachable</span>

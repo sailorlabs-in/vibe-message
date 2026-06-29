@@ -72,14 +72,21 @@ export const updateUserRetentionPermission = createAsyncThunk<
   User,
   { userId: number; canManageRetention: boolean },
   { rejectValue: string }
->('admin/updateUserRetentionPermission', async ({ userId, canManageRetention }, { rejectWithValue }) => {
-  try {
-    const response = await ApiRequest(`/admin/users/${userId}/retention-permission`, 'patch', { canManageRetention });
-    return response.data;
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to update retention permission');
+>(
+  'admin/updateUserRetentionPermission',
+  async ({ userId, canManageRetention }, { rejectWithValue }) => {
+    try {
+      const response = await ApiRequest(`/admin/users/${userId}/retention-permission`, 'patch', {
+        canManageRetention,
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Failed to update retention permission'
+      );
+    }
   }
-});
+);
 
 export const sendWarning = createAsyncThunk<
   void,
@@ -106,17 +113,18 @@ export const removeUser = createAsyncThunk<
   }
 });
 
-export const unregisterAllSystemDevices = createAsyncThunk<
-  void,
-  void,
-  { rejectValue: string }
->('admin/unregisterAllSystemDevices', async (_, { rejectWithValue }) => {
-  try {
-    await ApiRequest('/admin/devices', 'delete');
-  } catch (error: any) {
-    return rejectWithValue(error.response?.data?.message || 'Failed to unregister all system devices');
+export const unregisterAllSystemDevices = createAsyncThunk<void, void, { rejectValue: string }>(
+  'admin/unregisterAllSystemDevices',
+  async (_, { rejectWithValue }) => {
+    try {
+      await ApiRequest('/admin/devices', 'delete');
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Failed to unregister all system devices'
+      );
+    }
   }
-});
+);
 
 // Slice
 const adminSlice = createSlice({
@@ -151,7 +159,7 @@ const adminSlice = createSlice({
       })
       .addCase(updateStatus.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.users.findIndex(user => user.id === action.payload.id);
+        const index = state.users.findIndex((user) => user.id === action.payload.id);
         if (index !== -1) {
           state.users[index] = action.payload;
         }
@@ -169,7 +177,7 @@ const adminSlice = createSlice({
       })
       .addCase(updateAppLimit.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.users.findIndex(user => user.id === action.payload.id);
+        const index = state.users.findIndex((user) => user.id === action.payload.id);
         if (index !== -1) {
           state.users[index] = action.payload;
         }
@@ -187,7 +195,7 @@ const adminSlice = createSlice({
       })
       .addCase(updateUserRetentionPermission.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.users.findIndex(user => user.id === action.payload.id);
+        const index = state.users.findIndex((user) => user.id === action.payload.id);
         if (index !== -1) {
           state.users[index] = action.payload;
         }
@@ -205,7 +213,7 @@ const adminSlice = createSlice({
       })
       .addCase(updateRole.fulfilled, (state, action) => {
         state.loading = false;
-        const index = state.users.findIndex(user => user.id === action.payload.id);
+        const index = state.users.findIndex((user) => user.id === action.payload.id);
         if (index !== -1) {
           state.users[index] = action.payload;
         }
@@ -237,7 +245,7 @@ const adminSlice = createSlice({
       })
       .addCase(removeUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = state.users.filter(user => user.id !== action.payload.userId);
+        state.users = state.users.filter((user) => user.id !== action.payload.userId);
       })
       .addCase(removeUser.rejected, (state, action) => {
         state.loading = false;

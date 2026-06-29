@@ -4,7 +4,7 @@ import {
   ExecutionContext,
   ForbiddenException,
   UnauthorizedException,
-} from "@nestjs/common";
+} from '@nestjs/common';
 
 @Injectable()
 export class ApprovedGuard implements CanActivate {
@@ -15,14 +15,12 @@ export class ApprovedGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
-    if (user.role === "SUPER_ADMIN") {
+    if (user.role === 'SUPER_ADMIN') {
       return true;
     }
 
-    if (user.status !== "APPROVED") {
-      throw new ForbiddenException(
-        "Your account is pending approval or has been banned",
-      );
+    if (user.status !== 'APPROVED') {
+      throw new ForbiddenException('Your account is pending approval or has been banned');
     }
 
     return true;

@@ -41,10 +41,12 @@ import { MailModule } from './modules/mail/mail.module';
       imports: [RedisModule],
       inject: [RedisService],
       useFactory: (redisService: RedisService) => ({
-        throttlers: [{
-          ttl: 60000,
-          limit: 100, // 100 requests per minute
-        }],
+        throttlers: [
+          {
+            ttl: 60000,
+            limit: 100, // 100 requests per minute
+          },
+        ],
         storage: new ThrottlerStorageRedisService(redisService.client),
       }),
     }),
@@ -54,8 +56,17 @@ import { MailModule } from './modules/mail/mail.module';
         type: 'postgres',
         url: config.database.url,
         entities: [
-          User, App, AppMember, DeviceToken, Notification, NotificationLog, 
-          Warning, SystemSettings, DripCampaign, DripStep, DripSentLog
+          User,
+          App,
+          AppMember,
+          DeviceToken,
+          Notification,
+          NotificationLog,
+          Warning,
+          SystemSettings,
+          DripCampaign,
+          DripStep,
+          DripSentLog,
         ],
         synchronize: true, // We use SQL files for migration, so keep this false in prod
       }),
@@ -85,6 +96,6 @@ import { MailModule } from './modules/mail/mail.module';
 })
 export class AppModule implements OnModuleInit {
   async onModuleInit() {
-    console.log("✅ AppModule initialized with TypeORM");
+    console.log('✅ AppModule initialized with TypeORM');
   }
 }

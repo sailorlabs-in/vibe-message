@@ -9,6 +9,8 @@ COPY package*.json ./
 COPY libs ./libs
 # Copy frontend app
 COPY apps/frontend ./apps/frontend
+# Copy frontend .env files to root of builder context so loadEnv(mode, process.cwd()) can load it
+COPY apps/frontend/.env* ./
 
 # Install workspace dependencies
 RUN npm install

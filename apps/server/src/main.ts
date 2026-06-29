@@ -13,39 +13,37 @@ async function bootstrap() {
   const expressApp = app.getHttpAdapter().getInstance() as express.Application;
   expressApp.set('trust proxy', 1);
 
-  const isProduction = config.server.nodeEnv.toLowerCase() === "production";
-  const apiPrefix = isProduction ? "" : "/api";
+  const isProduction = config.server.nodeEnv.toLowerCase() === 'production';
+  const apiPrefix = isProduction ? '' : '/api';
 
-  app.setGlobalPrefix(apiPrefix === "" ? "" : apiPrefix.replace(/^\//, ''));
+  app.setGlobalPrefix(apiPrefix === '' ? '' : apiPrefix.replace(/^\//, ''));
 
   // CORS configuration
-  const publicCorsPaths = [
-    '/health',
-    '/sdk',
-    '/push',
-  ];
+  const publicCorsPaths = ['/health', '/sdk', '/push'];
 
-  expressApp.use(cors((req, callback) => {
-    const requestPath = req.path.replace(/^\/api(?=\/|$)/, '') || '/';
-    const isPublicCorsPath = publicCorsPaths.some((path) => (
-      requestPath === path || requestPath.startsWith(`${path}/`)
-    ));
+  expressApp.use(
+    cors((req, callback) => {
+      const requestPath = req.path.replace(/^\/api(?=\/|$)/, '') || '/';
+      const isPublicCorsPath = publicCorsPaths.some(
+        (path) => requestPath === path || requestPath.startsWith(`${path}/`)
+      );
 
-    callback(null, {
-      origin: (origin, originCallback) => {
-        if (config.server.nodeEnv === "development" || isPublicCorsPath) {
-          return originCallback(null, true);
-        }
-        if (!origin || config.cors.allowedOrigins.includes(origin)) {
-          return originCallback(null, true);
-        }
+      callback(null, {
+        origin: (origin, originCallback) => {
+          if (config.server.nodeEnv === 'development' || isPublicCorsPath) {
+            return originCallback(null, true);
+          }
+          if (!origin || config.cors.allowedOrigins.includes(origin)) {
+            return originCallback(null, true);
+          }
 
-        console.error(`Blocked by CORS: ${origin}`);
-        return originCallback(new Error("Not allowed by CORS"), false);
-      },
-      credentials: true,
-    });
-  }));
+          console.error(`Blocked by CORS: ${origin}`);
+          return originCallback(new Error('Not allowed by CORS'), false);
+        },
+        credentials: true,
+      });
+    })
+  );
 
   // Validation
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
@@ -57,16 +55,19 @@ async function bootstrap() {
     .setVersion('1.0.0')
     .addBearerAuth()
     .addTag('Health', 'System health checks')
-    .addTag('External Notifications APIs', 'Public-facing endpoints for SDKs and server integrations')
+    .addTag(
+      'External Notifications APIs',
+      'Public-facing endpoints for SDKs and server integrations'
+    )
     .addTag('Internal App APIs', 'Endpoints for the Vibe Message frontend')
     .addTag('Apps', 'App configuration and management')
     .addTag('Admin', 'Administrative operations')
     .addTag('System', 'System-level configurations and metrics')
     .build();
-  
+
   const document = SwaggerModule.createDocument(app, swaggerConfig);
-  const swaggerPath = apiPrefix === "" ? "/" : apiPrefix;
-  
+  const swaggerPath = apiPrefix === '' ? '/' : apiPrefix;
+
   // Basic Auth for Swagger (from old index.ts)
   expressApp.use(swaggerPath, (req, res, next) => {
     if (req.path === '/' || req.path === '/index.html' || req.path.includes('swagger')) {

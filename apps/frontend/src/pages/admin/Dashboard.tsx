@@ -1,19 +1,19 @@
-import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
-import { motion } from "motion/react";
-import { useAppDispatch, useAppSelector } from "../../store/store";
-import { fetchApps } from "../../store/slices/appsSlice";
-import { DashboardSkeleton } from "../../components/common/SkeletonLoader";
-import { 
-  RiAddLine, 
-  RiGridLine, 
-  RiCheckboxCircleLine, 
-  RiArrowRightLine, 
-  RiArrowRightSLine, 
-  RiSmartphoneLine, 
+import React, { useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { fetchApps } from '../../store/slices/appsSlice';
+import { DashboardSkeleton } from '../../components/common/SkeletonLoader';
+import {
+  RiAddLine,
+  RiGridLine,
+  RiCheckboxCircleLine,
+  RiArrowRightLine,
+  RiArrowRightSLine,
+  RiSmartphoneLine,
   RiBriefcase4Line,
-  RiDashboardLine
-} from "@remixicon/react";
+  RiDashboardLine,
+} from '@remixicon/react';
 
 export const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -38,7 +38,7 @@ export const Dashboard: React.FC = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { type: "spring" as const, stiffness: 300, damping: 24 },
+      transition: { type: 'spring' as const, stiffness: 300, damping: 24 },
     },
   };
 
@@ -56,12 +56,11 @@ export const Dashboard: React.FC = () => {
   return (
     <div className="min-h-[calc(100vh-120px)] relative overflow-hidden transition-colors duration-300 px-4 py-8">
       <div className="max-w-7xl mx-auto relative z-10">
-        
         {/* Header Section */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
           className="mb-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6"
         >
           <div>
@@ -74,7 +73,8 @@ export const Dashboard: React.FC = () => {
               </h1>
             </div>
             <p className="text-theme-text-secondary mt-2 text-lg font-medium">
-              Welcome back, {user?.name?.split(' ')[0] || 'there'}. Here's an overview of your projects.
+              Welcome back, {user?.name?.split(' ')[0] || 'there'}. Here's an overview of your
+              projects.
             </p>
           </div>
           <Link
@@ -101,7 +101,7 @@ export const Dashboard: React.FC = () => {
           >
             <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl rounded-[3rem]" />
             <div className="absolute -right-10 -top-10 w-40 h-40 bg-violet-500/10 rounded-full blur-3xl group-hover:scale-150 group-hover:bg-violet-500/20 transition-all duration-500"></div>
-            
+
             <div className="relative z-10">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500/10 to-transparent border border-violet-500/20 text-theme-primary-500 flex items-center justify-center mb-6 shadow-sm">
                 <RiGridLine size={26} />
@@ -121,15 +121,17 @@ export const Dashboard: React.FC = () => {
                 {user?.app_limit && (
                   <div className="mt-5">
                     <div className="h-2.5 w-full bg-theme-bg-muted rounded-full overflow-hidden shadow-inner">
-                      <div 
+                      <div
                         className="h-full bg-gradient-to-r from-theme-primary-400 to-theme-primary-600 rounded-full transition-all duration-1000 ease-out relative"
-                        style={{ width: `${Math.min(100, (ownedAppsCount / user.app_limit) * 100)}%` }}
+                        style={{
+                          width: `${Math.min(100, (ownedAppsCount / user.app_limit) * 100)}%`,
+                        }}
                       >
-                         <div className="absolute top-0 right-0 bottom-0 left-0 bg-[linear-gradient(45deg,rgba(255,255,255,.15)25%,transparent_25%,transparent_50%,rgba(255,255,255,.15)_50%,rgba(255,255,255,.15)_75%,transparent_75%,transparent)] bg-[length:1rem_1rem] animate-[progress_1s_linear_infinite]" />
+                        <div className="absolute top-0 right-0 bottom-0 left-0 bg-[linear-gradient(45deg,rgba(255,255,255,.15)25%,transparent_25%,transparent_50%,rgba(255,255,255,.15)_50%,rgba(255,255,255,.15)_75%,transparent_75%,transparent)] bg-[length:1rem_1rem] animate-[progress_1s_linear_infinite]" />
                       </div>
                     </div>
                     <p className="text-sm text-theme-text-muted mt-3 font-medium">
-                      {user.app_limit - ownedAppsCount > 0 
+                      {user.app_limit - ownedAppsCount > 0
                         ? `${user.app_limit - ownedAppsCount} app(s) remaining for deployment`
                         : 'App limit reached'}
                     </p>
@@ -146,24 +148,22 @@ export const Dashboard: React.FC = () => {
           >
             <div className="absolute -inset-1 bg-gradient-to-r from-green-300/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl rounded-[3rem]" />
             <div className="absolute -right-6 -bottom-6 w-40 h-40 bg-green-300/10 rounded-full blur-3xl group-hover:scale-150 group-hover:bg-green-300/20 transition-all duration-500"></div>
-            
+
             <div className="relative z-10 flex flex-col h-full">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-300/10 to-transparent border border-green-300/20 text-theme-success flex items-center justify-center mb-6 shadow-sm">
                 <RiCheckboxCircleLine size={26} />
               </div>
-              <h3 className="text-theme-text-secondary font-semibold mb-2">
-                Currently Active
-              </h3>
+              <h3 className="text-theme-text-secondary font-semibold mb-2">Currently Active</h3>
               <p className="text-5xl font-black text-theme-text-primary tabular-nums tracking-tighter">
                 {activeAppsCount}
               </p>
-              
+
               <div className="mt-auto pt-6">
-                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-300/10 border border-theme-success/20 rounded-full text-sm font-bold text-theme-success">
-                    <span className="w-2 h-2 rounded-full bg-theme-success animate-ping absolute opacity-75"></span>
-                    <span className="w-2 h-2 rounded-full bg-theme-success relative"></span>
-                    Running Smoothly
-                 </div>
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-300/10 border border-theme-success/20 rounded-full text-sm font-bold text-theme-success">
+                  <span className="w-2 h-2 rounded-full bg-theme-success animate-ping absolute opacity-75"></span>
+                  <span className="w-2 h-2 rounded-full bg-theme-success relative"></span>
+                  Running Smoothly
+                </div>
               </div>
             </div>
           </motion.div>
@@ -175,11 +175,9 @@ export const Dashboard: React.FC = () => {
           >
             <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-violet-500/5 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="absolute -top-24 -left-24 w-64 h-64 bg-violet-500/20 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
-            
+
             <div className="relative z-10">
-              <h3 className="text-theme-text-primary font-black text-2xl mb-3">
-                Quick Pipeline
-              </h3>
+              <h3 className="text-theme-text-primary font-black text-2xl mb-3">Quick Pipeline</h3>
               <p className="text-theme-text-secondary text-sm md:text-base mb-8 leading-relaxed">
                 Check metrics, edit app settings, or configure push notification workflows quickly.
               </p>
@@ -189,7 +187,10 @@ export const Dashboard: React.FC = () => {
               >
                 <span className="relative z-10 text-base">Manage Portfolio</span>
                 <span className="relative z-10 w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center text-theme-primary-500 group-hover/btn:bg-theme-primary-500 group-hover/btn:text-white transition-colors duration-300">
-                   <RiArrowRightLine size={20} className="transform group-hover/btn:translate-x-1 transition-transform" />
+                  <RiArrowRightLine
+                    size={20}
+                    className="transform group-hover/btn:translate-x-1 transition-transform"
+                  />
                 </span>
               </Link>
             </div>
@@ -200,7 +201,7 @@ export const Dashboard: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.98, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
+          transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
           className="backdrop-blur-3xl bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/50 rounded-[2.5rem] shadow-2xl dark:shadow-[0_10px_50px_rgba(0,0,0,0.5)] overflow-hidden"
         >
           <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-700/50 flex justify-between items-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
@@ -208,9 +209,7 @@ export const Dashboard: React.FC = () => {
               <div className="w-8 h-8 rounded-lg bg-violet-500/10 text-theme-primary-500 flex items-center justify-center">
                 <RiSmartphoneLine size={18} />
               </div>
-              <h2 className="text-2xl font-bold text-theme-text-primary">
-                Recent Projects
-              </h2>
+              <h2 className="text-2xl font-bold text-theme-text-primary">Recent Projects</h2>
             </div>
             {apps.length > 5 && (
               <Link
@@ -227,10 +226,10 @@ export const Dashboard: React.FC = () => {
             {apps.length === 0 ? (
               <div className="text-center py-20 px-4 relative">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-violet-500/5 pointer-events-none"></div>
-                <motion.div 
+                <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.4, type: "spring" }}
+                  transition={{ delay: 0.4, type: 'spring' }}
                   className="w-32 h-32 mx-auto mb-8 rounded-full bg-gradient-to-br from-theme-bg-muted to-violet-500/10 flex items-center justify-center p-1 shadow-inner relative"
                 >
                   <div className="absolute inset-0 rounded-full border-2 border-violet-500/20 border-dashed animate-[spin_10s_linear_infinite]"></div>
@@ -242,7 +241,8 @@ export const Dashboard: React.FC = () => {
                   Your Workspace is Empty
                 </h3>
                 <p className="text-theme-text-secondary text-lg mb-10 max-w-md mx-auto leading-relaxed">
-                  Start your journey by creating your first application. Connect your users in moments.
+                  Start your journey by creating your first application. Connect your users in
+                  moments.
                 </p>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Link
@@ -257,11 +257,11 @@ export const Dashboard: React.FC = () => {
             ) : (
               <div className="flex flex-col gap-3">
                 {apps.slice(0, 5).map((app, index) => (
-                  <motion.div 
+                  <motion.div
                     key={app.id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + (index * 0.1) }}
+                    transition={{ delay: 0.3 + index * 0.1 }}
                   >
                     <Link
                       to={`/apps/${app.public_app_id}`}
@@ -269,10 +269,10 @@ export const Dashboard: React.FC = () => {
                     >
                       {/* Hover Indicator Line */}
                       <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-theme-primary-400 to-theme-primary-600 opacity-0 group-hover:opacity-100 transition-opacity rounded-l-2xl"></div>
-                      
+
                       <div className="flex items-center gap-5 w-full sm:w-auto relative z-10">
                         <div
-                          className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110 ${app.is_active ? "bg-gradient-to-br from-green-300/20 to-transparent text-theme-success border border-theme-success/20" : "bg-theme-bg-muted text-theme-text-muted border border-theme-border"}`}
+                          className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110 ${app.is_active ? 'bg-gradient-to-br from-green-300/20 to-transparent text-theme-success border border-theme-success/20' : 'bg-theme-bg-muted text-theme-text-muted border border-theme-border'}`}
                         >
                           <RiSmartphoneLine size={24} />
                         </div>
@@ -282,13 +282,13 @@ export const Dashboard: React.FC = () => {
                               {app.name}
                             </h3>
                             <span
-                              className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${app.is_active ? "bg-green-300/15 text-theme-success border border-theme-success/30 shadow-[0_0_10px_rgba(134,239,172,0.2)]" : "bg-theme-bg-muted text-theme-text-secondary border border-theme-border"}`}
+                              className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${app.is_active ? 'bg-green-300/15 text-theme-success border border-theme-success/30 shadow-[0_0_10px_rgba(134,239,172,0.2)]' : 'bg-theme-bg-muted text-theme-text-secondary border border-theme-border'}`}
                             >
-                              {app.is_active ? "Live" : "Draft"}
+                              {app.is_active ? 'Live' : 'Draft'}
                             </span>
                           </div>
                           <p className="text-sm text-theme-text-secondary line-clamp-1 font-medium">
-                            {app.description || "No description provided"}
+                            {app.description || 'No description provided'}
                           </p>
                         </div>
                       </div>
@@ -299,10 +299,11 @@ export const Dashboard: React.FC = () => {
                             Created On
                           </p>
                           <p className="text-sm font-bold text-theme-text-primary glass-text">
-                            {new Date(app.created_at).toLocaleDateString(
-                              undefined,
-                              { month: "long", day: "numeric", year: "numeric" },
-                            )}
+                            {new Date(app.created_at).toLocaleDateString(undefined, {
+                              month: 'long',
+                              day: 'numeric',
+                              year: 'numeric',
+                            })}
                           </p>
                         </div>
                         <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 group-hover:bg-theme-primary-500 flex items-center justify-center text-theme-text-secondary group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:-translate-x-1">
@@ -314,7 +315,7 @@ export const Dashboard: React.FC = () => {
                 ))}
               </div>
             )}
-            
+
             {apps.length > 5 && (
               <div className="mt-6 text-center sm:hidden">
                 <Link

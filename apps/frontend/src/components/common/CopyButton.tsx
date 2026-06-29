@@ -15,10 +15,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ text, label = 'Copy' }) 
   };
 
   return (
-    <button
-      onClick={handleCopy}
-      className="btn-secondary text-sm"
-    >
+    <button onClick={handleCopy} className="btn-secondary text-sm">
       {copied ? '✓ Copied!' : label}
     </button>
   );

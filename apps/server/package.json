@@ -9,7 +9,11 @@
     "start": "node dist/main.js",
     "start:prod": "node dist/main.js",
     "preview": "nest build && node dist/main.js",
-    "db:setup": "node -r ts-node/register src/scripts/setupDb.ts"
+    "db:setup": "node -r ts-node/register src/scripts/setupDb.ts",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "type-check": "tsc --noEmit"
   },
   "keywords": [
     "push",

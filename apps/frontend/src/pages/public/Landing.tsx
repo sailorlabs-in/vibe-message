@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import { motion } from "motion/react";
+import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
 import {
   RiArrowRightLine,
   RiCodeLine,
@@ -14,8 +14,8 @@ import {
   RiSmartphoneLine,
   RiGlobalLine,
   RiCheckboxCircleLine,
-} from "@remixicon/react";
-import { useRef } from "react";
+} from '@remixicon/react';
+import React, { useRef } from 'react';
 
 export const Landing: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -37,7 +37,7 @@ export const Landing: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
             >
               {/* Tag Badge */}
               <div className="inline-flex items-center space-x-2 bg-theme-bg-secondary border border-theme-border rounded-full px-4 py-2 mb-8 shadow-sm hover:border-theme-primary-500 transition-colors">
@@ -47,18 +47,15 @@ export const Landing: React.FC = () => {
               </div>
 
               <h1 className="text-5xl md:text-7xl font-display font-extrabold tracking-tight mb-8 leading-tight">
-                <span className="block text-theme-text-primary">
-                  Next-Gen Push
-                </span>
+                <span className="block text-theme-text-primary">Next-Gen Push</span>
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-theme-primary-500 via-theme-accent-500 to-theme-primary-500 bg-[length:200%_auto] animate-gradient">
                   Infrastructure.
                 </span>
               </h1>
 
               <p className="text-lg md:text-xl text-theme-text-secondary mb-10 leading-relaxed max-w-lg">
-                The enterprise-grade notification backend built for modern web
-                applications. Deliver instant, reliable messages globally with
-                absolute precision and unmatched security.
+                The enterprise-grade notification backend built for modern web applications. Deliver
+                instant, reliable messages globally with absolute precision and unmatched security.
               </p>
 
               <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
@@ -109,56 +106,46 @@ export const Landing: React.FC = () => {
                 <div className="p-6 overflow-x-auto text-sm font-mono text-slate-300 leading-relaxed">
                   <pre>
                     <code>
-                      <span className="text-[#c678dd]">import</span> {"{"}{" "}
-                      initServerClient {"}"}{" "}
-                      <span className="text-[#c678dd]">from</span>{" "}
+                      <span className="text-[#c678dd]">import</span> {'{'} initServerClient {'}'}{' '}
+                      <span className="text-[#c678dd]">from</span>{' '}
                       <span className="text-[#98c379]">'vibe-message'</span>
                       ;
                       <br />
                       <br />
-                      <span className="text-[#c678dd]">const</span> vibe ={" "}
-                      <span className="text-[#61afef]">initServerClient</span>(
-                      {"{"}
+                      <span className="text-[#c678dd]">const</span> vibe ={' '}
+                      <span className="text-[#61afef]">initServerClient</span>({'{'}
                       <br />
-                      &nbsp;&nbsp;appId:{" "}
-                      <span className="text-[#98c379]">'your-app-id'</span>
+                      &nbsp;&nbsp;appId: <span className="text-[#98c379]">'your-app-id'</span>
                       ,<br />
-                      &nbsp;&nbsp;secretKey:{" "}
+                      &nbsp;&nbsp;secretKey:{' '}
                       <span className="text-[#98c379]">'your-secret-key'</span>
                       <br />
-                      {"}"});
+                      {'}'});
                       <br />
                       <br />
-                      <span className="text-[#c678dd]">const</span> result ={" "}
+                      <span className="text-[#c678dd]">const</span> result ={' '}
                       <span className="text-[#c678dd]">await</span> vibe.
-                      <span className="text-[#61afef]">notification</span>({"{"}
+                      <span className="text-[#61afef]">notification</span>({'{'}
                       <br />
-                      &nbsp;&nbsp;notificationData: {"{"}
+                      &nbsp;&nbsp;notificationData: {'{'}
                       <br />
-                      &nbsp;&nbsp;&nbsp;&nbsp;title:{" "}
+                      &nbsp;&nbsp;&nbsp;&nbsp;title:{' '}
                       <span className="text-[#98c379]">'New Content!'</span>
                       ,<br />
-                      &nbsp;&nbsp;&nbsp;&nbsp;body:{" "}
-                      <span className="text-[#98c379]">
-                        'Someone liked your post.'
-                      </span>
+                      &nbsp;&nbsp;&nbsp;&nbsp;body:{' '}
+                      <span className="text-[#98c379]">'Someone liked your post.'</span>
                       ,<br />
-                      &nbsp;&nbsp;&nbsp;&nbsp;icon:{" "}
-                      <span className="text-[#98c379]">
-                        'https://yoursite.com/icon.png'
-                      </span>
+                      &nbsp;&nbsp;&nbsp;&nbsp;icon:{' '}
+                      <span className="text-[#98c379]">'https://yoursite.com/icon.png'</span>
                       ,<br />
-                      &nbsp;&nbsp;&nbsp;&nbsp;click_action:{" "}
-                      <span className="text-[#98c379]">
-                        'https://yoursite.com/dashboard'
-                      </span>
+                      &nbsp;&nbsp;&nbsp;&nbsp;click_action:{' '}
+                      <span className="text-[#98c379]">'https://yoursite.com/dashboard'</span>
                       ,<br />
-                      &nbsp;&nbsp;{"}"},<br />
-                      &nbsp;&nbsp;externalUsers: [
-                      <span className="text-[#98c379]">'user-1'</span>
+                      &nbsp;&nbsp;{'}'},<br />
+                      &nbsp;&nbsp;externalUsers: [<span className="text-[#98c379]">'user-1'</span>
                       ]
                       <br />
-                      {"}"});
+                      {'}'});
                     </code>
                   </pre>
                 </div>
@@ -173,18 +160,11 @@ export const Landing: React.FC = () => {
               >
                 <div className="w-10 h-10 border border-theme-border rounded-full relative flex items-center justify-center overflow-hidden">
                   <div className="absolute inset-0 bg-theme-success opacity-10"></div>
-                  <RiArrowUpLine
-                    size={20}
-                    className="text-theme-success z-10"
-                  />
+                  <RiArrowUpLine size={20} className="text-theme-success z-10" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-theme-text-primary">
-                    99.99%
-                  </div>
-                  <div className="text-xs text-theme-text-muted">
-                    Delivery Rate
-                  </div>
+                  <div className="text-sm font-bold text-theme-text-primary">99.99%</div>
+                  <div className="text-xs text-theme-text-muted">Delivery Rate</div>
                 </div>
               </motion.div>
 
@@ -196,18 +176,11 @@ export const Landing: React.FC = () => {
               >
                 <div className="w-10 h-10 border border-theme-border rounded-full relative flex items-center justify-center overflow-hidden">
                   <div className="absolute inset-0 bg-theme-primary-500 opacity-10"></div>
-                  <RiCodeLine
-                    size={20}
-                    className="text-theme-primary-500 z-10"
-                  />
+                  <RiCodeLine size={20} className="text-theme-primary-500 z-10" />
                 </div>
                 <div>
-                  <div className="text-sm font-bold text-theme-text-primary">
-                    &lt; 5 mins
-                  </div>
-                  <div className="text-xs text-theme-text-muted">
-                    Integration Time
-                  </div>
+                  <div className="text-sm font-bold text-theme-text-primary">&lt; 5 mins</div>
+                  <div className="text-xs text-theme-text-muted">Integration Time</div>
                 </div>
               </motion.div>
             </motion.div>
@@ -229,7 +202,7 @@ export const Landing: React.FC = () => {
               className="flex flex-wrap justify-center gap-10 opacity-70 hover:opacity-100 grayscale hover:grayscale-0 transition-opacity transition-filters duration-500"
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-50px" }}
+              viewport={{ once: true, margin: '-50px' }}
               variants={{
                 visible: {
                   transition: { staggerChildren: 0.15 },
@@ -242,7 +215,7 @@ export const Landing: React.FC = () => {
                   visible: {
                     opacity: 1,
                     y: 0,
-                    transition: { type: "spring", stiffness: 100 },
+                    transition: { type: 'spring', stiffness: 100 },
                   },
                 }}
                 className="flex items-center space-x-2 text-xl font-bold font-display"
@@ -255,7 +228,7 @@ export const Landing: React.FC = () => {
                   visible: {
                     opacity: 1,
                     y: 0,
-                    transition: { type: "spring", stiffness: 100 },
+                    transition: { type: 'spring', stiffness: 100 },
                   },
                 }}
                 className="flex items-center space-x-2 text-xl font-bold font-display"
@@ -268,7 +241,7 @@ export const Landing: React.FC = () => {
                   visible: {
                     opacity: 1,
                     y: 0,
-                    transition: { type: "spring", stiffness: 100 },
+                    transition: { type: 'spring', stiffness: 100 },
                   },
                 }}
                 className="flex items-center space-x-2 text-xl font-bold font-display"
@@ -281,7 +254,7 @@ export const Landing: React.FC = () => {
                   visible: {
                     opacity: 1,
                     y: 0,
-                    transition: { type: "spring", stiffness: 100 },
+                    transition: { type: 'spring', stiffness: 100 },
                   },
                 }}
                 className="flex items-center space-x-2 text-xl font-bold font-display"
@@ -294,7 +267,7 @@ export const Landing: React.FC = () => {
                   visible: {
                     opacity: 1,
                     y: 0,
-                    transition: { type: "spring", stiffness: 100 },
+                    transition: { type: 'spring', stiffness: 100 },
                   },
                 }}
                 className="flex items-center space-x-2 text-xl font-bold font-display"
@@ -321,9 +294,9 @@ export const Landing: React.FC = () => {
                 Everything you need to scale globally.
               </h3>
               <p className="text-xl text-theme-text-secondary leading-relaxed">
-                We handle the complex infrastructure of push notifications—from
-                token management, vendor routing, to payload encryption—so you
-                can focus entirely on building your product.
+                We handle the complex infrastructure of push notifications—from token management,
+                vendor routing, to payload encryption—so you can focus entirely on building your
+                product.
               </p>
             </motion.div>
 
@@ -342,19 +315,16 @@ export const Landing: React.FC = () => {
                 <div className="relative h-full flex flex-col justify-end z-10">
                   <div className="w-14 h-14 relative rounded-2xl flex items-center justify-center mb-6">
                     <div className="absolute inset-0 bg-theme-primary-500 opacity-10 rounded-2xl"></div>
-                    <RiFlashlightLine
-                      size={28}
-                      className="text-theme-primary-500 z-10"
-                    />
+                    <RiFlashlightLine size={28} className="text-theme-primary-500 z-10" />
                   </div>
                   <h3 className="text-3xl font-display font-bold text-theme-text-primary mb-3">
                     Hyper-Scale Core
                   </h3>
                   <p className="text-theme-text-secondary text-lg leading-relaxed">
-                    Built natively on heavily optimized PostgreSQL, Redis caching,
-                    and Redis-backed event queues. Capable of processing hundreds of
-                    thousands of concurrent notification dispatch requests without
-                    breaking a sweat. Guaranteed delivery integrity.
+                    Built natively on heavily optimized PostgreSQL, Redis caching, and Redis-backed
+                    event queues. Capable of processing hundreds of thousands of concurrent
+                    notification dispatch requests without breaking a sweat. Guaranteed delivery
+                    integrity.
                   </p>
                 </div>
               </motion.div>
@@ -371,9 +341,7 @@ export const Landing: React.FC = () => {
                   <span className="text-6xl font-display font-bold text-theme-text-primary group-hover:text-theme-accent-500 transition-colors">
                     42
                   </span>
-                  <span className="text-xl text-theme-text-muted pb-1 font-mono">
-                    ms
-                  </span>
+                  <span className="text-xl text-theme-text-muted pb-1 font-mono">ms</span>
                 </div>
                 <h3 className="text-xl font-bold text-theme-text-primary mb-2">
                   Lightning Fast Latency
@@ -393,10 +361,7 @@ export const Landing: React.FC = () => {
               >
                 <div className="w-10 h-10 relative flex items-center justify-center mb-auto rounded-lg">
                   <div className="absolute inset-0 bg-theme-primary-500 opacity-10 rounded-lg"></div>
-                  <RiShieldUserLine
-                    size={24}
-                    className="text-theme-primary-500 z-10"
-                  />
+                  <RiShieldUserLine size={24} className="text-theme-primary-500 z-10" />
                 </div>
                 <div>
                   <h3 className="font-bold text-theme-text-primary mb-1 text-lg">
@@ -418,10 +383,7 @@ export const Landing: React.FC = () => {
               >
                 <div className="w-10 h-10 relative flex items-center justify-center mb-auto rounded-lg">
                   <div className="absolute inset-0 bg-theme-primary-500 opacity-10 rounded-lg"></div>
-                  <RiPlugLine
-                    size={24}
-                    className="text-theme-primary-500 z-10"
-                  />
+                  <RiPlugLine size={24} className="text-theme-primary-500 z-10" />
                 </div>
                 <div>
                   <h3 className="font-bold text-theme-text-primary mb-1 text-lg">
@@ -444,10 +406,7 @@ export const Landing: React.FC = () => {
                 <div className="mb-auto">
                   <div className="w-12 h-12 relative flex items-center justify-center rounded-xl">
                     <div className="absolute inset-0 bg-theme-primary-500 opacity-10 rounded-xl"></div>
-                    <RiBarChartBoxLine
-                      size={24}
-                      className="text-theme-primary-500 z-10"
-                    />
+                    <RiBarChartBoxLine size={24} className="text-theme-primary-500 z-10" />
                   </div>
                 </div>
                 <div className="mt-2 relative z-10">
@@ -455,9 +414,9 @@ export const Landing: React.FC = () => {
                     Telemetry Engine
                   </h3>
                   <p className="text-base text-theme-text-secondary leading-relaxed">
-                    Granular, real-time analytics. Monitor delivery status,
-                    manage device registries, and track notification health
-                    instantly from the integrated Admin Dashboard.
+                    Granular, real-time analytics. Monitor delivery status, manage device
+                    registries, and track notification health instantly from the integrated Admin
+                    Dashboard.
                   </p>
                 </div>
               </motion.div>
@@ -473,10 +432,7 @@ export const Landing: React.FC = () => {
                 <div className="mb-auto flex space-x-4">
                   <div className="w-12 h-12 relative flex items-center justify-center rounded-xl">
                     <div className="absolute inset-0 bg-theme-accent-500 opacity-10 rounded-xl"></div>
-                    <RiSmartphoneLine
-                      size={24}
-                      className="text-theme-accent-500 z-10"
-                    />
+                    <RiSmartphoneLine size={24} className="text-theme-accent-500 z-10" />
                   </div>
                 </div>
                 <div className="mt-2 relative z-10">
@@ -484,9 +440,8 @@ export const Landing: React.FC = () => {
                     Precision Targeting
                   </h3>
                   <p className="text-base text-theme-text-secondary leading-relaxed">
-                    Send rich graphical notifications directly to user screens,
-                    or dispatch data-only silent background pushes to sync local
-                    app states seamlessly.
+                    Send rich graphical notifications directly to user screens, or dispatch
+                    data-only silent background pushes to sync local app states seamlessly.
                   </p>
                 </div>
               </motion.div>
@@ -504,14 +459,14 @@ export const Landing: React.FC = () => {
               viewport={{ once: true }}
             >
               <h2 className="text-3xl md:text-5xl font-display font-bold mb-6 text-theme-text-primary">
-                From zero to shipped in{" "}
+                From zero to shipped in{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-theme-primary-500 to-theme-accent-500">
                   minutes.
                 </span>
               </h2>
               <p className="text-xl text-theme-text-secondary">
-                We've abstracted the ridiculous complexities of VAPID keys and
-                browser compatibility into four beautifully simple steps.
+                We've abstracted the ridiculous complexities of VAPID keys and browser compatibility
+                into four beautifully simple steps.
               </p>
             </motion.div>
 
@@ -535,8 +490,8 @@ export const Landing: React.FC = () => {
                     Initialize Vault
                   </h3>
                   <p className="text-theme-text-secondary text-sm leading-relaxed text-center md:text-left">
-                    Register an account on the secure platform. Generating your
-                    distinct App ID and isolated database tenant automatically.
+                    Register an account on the secure platform. Generating your distinct App ID and
+                    isolated database tenant automatically.
                   </p>
                 </motion.div>
 
@@ -555,8 +510,8 @@ export const Landing: React.FC = () => {
                     Generate Keys
                   </h3>
                   <p className="text-theme-text-secondary text-sm leading-relaxed text-center md:text-left">
-                    Provision strictly encrypted VAPID key pairs and API Secret
-                    keys needed to authenticate API payloads.
+                    Provision strictly encrypted VAPID key pairs and API Secret keys needed to
+                    authenticate API payloads.
                   </p>
                 </motion.div>
 
@@ -575,9 +530,8 @@ export const Landing: React.FC = () => {
                     Embed JS SDK
                   </h3>
                   <p className="text-theme-text-secondary text-sm leading-relaxed text-center md:text-left">
-                    Drop the frontend client wrapper into your React or Vue app.
-                    We automatically handle service worker initialization and
-                    browser dialogues.
+                    Drop the frontend client wrapper into your React or Vue app. We automatically
+                    handle service worker initialization and browser dialogues.
                   </p>
                 </motion.div>
 
@@ -596,9 +550,8 @@ export const Landing: React.FC = () => {
                     Trigger API
                   </h3>
                   <p className="text-theme-text-secondary text-sm leading-relaxed text-center md:text-left">
-                    Invoke our Node.js REST API directly from your backend
-                    routines. The engine routes and guarantees delivery globally
-                    in milliseconds.
+                    Invoke our Node.js REST API directly from your backend routines. The engine
+                    routes and guarantees delivery globally in milliseconds.
                   </p>
                 </motion.div>
               </div>
@@ -620,10 +573,7 @@ export const Landing: React.FC = () => {
                   {/* Decorative Mockup */}
                   <div className="w-full bg-theme-bg-primary rounded-xl border border-theme-border overflow-hidden shadow-inner">
                     <div className="border-b border-theme-border p-3 flex items-center bg-black/5 dark:bg-white/5">
-                      <RiSpeedUpLine
-                        size={18}
-                        className="text-theme-text-muted mr-2"
-                      />
+                      <RiSpeedUpLine size={18} className="text-theme-text-muted mr-2" />
                       <span className="text-xs font-mono text-theme-text-muted">
                         Broadcast Traffic Monitor
                       </span>
@@ -632,48 +582,29 @@ export const Landing: React.FC = () => {
                       <div className="flex items-center justify-between p-3 rounded bg-theme-bg-secondary border border-theme-border">
                         <div className="flex items-center">
                           <div className="w-8 h-8 rounded-full bg-theme-primary-500/10 flex items-center justify-center mr-3">
-                            <RiCheckboxCircleLine
-                              size={16}
-                              className="text-theme-primary-500"
-                            />
+                            <RiCheckboxCircleLine size={16} className="text-theme-primary-500" />
                           </div>
-                          <div className="text-sm font-medium">
-                            Order Dispatched
-                          </div>
+                          <div className="text-sm font-medium">Order Dispatched</div>
                         </div>
-                        <div className="text-xs text-theme-text-muted">
-                          Just now
-                        </div>
+                        <div className="text-xs text-theme-text-muted">Just now</div>
                       </div>
                       <div className="flex items-center justify-between p-3 rounded bg-theme-bg-secondary border border-theme-border">
                         <div className="flex items-center">
                           <div className="w-8 h-8 rounded-full bg-theme-accent-500/10 flex items-center justify-center mr-3">
-                            <RiCheckboxCircleLine
-                              size={16}
-                              className="text-theme-accent-500"
-                            />
+                            <RiCheckboxCircleLine size={16} className="text-theme-accent-500" />
                           </div>
-                          <div className="text-sm font-medium">
-                            System Alert
-                          </div>
+                          <div className="text-sm font-medium">System Alert</div>
                         </div>
-                        <div className="text-xs text-theme-text-muted">
-                          12s ago
-                        </div>
+                        <div className="text-xs text-theme-text-muted">12s ago</div>
                       </div>
                       <div className="flex items-center justify-between p-3 rounded bg-theme-bg-secondary border border-theme-border opacity-50">
                         <div className="flex items-center">
                           <div className="w-8 h-8 rounded-full bg-theme-primary-500/10 flex items-center justify-center mr-3">
-                            <RiCheckboxCircleLine
-                              size={16}
-                              className="text-theme-text-muted"
-                            />
+                            <RiCheckboxCircleLine size={16} className="text-theme-text-muted" />
                           </div>
                           <div className="text-sm font-medium">User Login</div>
                         </div>
-                        <div className="text-xs text-theme-text-muted">
-                          1m ago
-                        </div>
+                        <div className="text-xs text-theme-text-muted">1m ago</div>
                       </div>
                     </div>
                   </div>
@@ -699,9 +630,8 @@ export const Landing: React.FC = () => {
                         Transactional Alerts
                       </h4>
                       <p className="text-theme-text-secondary leading-relaxed">
-                        Instantly reach mobile and desktop devices with critical
-                        updates like payment receipts, shipping statuses, or
-                        two-factor authentication prompts.
+                        Instantly reach mobile and desktop devices with critical updates like
+                        payment receipts, shipping statuses, or two-factor authentication prompts.
                       </p>
                     </div>
                   </div>
@@ -715,9 +645,8 @@ export const Landing: React.FC = () => {
                         Silent Background Sync
                       </h4>
                       <p className="text-theme-text-secondary leading-relaxed">
-                        Deliver invisible data payloads that trigger your
-                        front-end application to silently re-fetch API data or
-                        update local state without notifying the user.
+                        Deliver invisible data payloads that trigger your front-end application to
+                        silently re-fetch API data or update local state without notifying the user.
                       </p>
                     </div>
                   </div>
@@ -731,9 +660,8 @@ export const Landing: React.FC = () => {
                         Marketing Broadcasts
                       </h4>
                       <p className="text-theme-text-secondary leading-relaxed">
-                        Target custom groups and segments with feature releases,
-                        promotional campaigns, and rich media announcements with
-                        actionable tap links.
+                        Target custom groups and segments with feature releases, promotional
+                        campaigns, and rich media announcements with actionable tap links.
                       </p>
                     </div>
                   </div>
@@ -756,8 +684,8 @@ export const Landing: React.FC = () => {
               Ready to ship faster?
             </h2>
             <p className="text-xl text-theme-text-secondary mb-10 max-w-2xl mx-auto">
-              Join development teams building the next generation of highly
-              interactive, real-time web applications.
+              Join development teams building the next generation of highly interactive, real-time
+              web applications.
             </p>
             <div className="flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-4">
               <Link
@@ -776,8 +704,6 @@ export const Landing: React.FC = () => {
             </div>
           </motion.div>
         </section>
-
-
       </div>
     </div>
   );

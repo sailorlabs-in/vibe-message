@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "preview": "next build && next start",
-    "lint": "eslint"
+    "lint": "eslint app lib --ext .ts,.tsx",
+    "lint:fix": "eslint app lib --ext .ts,.tsx --fix",
+    "format": "prettier --write \"app/**/*.{ts,tsx}\" \"lib/**/*.ts\"",
+    "type-check": "tsc --noEmit"
   },
   "nx": {
     "targets": {

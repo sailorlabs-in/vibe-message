@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import toast from "react-hot-toast";
-import ApiRequest from "../../../services/ApiRequest";
-import { TableSkeleton } from "../../../components/common/SkeletonLoader";
-import { RiGroupLine, RiRefreshLine, RiAlertLine } from "@remixicon/react";
-import { useAppDispatch, useAppSelector } from "../../../store/store";
-import { unregisterAllAppDevices } from "../../../store/slices/appsSlice";
-import { ConfirmModal } from "../../../components/common/ConfirmModal";
+import React, { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
+import ApiRequest from '../../../services/ApiRequest';
+import { TableSkeleton } from '../../../components/common/SkeletonLoader';
+import { RiGroupLine, RiRefreshLine, RiAlertLine } from '@remixicon/react';
+import { useAppDispatch, useAppSelector } from '../../../store/store';
+import { unregisterAllAppDevices } from '../../../store/slices/appsSlice';
+import { ConfirmModal } from '../../../components/common/ConfirmModal';
 
 interface Subscriber {
   id: number;
@@ -25,7 +25,7 @@ export const Subscribers: React.FC<SubscribersProps> = ({ appId }) => {
   const [loading, setLoading] = useState(true);
   const dispatch = useAppDispatch();
   const { selectedApp } = useAppSelector((state) => state.apps);
-  const isViewer = selectedApp?.currentUserRole === "viewer";
+  const isViewer = selectedApp?.currentUserRole === 'viewer';
   const [unregistering, setUnregistering] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -38,10 +38,10 @@ export const Subscribers: React.FC<SubscribersProps> = ({ appId }) => {
     try {
       const resultAction = await dispatch(unregisterAllAppDevices(appId));
       if (unregisterAllAppDevices.fulfilled.match(resultAction)) {
-        toast.success("Successfully unregistered all devices for this app.");
+        toast.success('Successfully unregistered all devices for this app.');
         fetchSubscribers();
       } else {
-        toast.error("Failed to unregister devices.");
+        toast.error('Failed to unregister devices.');
       }
     } finally {
       setUnregistering(false);
@@ -51,10 +51,10 @@ export const Subscribers: React.FC<SubscribersProps> = ({ appId }) => {
   const fetchSubscribers = async () => {
     try {
       setLoading(true);
-      const res = await ApiRequest(`/apps/${appId}/subscribers`, "get");
+      const res = await ApiRequest(`/apps/${appId}/subscribers`, 'get');
       setSubscribers(res.data || []);
-    } catch (error) {
-      toast.error("Failed to load subscribers");
+    } catch {
+      toast.error('Failed to load subscribers');
     } finally {
       setLoading(false);
     }
@@ -70,9 +70,7 @@ export const Subscribers: React.FC<SubscribersProps> = ({ appId }) => {
         <div className="w-16 h-16 mx-auto mb-4 bg-theme-bg-muted rounded-full flex items-center justify-center text-theme-text-muted">
           <RiGroupLine size={32} />
         </div>
-        <h3 className="text-lg font-medium text-theme-text-primary">
-          No subscribers yet
-        </h3>
+        <h3 className="text-lg font-medium text-theme-text-primary">No subscribers yet</h3>
         <p className="text-theme-text-secondary mt-1">
           Users will appear here once they register their devices via the SDK.
         </p>
@@ -94,7 +92,7 @@ export const Subscribers: React.FC<SubscribersProps> = ({ appId }) => {
               className="px-4 py-2 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/40 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 outline-none focus:ring-2 focus:ring-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <RiAlertLine size={16} />
-              {unregistering ? "Unregistering..." : "Unregister All"}
+              {unregistering ? 'Unregistering...' : 'Unregister All'}
             </button>
           )}
           <button
@@ -132,29 +130,31 @@ export const Subscribers: React.FC<SubscribersProps> = ({ appId }) => {
                   Device #{sub.id}
                 </td>
                 <td className="p-4 text-center">
-                  {sub.platform === "Chrome/Android" && (
+                  {sub.platform === 'Chrome/Android' && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
                       Chrome/Android
                     </span>
                   )}
-                  {sub.platform === "Safari" && (
+                  {sub.platform === 'Safari' && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300">
                       Safari
                     </span>
                   )}
-                  {sub.platform === "Firefox" && (
+                  {sub.platform === 'Firefox' && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300">
                       Firefox
                     </span>
                   )}
-                  {sub.platform === "Edge/Windows" && (
+                  {sub.platform === 'Edge/Windows' && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
                       Edge/Windows
                     </span>
                   )}
-                  {!["Chrome/Android", "Safari", "Firefox", "Edge/Windows"].includes(sub.platform || "") && (
+                  {!['Chrome/Android', 'Safari', 'Firefox', 'Edge/Windows'].includes(
+                    sub.platform || ''
+                  ) && (
                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
-                      {sub.platform || "Web Push"}
+                      {sub.platform || 'Web Push'}
                     </span>
                   )}
                 </td>
@@ -170,7 +170,7 @@ export const Subscribers: React.FC<SubscribersProps> = ({ appId }) => {
                   )}
                 </td>
                 <td className="p-4 text-sm text-theme-text-secondary">
-                  {new Date(sub.created_at).toLocaleDateString()}{" "}
+                  {new Date(sub.created_at).toLocaleDateString()}{' '}
                   {new Date(sub.created_at).toLocaleTimeString()}
                 </td>
                 <td className="p-4 text-sm text-theme-text-secondary">

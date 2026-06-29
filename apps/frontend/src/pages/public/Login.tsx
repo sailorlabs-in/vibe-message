@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
-import { motion } from "motion/react";
-import { useAppDispatch, useAppSelector } from "../../store/store";
-import { loginUser, clearError } from "../../store/slices/authSlice";
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { loginUser, clearError } from '../../store/slices/authSlice';
 import {
   RiErrorWarningLine,
   RiEyeLine,
@@ -10,11 +10,11 @@ import {
   RiLoader4Line,
   RiCheckboxCircleFill,
   RiShieldKeyholeLine,
-} from "@remixicon/react";
+} from '@remixicon/react';
 
 export const Login: React.FC = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
@@ -30,12 +30,12 @@ export const Login: React.FC = () => {
 
   useEffect(() => {
     if (user) {
-      if (user.status === "PENDING") {
-        navigate("/pending");
-      } else if (user.status === "BANNED") {
+      if (user.status === 'PENDING') {
+        navigate('/pending');
+      } else if (user.status === 'BANNED') {
         // Error will be shown from Redux state
       } else {
-        navigate("/dashboard");
+        navigate('/dashboard');
       }
     }
   }, [user, navigate]);
@@ -58,7 +58,7 @@ export const Login: React.FC = () => {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { type: "spring" as const, stiffness: 300, damping: 24 },
+      transition: { type: 'spring' as const, stiffness: 300, damping: 24 },
     },
   };
 
@@ -75,7 +75,7 @@ export const Login: React.FC = () => {
                 y: [0, -50, 0],
                 rotate: [0, 90, 0],
               }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
               className="absolute -top-20 -left-20 w-96 h-96 bg-violet-500/20 rounded-full blur-[80px]"
             />
             <motion.div
@@ -84,7 +84,7 @@ export const Login: React.FC = () => {
                 y: [0, 50, 0],
                 rotate: [0, -90, 0],
               }}
-              transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+              transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
               className="absolute bottom-10 -right-10 w-80 h-80 bg-green-500/10 rounded-full blur-[60px]"
             />
           </div>
@@ -113,8 +113,8 @@ export const Login: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="text-lg text-theme-text-secondary leading-relaxed max-w-md"
             >
-              Log in to manage your messaging infrastructure, view real-time
-              analytics, and configure delivery workflows.
+              Log in to manage your messaging infrastructure, view real-time analytics, and
+              configure delivery workflows.
             </motion.p>
           </div>
 
@@ -126,18 +126,15 @@ export const Login: React.FC = () => {
             className="relative z-10 space-y-4 mt-12"
           >
             {[
-              "Enterprise-grade Security",
-              "Real-time Delivery Analytics",
-              "Multi-platform Gateway",
+              'Enterprise-grade Security',
+              'Real-time Delivery Analytics',
+              'Multi-platform Gateway',
             ].map((feature, idx) => (
               <div
                 key={idx}
                 className="flex items-center gap-4 bg-white/40 dark:bg-slate-800/40 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/20 dark:border-slate-700/50 shadow-sm w-max"
               >
-                <RiCheckboxCircleFill
-                  size={20}
-                  className="text-theme-success"
-                />
+                <RiCheckboxCircleFill size={20} className="text-theme-success" />
                 <span className="font-bold text-theme-text-primary text-sm tracking-wide">
                   {feature}
                 </span>
@@ -167,7 +164,7 @@ export const Login: React.FC = () => {
               {passwordResetSuccess && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
+                  animate={{ opacity: 1, height: 'auto' }}
                   className="bg-green-500/10 text-green-600 dark:text-green-400 p-4 rounded-2xl border border-green-500/20 text-sm font-bold flex items-center gap-3 backdrop-blur-md"
                 >
                   <RiCheckboxCircleFill size={20} className="shrink-0" />
@@ -178,7 +175,7 @@ export const Login: React.FC = () => {
               {error && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
+                  animate={{ opacity: 1, height: 'auto' }}
                   className="bg-red-500/10 text-red-500 dark:text-red-400 p-4 rounded-2xl border border-red-500/20 text-sm font-bold flex items-center gap-3 backdrop-blur-md"
                 >
                   <RiErrorWarningLine size={20} className="shrink-0" />
@@ -210,7 +207,7 @@ export const Login: React.FC = () => {
 
                 <motion.div variants={itemVariants} className="relative group">
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-5 pr-12 py-4 bg-theme-bg-muted dark:bg-slate-800/50 text-theme-text-primary border border-theme-border rounded-2xl focus:outline-none focus:ring-4 focus:ring-theme-primary-500 focus:border-theme-primary-500 transition-all placeholder-transparent peer backdrop-blur-sm hover:border-theme-border"
@@ -232,15 +229,9 @@ export const Login: React.FC = () => {
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-4 text-theme-text-muted hover:text-theme-primary-500 transition-colors focus:outline-none"
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? (
-                      <RiEyeOffLine size={24} />
-                    ) : (
-                      <RiEyeLine size={24} />
-                    )}
+                    {showPassword ? <RiEyeOffLine size={24} /> : <RiEyeLine size={24} />}
                   </button>
                 </motion.div>
               </div>
@@ -268,14 +259,14 @@ export const Login: React.FC = () => {
                     Authenticating...
                   </>
                 ) : (
-                  "Sign In to Dashboard"
+                  'Sign In to Dashboard'
                 )}
               </motion.button>
             </form>
 
             <motion.div variants={itemVariants} className="mt-10 text-center">
               <p className="text-theme-text-secondary font-medium">
-                Don't have an account?{" "}
+                Don't have an account?{' '}
                 <Link
                   to="/signup"
                   className="text-theme-primary-500 font-bold hover:text-theme-primary-600 transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-theme-primary-500 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left"

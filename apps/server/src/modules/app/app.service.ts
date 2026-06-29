@@ -3,21 +3,16 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
-} from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository, Brackets } from "typeorm";
-import { App as AppEntity } from "./app.entity";
-import { AppMember } from "./app-member.entity";
-import { User } from "../user/user.entity";
-import {
-  AppWithStats,
-  CreateAppRequest,
-  UpdateAppRequest,
-  UserRole,
-} from "../../types";
-import { generateAppId, generateSecretKey } from "../../utils/crypto";
-import { RedisService } from "../redis/redis.service";
-import { MailService } from "../mail/mail.service";
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, Brackets } from 'typeorm';
+import { App as AppEntity } from './app.entity';
+import { AppMember } from './app-member.entity';
+import { User } from '../user/user.entity';
+import { AppWithStats, CreateAppRequest, UpdateAppRequest, UserRole } from '../../types';
+import { generateAppId, generateSecretKey } from '../../utils/crypto';
+import { RedisService } from '../redis/redis.service';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AppService {
@@ -29,7 +24,7 @@ export class AppService {
     @InjectRepository(AppMember)
     private appMemberRepository: Repository<AppMember>,
     private redisService: RedisService,
-    private mailService: MailService,
+    private mailService: MailService
   ) {}
 
   private getCacheKey(publicAppId: string): string {
@@ -40,59 +35,49 @@ export class AppService {
     try {
       await this.redisService.client.del(this.getCacheKey(publicAppId));
     } catch (err) {
-      console.error("[App Service] Redis delete cache error:", err);
+      console.error('[App Service] Redis delete cache error:', err);
     }
   }
 
-  async getUserApps(
-    userId: number,
-    role: UserRole,
-    targetUserId?: number,
-  ): Promise<AppEntity[]> {
-    const filterId =
-      role === "SUPER_ADMIN" && targetUserId ? targetUserId : userId;
+  async getUserApps(userId: number, role: UserRole, targetUserId?: number): Promise<AppEntity[]> {
+    const filterId = role === 'SUPER_ADMIN' && targetUserId ? targetUserId : userId;
 
     return this.appRepository
-      .createQueryBuilder("a")
-      .leftJoin("app_members", "am", "am.app_id = a.id")
-      .where("a.user_id = :filterId", { filterId })
-      .orWhere("am.user_id = :filterId", { filterId })
-      .orderBy("a.created_at", "DESC")
+      .createQueryBuilder('a')
+      .leftJoin('app_members', 'am', 'am.app_id = a.id')
+      .where('a.user_id = :filterId', { filterId })
+      .orWhere('am.user_id = :filterId', { filterId })
+      .orderBy('a.created_at', 'DESC')
       .getMany();
   }
 
-  async getAppById(
-    publicAppId: string,
-    userId: number,
-    role: UserRole,
-  ): Promise<AppWithStats> {
+  async getAppById(publicAppId: string, userId: number, role: UserRole): Promise<AppWithStats> {
     const queryBuilder = this.appRepository
-      .createQueryBuilder("a")
-      .leftJoin("a.devices", "dt", "dt.is_active = true")
-      .leftJoin("a.notifications", "n")
-      .leftJoin("app_members", "am", "am.app_id = a.id")
+      .createQueryBuilder('a')
+      .leftJoin('a.devices', 'dt', 'dt.is_active = true')
+      .leftJoin('a.notifications', 'n')
+      .leftJoin('app_members', 'am', 'am.app_id = a.id')
       .select([
-        "a.*",
-        "COUNT(DISTINCT dt.id) as device_count",
-        "COUNT(DISTINCT n.id) as notification_count",
+        'a.*',
+        'COUNT(DISTINCT dt.id) as device_count',
+        'COUNT(DISTINCT n.id) as notification_count',
       ])
-      .where("a.public_app_id = :publicAppId", { publicAppId });
+      .where('a.public_app_id = :publicAppId', { publicAppId });
 
-    if (role !== "SUPER_ADMIN") {
+    if (role !== 'SUPER_ADMIN') {
       queryBuilder.andWhere(
         new Brackets((qb) => {
-          qb.where("a.user_id = :userId", { userId })
-            .orWhere("am.user_id = :userId", { userId });
+          qb.where('a.user_id = :userId', { userId }).orWhere('am.user_id = :userId', { userId });
         })
       );
     }
 
-    queryBuilder.groupBy("a.id");
+    queryBuilder.groupBy('a.id');
 
     const result = await queryBuilder.getRawOne();
 
     if (!result) {
-      throw new NotFoundException("App not found");
+      throw new NotFoundException('App not found');
     }
 
     // Map raw result to entity format
@@ -100,17 +85,17 @@ export class AppService {
     Object.assign(app, result);
     // Strip raw prefix from fields like a_id -> id
     for (const key in result) {
-      if (key.startsWith("a_")) {
-        (app as any)[key.replace("a_", "")] = result[key];
+      if (key.startsWith('a_')) {
+        (app as any)[key.replace('a_', '')] = result[key];
       }
     }
 
     // Resolve currentUserRole
-    let currentUserRole: "owner" | "moderator" | "viewer" | "superadmin" = "viewer";
-    if (role === "SUPER_ADMIN") {
-      currentUserRole = "superadmin";
+    let currentUserRole: 'owner' | 'moderator' | 'viewer' | 'superadmin' = 'viewer';
+    if (role === 'SUPER_ADMIN') {
+      currentUserRole = 'superadmin';
     } else if (app.user_id === userId) {
-      currentUserRole = "owner";
+      currentUserRole = 'owner';
     } else {
       const member = await this.appMemberRepository.findOne({
         where: { app_id: app.id, user_id: userId },
@@ -122,8 +107,8 @@ export class AppService {
 
     return {
       ...(app as unknown as AppWithStats),
-      device_count: parseInt(result.device_count || "0", 10),
-      notification_count: parseInt(result.notification_count || "0", 10),
+      device_count: parseInt(result.device_count || '0', 10),
+      notification_count: parseInt(result.notification_count || '0', 10),
       currentUserRole,
     };
   }
@@ -131,13 +116,11 @@ export class AppService {
   async createApp(userId: number, data: CreateAppRequest): Promise<AppEntity> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
-      throw new NotFoundException("User not found");
+      throw new NotFoundException('User not found');
     }
 
-    if (user.status !== "APPROVED" && user.role !== "SUPER_ADMIN") {
-      throw new ForbiddenException(
-        "Your account must be approved to create apps",
-      );
+    if (user.status !== 'APPROVED' && user.role !== 'SUPER_ADMIN') {
+      throw new ForbiddenException('Your account must be approved to create apps');
     }
 
     if (user.app_limit !== null) {
@@ -145,9 +128,7 @@ export class AppService {
         where: { user_id: userId },
       });
       if (currentCount >= user.app_limit) {
-        throw new ForbiddenException(
-          `You have reached your app limit of ${user.app_limit}`,
-        );
+        throw new ForbiddenException(`You have reached your app limit of ${user.app_limit}`);
       }
     }
 
@@ -166,22 +147,22 @@ export class AppService {
   private async checkAppAccessAndRole(
     publicAppId: string,
     userId: number,
-    role: UserRole,
-  ): Promise<{ app: AppEntity; currentUserRole: "owner" | "moderator" | "viewer" | "superadmin" }> {
+    role: UserRole
+  ): Promise<{ app: AppEntity; currentUserRole: 'owner' | 'moderator' | 'viewer' | 'superadmin' }> {
     const app = await this.appRepository.findOne({
       where: { public_app_id: publicAppId },
     });
 
     if (!app) {
-      throw new NotFoundException("App not found");
+      throw new NotFoundException('App not found');
     }
 
-    if (role === "SUPER_ADMIN") {
-      return { app, currentUserRole: "superadmin" };
+    if (role === 'SUPER_ADMIN') {
+      return { app, currentUserRole: 'superadmin' };
     }
 
     if (app.user_id === userId) {
-      return { app, currentUserRole: "owner" };
+      return { app, currentUserRole: 'owner' };
     }
 
     const member = await this.appMemberRepository.findOne({
@@ -189,7 +170,7 @@ export class AppService {
     });
 
     if (!member) {
-      throw new NotFoundException("App not found");
+      throw new NotFoundException('App not found');
     }
 
     return { app, currentUserRole: member.role };
@@ -199,19 +180,19 @@ export class AppService {
     publicAppId: string,
     userId: number,
     role: UserRole,
-    data: UpdateAppRequest,
+    data: UpdateAppRequest
   ): Promise<AppEntity> {
     const { app, currentUserRole } = await this.checkAppAccessAndRole(publicAppId, userId, role);
 
-    if (currentUserRole === "viewer") {
-      throw new ForbiddenException("You do not have permission to edit this app");
+    if (currentUserRole === 'viewer') {
+      throw new ForbiddenException('You do not have permission to edit this app');
     }
 
-    if (data.retention_days !== undefined && currentUserRole !== "superadmin") {
+    if (data.retention_days !== undefined && currentUserRole !== 'superadmin') {
       const user = await this.userRepository.findOne({ where: { id: userId } });
       if (!user?.can_manage_retention) {
         throw new ForbiddenException(
-          "You do not have permission to change the auto-delete retention period.",
+          'You do not have permission to change the auto-delete retention period.'
         );
       }
     }
@@ -219,23 +200,18 @@ export class AppService {
     if (data.name !== undefined) app.name = data.name;
     if (data.description !== undefined) app.description = data.description;
     if (data.is_active !== undefined) app.is_active = data.is_active;
-    if (data.retention_days !== undefined)
-      app.retention_days = data.retention_days;
+    if (data.retention_days !== undefined) app.retention_days = data.retention_days;
 
     const saved = await this.appRepository.save(app);
     await this.invalidateCache(publicAppId);
     return saved;
   }
 
-  async rotateAppSecret(
-    publicAppId: string,
-    userId: number,
-    role: UserRole,
-  ): Promise<AppEntity> {
+  async rotateAppSecret(publicAppId: string, userId: number, role: UserRole): Promise<AppEntity> {
     const { app, currentUserRole } = await this.checkAppAccessAndRole(publicAppId, userId, role);
 
-    if (currentUserRole !== "superadmin" && currentUserRole !== "owner") {
-      throw new ForbiddenException("Only the owner can rotate the secret key");
+    if (currentUserRole !== 'superadmin' && currentUserRole !== 'owner') {
+      throw new ForbiddenException('Only the owner can rotate the secret key');
     }
 
     app.secret_key = generateSecretKey();
@@ -244,26 +220,18 @@ export class AppService {
     return saved;
   }
 
-  async deleteApp(
-    publicAppId: string,
-    userId: number,
-    role: UserRole,
-  ): Promise<void> {
+  async deleteApp(publicAppId: string, userId: number, role: UserRole): Promise<void> {
     const { app, currentUserRole } = await this.checkAppAccessAndRole(publicAppId, userId, role);
 
-    if (currentUserRole !== "superadmin" && currentUserRole !== "owner") {
-      throw new ForbiddenException("Only the owner can delete this app");
+    if (currentUserRole !== 'superadmin' && currentUserRole !== 'owner') {
+      throw new ForbiddenException('Only the owner can delete this app');
     }
 
     await this.appRepository.remove(app);
     await this.invalidateCache(publicAppId);
   }
 
-  async getAppMembers(
-    publicAppId: string,
-    userId: number,
-    role: UserRole,
-  ) {
+  async getAppMembers(publicAppId: string, userId: number, role: UserRole) {
     const { app } = await this.checkAppAccessAndRole(publicAppId, userId, role);
 
     const owner = await this.userRepository.findOne({
@@ -272,7 +240,7 @@ export class AppService {
 
     const dbMembers = await this.appMemberRepository.find({
       where: { app_id: app.id },
-      relations: ["user"],
+      relations: ['user'],
     });
 
     const membersList: any[] = [];
@@ -281,7 +249,7 @@ export class AppService {
         id: owner.id,
         name: owner.name,
         email: owner.email,
-        role: "owner",
+        role: 'owner',
         joined_at: app.created_at,
       });
     }
@@ -306,12 +274,12 @@ export class AppService {
     userId: number,
     role: UserRole,
     email: string,
-    shareRole: "moderator" | "viewer",
+    shareRole: 'moderator' | 'viewer'
   ) {
     const { app, currentUserRole } = await this.checkAppAccessAndRole(publicAppId, userId, role);
 
-    if (currentUserRole !== "superadmin" && currentUserRole !== "owner") {
-      throw new ForbiddenException("Only the owner can share this app");
+    if (currentUserRole !== 'superadmin' && currentUserRole !== 'owner') {
+      throw new ForbiddenException('Only the owner can share this app');
     }
 
     const targetUser = await this.userRepository.findOne({
@@ -319,11 +287,11 @@ export class AppService {
     });
 
     if (!targetUser) {
-      throw new NotFoundException("User with this email not found");
+      throw new NotFoundException('User with this email not found');
     }
 
     if (targetUser.id === app.user_id) {
-      throw new BadRequestException("This user is already the owner of the app");
+      throw new BadRequestException('This user is already the owner of the app');
     }
 
     const existingMember = await this.appMemberRepository.findOne({
@@ -331,7 +299,7 @@ export class AppService {
     });
 
     if (existingMember) {
-      throw new BadRequestException("This user is already a member of this app");
+      throw new BadRequestException('This user is already a member of this app');
     }
 
     const newMember = this.appMemberRepository.create({
@@ -348,7 +316,8 @@ export class AppService {
         name: targetUser.name,
         appName: app.name,
         role: shareRole,
-        ownerName: (await this.userRepository.findOne({ where: { id: userId } }))?.name ?? 'App Owner',
+        ownerName:
+          (await this.userRepository.findOne({ where: { id: userId } }))?.name ?? 'App Owner',
         isUpdate: false,
       })
       .catch((err: any) => console.error('[Mail] sendAppSharedAccessEmail error:', err));
@@ -367,12 +336,12 @@ export class AppService {
     userId: number,
     role: UserRole,
     memberUserId: number,
-    shareRole: "moderator" | "viewer",
+    shareRole: 'moderator' | 'viewer'
   ) {
     const { app, currentUserRole } = await this.checkAppAccessAndRole(publicAppId, userId, role);
 
-    if (currentUserRole !== "superadmin" && currentUserRole !== "owner") {
-      throw new ForbiddenException("Only the owner can manage members");
+    if (currentUserRole !== 'superadmin' && currentUserRole !== 'owner') {
+      throw new ForbiddenException('Only the owner can manage members');
     }
 
     const member = await this.appMemberRepository.findOne({
@@ -380,7 +349,7 @@ export class AppService {
     });
 
     if (!member) {
-      throw new NotFoundException("Member not found");
+      throw new NotFoundException('Member not found');
     }
 
     member.role = shareRole;
@@ -404,16 +373,11 @@ export class AppService {
     return { success: true };
   }
 
-  async removeAppMember(
-    publicAppId: string,
-    userId: number,
-    role: UserRole,
-    memberUserId: number,
-  ) {
+  async removeAppMember(publicAppId: string, userId: number, role: UserRole, memberUserId: number) {
     const { app, currentUserRole } = await this.checkAppAccessAndRole(publicAppId, userId, role);
 
-    if (currentUserRole !== "superadmin" && currentUserRole !== "owner") {
-      throw new ForbiddenException("Only the owner can manage members");
+    if (currentUserRole !== 'superadmin' && currentUserRole !== 'owner') {
+      throw new ForbiddenException('Only the owner can manage members');
     }
 
     const member = await this.appMemberRepository.findOne({
@@ -421,7 +385,7 @@ export class AppService {
     });
 
     if (!member) {
-      throw new NotFoundException("Member not found");
+      throw new NotFoundException('Member not found');
     }
 
     await this.appMemberRepository.remove(member);
@@ -430,7 +394,7 @@ export class AppService {
 
   async getAppByPublicId(publicAppId: string): Promise<AppEntity | null> {
     const cacheKey = this.getCacheKey(publicAppId);
-    
+
     try {
       const cached = await this.redisService.client.get(cacheKey);
       if (cached) {
@@ -440,7 +404,7 @@ export class AppService {
         return app;
       }
     } catch (err) {
-      console.error("[App Service] Redis read error:", err);
+      console.error('[App Service] Redis read error:', err);
     }
 
     const app = await this.appRepository.findOne({
@@ -452,46 +416,40 @@ export class AppService {
         await this.redisService.client.set(
           cacheKey,
           JSON.stringify(app),
-          "PX",
+          'PX',
           3600000 // Cache for 1 hour
         );
       } catch (err) {
-        console.error("[App Service] Redis write error:", err);
+        console.error('[App Service] Redis write error:', err);
       }
     }
 
     return app;
   }
 
-  async validateAppCredentials(
-    publicAppId: string,
-    secretKey: string,
-  ): Promise<AppEntity> {
+  async validateAppCredentials(publicAppId: string, secretKey: string): Promise<AppEntity> {
     const app = await this.getAppByPublicId(publicAppId);
 
     if (!app || app.secret_key !== secretKey) {
-      throw new ForbiddenException("Invalid app credentials");
+      throw new ForbiddenException('Invalid app credentials');
     }
 
     if (!app.is_active) {
-      throw new ForbiddenException("app is not activated");
+      throw new ForbiddenException('app is not activated');
     }
 
     return app;
   }
 
-  async validateSdkCredentials(
-    publicAppId: string,
-    publicKey: string,
-  ): Promise<AppEntity> {
+  async validateSdkCredentials(publicAppId: string, publicKey: string): Promise<AppEntity> {
     const app = await this.getAppByPublicId(publicAppId);
 
     if (!app || app.public_key !== publicKey) {
-      throw new ForbiddenException("Invalid SDK credentials");
+      throw new ForbiddenException('Invalid SDK credentials');
     }
 
     if (!app.is_active) {
-      throw new ForbiddenException("app is not activated");
+      throw new ForbiddenException('app is not activated');
     }
 
     return app;

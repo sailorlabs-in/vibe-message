@@ -1,6 +1,6 @@
-import { Injectable, OnModuleDestroy, Logger } from "@nestjs/common";
-import Redis from "ioredis";
-import { config } from "../../config/env";
+import { Injectable, OnModuleDestroy, Logger } from '@nestjs/common';
+import Redis from 'ioredis';
+import { config } from '../../config/env';
 
 @Injectable()
 export class RedisService implements OnModuleDestroy {
@@ -19,25 +19,25 @@ export class RedisService implements OnModuleDestroy {
     this.client = new Redis(redisOptions);
     this.queueClient = new Redis(redisOptions);
 
-    this.client.on("connect", () => {
-      this.logger.log("✅ Redis main client connected");
+    this.client.on('connect', () => {
+      this.logger.log('✅ Redis main client connected');
     });
 
-    this.queueClient.on("connect", () => {
-      this.logger.log("✅ Redis queue client connected");
+    this.queueClient.on('connect', () => {
+      this.logger.log('✅ Redis queue client connected');
     });
 
-    this.client.on("error", (err) => {
-      this.logger.error("❌ Redis main client error:", err);
+    this.client.on('error', (err) => {
+      this.logger.error('❌ Redis main client error:', err);
     });
 
-    this.queueClient.on("error", (err) => {
-      this.logger.error("❌ Redis queue client error:", err);
+    this.queueClient.on('error', (err) => {
+      this.logger.error('❌ Redis queue client error:', err);
     });
   }
 
   async onModuleDestroy() {
-    this.logger.log("Disconnecting Redis clients...");
+    this.logger.log('Disconnecting Redis clients...');
     await this.client.quit();
     await this.queueClient.quit();
   }

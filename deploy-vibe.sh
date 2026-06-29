@@ -6,14 +6,9 @@ echo "Starting Vibe Message Deployment to Local Kubernetes (KIND)..."
 CLUSTER_NAME="vibe-new"
 
 # Ensure KIND cluster exists
-if ! sudo kind get clusters | grep -q "$CLUSTER_NAME" ; then
+if ! kind get clusters | grep -q "$CLUSTER_NAME" ; then
     echo "KIND cluster not found. Creating local cluster with port 3400 mapping..."
-    sudo kind create cluster --name $CLUSTER_NAME --config kind-config.yaml
-    
-    # Copy kubeconfig for the normal user
-    mkdir -p ~/.kube
-    sudo cp /root/.kube/config ~/.kube/config
-    sudo chown $USER:$USER ~/.kube/config
+    kind create cluster --name $CLUSTER_NAME --config kind-config.yaml
 else
     echo "KIND cluster '$CLUSTER_NAME' already exists."
 fi
@@ -84,14 +79,14 @@ kubectl create configmap backend-config \
 rm .env.k8s
 
 echo "Building Docker images..."
-sudo docker build -f ./apps/frontend/Dockerfile -t local/frontend:latest .
-sudo docker build -f ./apps/server/Dockerfile -t local/server:latest .
-sudo docker build -f ./apps/notification-demo/Dockerfile -t local/demo:latest .
+docker build -f ./apps/frontend/Dockerfile -t local/frontend:latest .
+docker build -f ./apps/server/Dockerfile -t local/server:latest .
+docker build -f ./apps/notification-demo/Dockerfile -t local/demo:latest .
 
 echo "Loading docker images into KIND cluster..."
-sudo kind load docker-image local/frontend:latest --name $CLUSTER_NAME
-sudo kind load docker-image local/server:latest --name $CLUSTER_NAME
-sudo kind load docker-image local/demo:latest --name $CLUSTER_NAME
+kind load docker-image local/frontend:latest --name $CLUSTER_NAME
+kind load docker-image local/server:latest --name $CLUSTER_NAME
+kind load docker-image local/demo:latest --name $CLUSTER_NAME
 
 echo "Applying Kubernetes manifests (excluding DB)..."
 kubectl apply -f k8s/backend-service.yaml
