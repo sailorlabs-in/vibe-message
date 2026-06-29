@@ -72,9 +72,9 @@ export const config: EnvConfig = {
     name: getEnvVar('SUPER_ADMIN_NAME', 'Super Admin'),
   },
   vapid: {
-    publicKey: getEnvVar('VAPID_PUBLIC_KEY'),
-    privateKey: getEnvVar('VAPID_PRIVATE_KEY'),
-    subject: getEnvVar('VAPID_SUBJECT'),
+    publicKey: getOptionalEnvVar('VAPID_PUBLIC_KEY', ''),
+    privateKey: getOptionalEnvVar('VAPID_PRIVATE_KEY', ''),
+    subject: getOptionalEnvVar('VAPID_SUBJECT', 'mailto:admin@example.com'),
   },
   server: {
     port: parseInt(getEnvVar('PORT', '3000'), 10),

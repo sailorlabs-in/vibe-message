@@ -13,7 +13,7 @@ services:
       - PORT=5000
       - IS_SELF_HOSTED=true
       - ENTERPRISE_KEY=${ENTERPRISE_KEY}
-      - VIBE_MAIN_SERVER_URL=${VIBE_MAIN_SERVER_URL:-https://vibe-message.sailorlabs.in/api}
+      - VIBE_MAIN_SERVER_URL=${VIBE_MAIN_SERVER_URL:-http://localhost:3200/api}
       
       # Database: Use provided DATABASE_URL, fallback to local Postgres container
       - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres_secret123@postgres:5432/vibe_message}

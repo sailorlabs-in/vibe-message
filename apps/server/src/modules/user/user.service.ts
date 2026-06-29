@@ -247,6 +247,9 @@ export class UserService {
   }
 
   async requestEnterpriseKey(userId: number): Promise<UserResponse> {
+    if (process.env.IS_SELF_HOSTED === 'true') {
+      throw new ForbiddenException('Licensing actions are disabled in self-hosted deployments');
+    }
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -259,6 +262,9 @@ export class UserService {
   }
 
   async generateEnterpriseKey(userId: number): Promise<UserResponse> {
+    if (process.env.IS_SELF_HOSTED === 'true') {
+      throw new ForbiddenException('Licensing actions are disabled in self-hosted deployments');
+    }
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -273,6 +279,9 @@ export class UserService {
   }
 
   async shuffleEnterpriseKey(userId: number): Promise<UserResponse> {
+    if (process.env.IS_SELF_HOSTED === 'true') {
+      throw new ForbiddenException('Licensing actions are disabled in self-hosted deployments');
+    }
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -290,6 +299,9 @@ export class UserService {
   }
 
   async revokeEnterpriseKey(userId: number): Promise<UserResponse> {
+    if (process.env.IS_SELF_HOSTED === 'true') {
+      throw new ForbiddenException('Licensing actions are disabled in self-hosted deployments');
+    }
     const user = await this.userRepository.findOne({ where: { id: userId } });
     if (!user) {
       throw new NotFoundException('User not found');
@@ -303,6 +315,9 @@ export class UserService {
   }
 
   async verifyLicenseKey(licenseKey: string): Promise<{ valid: boolean; ownerName?: string; ownerEmail?: string }> {
+    if (process.env.IS_SELF_HOSTED === 'true') {
+      throw new ForbiddenException('Licensing actions are disabled in self-hosted deployments');
+    }
     const user = await this.userRepository.findOne({ where: { enterprise_key: licenseKey } });
     if (!user || user.status === 'BANNED') {
       return { valid: false };

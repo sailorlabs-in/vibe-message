@@ -525,7 +525,7 @@ const Profile: React.FC = () => {
           </SectionCard>
 
           {/* ── Enterprise License & Self-Hosting ── */}
-          {!isSelfHosted && user?.enterprise_key && (
+          {!isSelfHosted && (
             <SectionCard icon={<RiServerLine size={20} />} title="Enterprise License & Self-Hosting">
               <div className="space-y-6">
                 {!user?.enterprise_key && !user?.enterprise_key_requested && (

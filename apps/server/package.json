@@ -1,6 +1,7 @@
 {
   "name": "vibe-message-server",
   "version": "1.0.0",
+  "type": "commonjs",
   "description": "FCM-style notification platform backend",
   "main": "dist/main.js",
   "scripts": {

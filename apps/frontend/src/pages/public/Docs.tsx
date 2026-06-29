@@ -32,7 +32,7 @@ export const Docs: React.FC = () => {
       .getPublicSettings()
       .then((s) => {
         if (s.is_self_hosted) {
-          window.location.href = 'https://vibe-message.sailorlabs.in/docs';
+          window.location.href = 'https://vibemessage.sailorlabs.in/docs';
         }
       })
       .catch(console.error);
@@ -164,9 +164,19 @@ export const Docs: React.FC = () => {
 
                     <div className="mt-8 pt-6 border-t border-red-900/30 bg-gradient-to-r from-theme-primary-500/10 to-theme-accent-500/10 p-4 rounded-2xl border border-theme-primary-500/20">
                       <p className="text-sm text-theme-text-primary flex items-start">
-                        <RiServerLine size={18} className="shrink-0 mr-2.5 text-theme-primary-500 dark:text-theme-primary-400" />
+                        <RiServerLine
+                          size={18}
+                          className="shrink-0 mr-2.5 text-theme-primary-500 dark:text-theme-primary-400"
+                        />
                         <span>
-                          <strong className="text-theme-primary-500 dark:text-theme-primary-400">Self-Hosted Deployments:</strong> Use pre-configured Docker compose setups. Obtain your <strong className="text-theme-text-primary font-semibold">Enterprise License Key</strong> in settings to run on your own servers unmetered.
+                          <strong className="text-theme-primary-500 dark:text-theme-primary-400">
+                            Self-Hosted Deployments:
+                          </strong>{' '}
+                          Use pre-configured Docker compose setups. Obtain your{' '}
+                          <strong className="text-theme-text-primary font-semibold">
+                            Enterprise License Key
+                          </strong>{' '}
+                          in settings to run on your own servers unmetered.
                         </span>
                       </p>
                     </div>

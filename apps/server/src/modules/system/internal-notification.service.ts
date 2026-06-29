@@ -44,8 +44,8 @@ export class InternalNotificationService {
       throw new Error('No super admin found to create internal app');
     }
 
-    const publicAppId = process.env.ADMIN_APP_ID || generateAppId();
-    const secretKey = process.env.ADMIN_SECRET_KEY || generateSecretKey();
+    const publicAppId = process.env.ADMIN_APP_ID || 'vibe_admin_app_id';
+    const secretKey = process.env.ADMIN_SECRET_KEY || 'vibe_admin_secret_key_1234567890';
     const publicKey = process.env.ADMIN_PUBLIC_KEY || getVapidPublicKey();
 
     const newApp = this.appRepository.create({

@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://192.168.1.27:3000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== '/api'
+    ? import.meta.env.VITE_API_URL
+    : `${window.location.origin}/api`;
 
 export type HealthStatus = 'loading' | 'ok' | 'degraded' | 'error';
 
