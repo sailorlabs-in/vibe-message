@@ -8,6 +8,8 @@ import {
   updateUserProfile,
   changeUserPassword,
   deleteUserAccount,
+  requestEnterpriseKey,
+  shuffleEnterpriseKey,
 } from '../../store/slices/authSlice';
 import { unregisterAllSystemDevices } from '../../store/slices/adminSlice';
 import { systemService } from '../../services/systemService';
@@ -25,6 +27,9 @@ import {
   RiShieldKeyholeLine,
   RiUser3Line,
   RiSettings3Line,
+  RiKeyLine,
+  RiFileCopyLine,
+  RiServerLine,
 } from '@remixicon/react';
 
 // ─── Reusable floating-label input ────────────────────────────────────────────
@@ -134,8 +139,20 @@ const Profile: React.FC = () => {
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showSystemConfirmModal, setShowSystemConfirmModal] = useState(false);
+  const [showShuffleConfirm, setShowShuffleConfirm] = useState(false);
+  const [showKey, setShowKey] = useState(false);
+  const [isSelfHosted, setIsSelfHosted] = useState(false);
 
   const [globalRetention, setGlobalRetention] = useState(14);
+  const [smtpHost, setSmtpHost] = useState('');
+  const [smtpPort, setSmtpPort] = useState(587);
+  const [smtpSecure, setSmtpSecure] = useState(false);
+  const [smtpUser, setSmtpUser] = useState('');
+  const [smtpPass, setSmtpPass] = useState('');
+  const [smtpFrom, setSmtpFrom] = useState('');
+  const [smtpEnvConfigured, setSmtpEnvConfigured] = useState(false);
+  const [hideForgotPassword, setHideForgotPassword] = useState(false);
+  const [hideEmailVerification, setHideEmailVerification] = useState(false);
   const [retentionSaving, setRetentionSaving] = useState(false);
 
   const isSuperAdmin = user?.role === 'SUPER_ADMIN';
@@ -148,10 +165,27 @@ const Profile: React.FC = () => {
   }, [user]);
 
   useEffect(() => {
+    systemService.getPublicSettings().then((s) => {
+      setIsSelfHosted(s.is_self_hosted);
+    }).catch(console.error);
+  }, []);
+
+  useEffect(() => {
     if (isSuperAdmin) {
       systemService
         .getSettings()
-        .then((s) => setGlobalRetention(s.default_retention_days))
+        .then((s) => {
+          setGlobalRetention(s.default_retention_days);
+          setSmtpHost(s.smtp_host || '');
+          setSmtpPort(s.smtp_port || 587);
+          setSmtpSecure(!!s.smtp_secure);
+          setSmtpUser(s.smtp_user || '');
+          setSmtpPass(s.smtp_pass || '');
+          setSmtpFrom(s.smtp_from || '');
+          setSmtpEnvConfigured(!!s.smtp_env_configured);
+          setHideForgotPassword(!!s.hide_forgot_password);
+          setHideEmailVerification(!!s.hide_email_verification);
+        })
         .catch(console.error);
     }
   }, [isSuperAdmin]);
@@ -181,11 +215,21 @@ const Profile: React.FC = () => {
     }
   };
 
-  const handleUpdateRetention = async () => {
+  const handleUpdateSettings = async () => {
     setRetentionSaving(true);
     try {
-      await systemService.updateSettings(globalRetention);
-      toast.success('Global retention updated');
+      await systemService.updateSettings({
+        default_retention_days: globalRetention,
+        smtp_host: smtpHost,
+        smtp_port: smtpPort,
+        smtp_secure: smtpSecure,
+        smtp_user: smtpUser,
+        smtp_pass: smtpPass,
+        smtp_from: smtpFrom,
+        hide_forgot_password: hideForgotPassword,
+        hide_email_verification: hideEmailVerification,
+      });
+      toast.success('System settings updated successfully');
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to update settings');
     } finally {
@@ -211,6 +255,30 @@ const Profile: React.FC = () => {
     } else {
       toast.error('Failed to delete account');
     }
+  };
+
+  const handleRequestKey = async () => {
+    const result = await dispatch(requestEnterpriseKey());
+    if (requestEnterpriseKey.fulfilled.match(result)) {
+      toast.success('Enterprise license key requested successfully!');
+    } else {
+      toast.error('Failed to request enterprise key');
+    }
+  };
+
+  const handleShuffleKey = async () => {
+    setShowShuffleConfirm(false);
+    const result = await dispatch(shuffleEnterpriseKey());
+    if (shuffleEnterpriseKey.fulfilled.match(result)) {
+      toast.success('Enterprise license key rotated successfully!');
+    } else {
+      toast.error('Failed to rotate enterprise key');
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success('License key copied to clipboard!');
   };
 
   const EyeToggle = ({ show, toggle }: { show: boolean; toggle: () => void }) => (
@@ -456,6 +524,116 @@ const Profile: React.FC = () => {
             </div>
           </SectionCard>
 
+          {/* ── Enterprise License & Self-Hosting ── */}
+          {!isSelfHosted && user?.enterprise_key && (
+            <SectionCard icon={<RiServerLine size={20} />} title="Enterprise License & Self-Hosting">
+              <div className="space-y-6">
+                {!user?.enterprise_key && !user?.enterprise_key_requested && (
+                  <div>
+                    <p className="text-theme-text-primary mb-4">
+                      Self-host Vibe Message on your own servers with unmetered commercial deployments. 
+                      Get started by requesting an Enterprise License Key.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleRequestKey}
+                      disabled={loading}
+                      className="btn-primary flex items-center gap-2"
+                    >
+                      {loading ? (
+                        <RiLoader4Line size={18} className="animate-spin" />
+                      ) : (
+                        <>
+                          <RiKeyLine size={18} />
+                          Request Enterprise Key
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {!user?.enterprise_key && user?.enterprise_key_requested && (
+                  <div className="bg-amber-500/5 border border-amber-500/20 rounded-2xl p-5 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                      <RiKeyLine size={80} className="text-amber-500" />
+                    </div>
+                    <h4 className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-2 relative z-10">
+                      <RiLoader4Line size={18} className="animate-spin text-amber-500" />
+                      Enterprise Key Requested
+                    </h4>
+                    <p className="text-theme-text-secondary text-sm mt-2 relative z-10 animate-pulse">
+                      Your request for a self-hosted license key is under review. Our administrators will assign your key shortly.
+                    </p>
+                  </div>
+                )}
+
+                {user?.enterprise_key && (
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+                        Your Enterprise License Key
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="relative flex-1">
+                          <input
+                            type={showKey ? 'text' : 'password'}
+                            value={user.enterprise_key}
+                            readOnly
+                            className="w-full px-5 py-4 bg-white dark:bg-slate-800 text-theme-text-primary border border-theme-border rounded-2xl font-mono text-sm focus:outline-none pr-24"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowKey(!showKey)}
+                            className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold text-theme-primary-500 hover:text-theme-primary-600"
+                          >
+                            {showKey ? 'Hide' : 'Show'}
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(user.enterprise_key || '')}
+                          className="px-5 bg-theme-bg-secondary border border-theme-border text-theme-text-primary rounded-2xl hover:bg-theme-bg-muted transition flex items-center justify-center"
+                          title="Copy Key"
+                        >
+                          <RiFileCopyLine size={20} />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="bg-theme-bg-muted/30 border border-theme-border rounded-2xl p-5">
+                      <h4 className="font-semibold text-theme-text-primary text-sm mb-3">
+                        🚀 Docker Deployment Setup
+                      </h4>
+                      <p className="text-xs text-theme-text-secondary mb-3 leading-relaxed">
+                        Configure your self-hosted container with the following environment variables. The server will contact our central platform on startup to authenticate the deployment.
+                      </p>
+                      <pre className="bg-black/10 dark:bg-black/30 text-theme-text-primary p-4 rounded-xl font-mono text-xs select-all overflow-x-auto whitespace-pre">
+  {`IS_SELF_HOSTED=true
+  ENTERPRISE_KEY=${user.enterprise_key}
+  DATABASE_URL=postgresql://user:pass@host:port/db
+  REDIS_HOST=redis-host
+  REDIS_PORT=6379`}
+                      </pre>
+                    </div>
+
+                    <div className="pt-4 border-t border-theme-border/50">
+                      <p className="text-xs text-theme-text-muted mb-3">
+                        Need to rotate your credentials? Shuffling your key will immediately invalidate the current one, and your self-hosted instance must be restarted with the new key.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setShowShuffleConfirm(true)}
+                        className="px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-sm transition"
+                      >
+                        Shuffle / Rotate License Key
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </SectionCard>
+          )}
+
           {/* ── System Settings (Super Admin only) ── */}
           {isSuperAdmin && (
             <SectionCard icon={<RiSettings3Line size={20} />} title="System Global Settings">
@@ -481,9 +659,120 @@ const Profile: React.FC = () => {
                   </p>
                 </div>
 
+                {/* SMTP configurations */}
+                <div className="pt-6 border-t border-theme-border/50 space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-theme-text-primary">
+                    SMTP Mail Configuration {smtpEnvConfigured && <span className="text-xs font-semibold text-theme-primary-500 lowercase">(configured via env)</span>}
+                  </h3>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold mb-1 text-theme-text-secondary">SMTP Host</label>
+                      <input
+                        type="text"
+                        value={smtpHost}
+                        onChange={(e) => setSmtpHost(e.target.value)}
+                        disabled={smtpEnvConfigured}
+                        className="input"
+                        placeholder="e.g. smtp.gmail.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold mb-1 text-theme-text-secondary">SMTP Port</label>
+                      <input
+                        type="number"
+                        value={smtpPort}
+                        onChange={(e) => setSmtpPort(parseInt(e.target.value, 10) || 587)}
+                        disabled={smtpEnvConfigured}
+                        className="input"
+                        placeholder="e.g. 587"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold mb-1 text-theme-text-secondary">SMTP User</label>
+                      <input
+                        type="text"
+                        value={smtpUser}
+                        onChange={(e) => setSmtpUser(e.target.value)}
+                        disabled={smtpEnvConfigured}
+                        className="input"
+                        placeholder="e.g. user@gmail.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold mb-1 text-theme-text-secondary">SMTP Password</label>
+                      <input
+                        type="password"
+                        value={smtpPass}
+                        onChange={(e) => setSmtpPass(e.target.value)}
+                        disabled={smtpEnvConfigured}
+                        className="input"
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold mb-1 text-theme-text-secondary">SMTP Sender Address (From)</label>
+                      <input
+                        type="text"
+                        value={smtpFrom}
+                        onChange={(e) => setSmtpFrom(e.target.value)}
+                        disabled={smtpEnvConfigured}
+                        className="input"
+                        placeholder="Vibe Message <sender@gmail.com>"
+                      />
+                    </div>
+                    <div className="flex items-center pt-5">
+                      <label className="flex items-center gap-2 cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={smtpSecure}
+                          onChange={(e) => setSmtpSecure(e.target.checked)}
+                          disabled={smtpEnvConfigured}
+                          className="w-4 h-4 text-theme-primary-600 border-theme-border rounded focus:ring-theme-primary-500"
+                        />
+                        <span className="text-xs font-semibold text-theme-text-secondary">Use SSL/TLS (Secure Connection)</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Login & Security toggles */}
+                <div className="pt-6 border-t border-theme-border/50 space-y-4">
+                  <h3 className="text-sm font-bold uppercase tracking-widest text-theme-text-primary">
+                    Login & Security Toggles
+                  </h3>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={hideForgotPassword}
+                        onChange={(e) => setHideForgotPassword(e.target.checked)}
+                        className="w-4 h-4 text-theme-primary-600 border-theme-border rounded focus:ring-theme-primary-500"
+                      />
+                      <span className="text-sm font-medium text-theme-text-primary">Hide "Forgot password" Link on Login Screen</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={hideEmailVerification}
+                        onChange={(e) => setHideEmailVerification(e.target.checked)}
+                        className="w-4 h-4 text-theme-primary-600 border-theme-border rounded focus:ring-theme-primary-500"
+                      />
+                      <span className="text-sm font-medium text-theme-text-primary">Bypass Email Verification Requirements for Users</span>
+                    </label>
+                  </div>
+                </div>
+
                 <div>
                   <button
-                    onClick={handleUpdateRetention}
+                    onClick={handleUpdateSettings}
                     disabled={retentionSaving}
                     className="btn-primary"
                   >
@@ -606,6 +895,27 @@ const Profile: React.FC = () => {
         confirmingLabel="Purging..."
         icon={<RiAlertLine size={28} />}
         variant="danger"
+      />
+
+      {/* ── Shuffle Enterprise Key Confirmation Modal ── */}
+      <ConfirmModal
+        isOpen={showShuffleConfirm}
+        onClose={() => setShowShuffleConfirm(false)}
+        onConfirm={handleShuffleKey}
+        loading={loading}
+        title="Rotate Enterprise License Key?"
+        description={
+          <>
+            Are you sure you want to rotate your license key?
+            <br />
+            <br />
+            Your current key will be immediately deactivated. Any self-hosted deployments using the old key will fail to connect or restart until updated.
+          </>
+        }
+        confirmLabel="Rotate Key"
+        confirmingLabel="Rotating..."
+        icon={<RiKeyLine size={28} />}
+        variant="warning"
       />
     </motion.div>
   );

@@ -2,6 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
 import * as ejs from 'ejs';
 import * as path from 'path';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { SystemSettings } from '../system/system_settings.entity';
 import { config } from '../../config/env';
 
 export interface AccountApprovedData {
@@ -44,41 +47,58 @@ export interface EmailVerificationData {
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private transporter: nodemailer.Transporter;
-  private readonly isDevMode: boolean;
-  private readonly from: string;
 
-  constructor() {
-    const { host, port, secure, user, pass } = config.mail;
-    this.from = this.resolveFromAddress(config.mail.from, user);
+  constructor(
+    @InjectRepository(SystemSettings)
+    private readonly systemSettingsRepository: Repository<SystemSettings>
+  ) {}
 
-    // If no SMTP host is configured, fall back to console-preview mode (dev-friendly)
-    this.isDevMode = !host;
-
-    if (this.isDevMode) {
-      this.logger.warn(
-        'SMTP_HOST is not set. Mail service running in preview/console mode. ' +
-          'No actual emails will be sent. Set SMTP_* environment variables to enable real email delivery.'
-      );
-      this.transporter = nodemailer.createTransport({
-        jsonTransport: true,
-      } as any);
-    } else {
-      this.transporter = nodemailer.createTransport({
+  private async getTransporterAndSender(): Promise<{ transporter: nodemailer.Transporter; from: string; isDevMode: boolean }> {
+    if (config.mail.host) {
+      const { host, port, secure, user, pass, from } = config.mail;
+      const resolvedFrom = this.resolveFromAddress(from, user);
+      const transporter = nodemailer.createTransport({
         host,
         port,
         secure,
-        // requireTLS: !secure,
         auth: user || pass ? { user, pass } : undefined,
         tls: {
           rejectUnauthorized: process.env.SMTP_TLS_REJECT_UNAUTHORIZED !== 'false',
         },
-        // logger: config.server.nodeEnv !== 'production',
-        // debug: config.server.nodeEnv !== 'production',
       });
-
-      void this.verifyTransport();
+      return { transporter, from: resolvedFrom, isDevMode: false };
     }
+
+    try {
+      const settings = await this.systemSettingsRepository.findOne({ where: { id: 1 } });
+      if (settings && settings.smtp_host) {
+        const host = settings.smtp_host;
+        const port = settings.smtp_port || 587;
+        const secure = !!settings.smtp_secure;
+        const user = settings.smtp_user || '';
+        const pass = settings.smtp_pass || '';
+        const from = this.resolveFromAddress(settings.smtp_from || `Vibe Message <${user}>`, user);
+
+        const transporter = nodemailer.createTransport({
+          host,
+          port,
+          secure,
+          auth: user || pass ? { user, pass } : undefined,
+          tls: {
+            rejectUnauthorized: process.env.SMTP_TLS_REJECT_UNAUTHORIZED !== 'false',
+          },
+        });
+        return { transporter, from, isDevMode: false };
+      }
+    } catch (err) {
+      this.logger.error('Error fetching system settings for SMTP:', err);
+    }
+
+    const transporter = nodemailer.createTransport({
+      jsonTransport: true,
+    } as any);
+    const from = 'Vibe Message <dev@example.com>';
+    return { transporter, from, isDevMode: true };
   }
 
   private resolveFromAddress(configuredFrom: string, smtpUser: string): string {
@@ -103,14 +123,7 @@ export class MailService {
     return (bracketMatch?.[1] ?? value).trim();
   }
 
-  private async verifyTransport(): Promise<void> {
-    try {
-      await this.transporter.verify();
-      this.logger.log(`SMTP transport ready: ${config.mail.host}:${config.mail.port}`);
-    } catch (err) {
-      this.logger.error(`SMTP transport verification failed: ${err}`);
-    }
-  }
+
 
   // ---------------------------------------------------------------------------
   // Template renderer
@@ -127,31 +140,31 @@ export class MailService {
   // Core send helper
   // ---------------------------------------------------------------------------
   private async sendMail(options: { to: string; subject: string; html: string }): Promise<void> {
-    const mailOptions = {
-      from: this.from,
-      to: options.to,
-      subject: options.subject,
-      html: options.html,
-    };
-
     try {
-      const info = await this.transporter.sendMail(mailOptions);
+      const { transporter, from, isDevMode } = await this.getTransporterAndSender();
+      const mailOptions = {
+        from,
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+      };
 
-      if (this.isDevMode) {
-        // jsonTransport stringifies the message; pretty-print it for devs.
+      const info = await transporter.sendMail(mailOptions);
+
+      if (isDevMode) {
         const parsed = JSON.parse((info as any).message);
         this.logger.log(
           `\nMAIL PREVIEW - not actually sent\n` +
             `   To      : ${parsed.to?.[0]?.address ?? options.to}\n` +
             `   Subject : ${parsed.subject}\n` +
-            `   From    : ${parsed.from?.[0]?.address ?? this.from}\n`
+            `   From    : ${parsed.from?.[0]?.address ?? from}\n`
         );
       } else {
         this.logger.log(`Email sent to ${options.to} - messageId: ${info.messageId}`);
       }
-    } catch (err) {
-      this.logger.error(`Failed to send email to ${options.to}: ${err}`);
-      throw err;
+    } catch (error) {
+      this.logger.error(`Failed to send email to ${options.to}:`, error);
+      throw error;
     }
   }
 

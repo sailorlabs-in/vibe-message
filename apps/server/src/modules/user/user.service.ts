@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
+import * as crypto from 'crypto';
+import * as bcrypt from 'bcrypt';
 import {
   UserResponse,
   UserStatus,
@@ -242,5 +244,101 @@ export class UserService {
     await this.userRepository.remove(targetUser);
 
     return { deletedAppsCount: appsCount };
+  }
+
+  async requestEnterpriseKey(userId: number): Promise<UserResponse> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.enterprise_key_requested = true;
+    await this.userRepository.save(user);
+
+    return this.userToResponse(user);
+  }
+
+  async generateEnterpriseKey(userId: number): Promise<UserResponse> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const key = `vibe_ent_${crypto.randomBytes(24).toString('hex')}`;
+    user.enterprise_key = key;
+    user.enterprise_key_requested = false;
+    await this.userRepository.save(user);
+
+    return this.userToResponse(user);
+  }
+
+  async shuffleEnterpriseKey(userId: number): Promise<UserResponse> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (!user.enterprise_key) {
+      throw new BadRequestException('User does not have an assigned enterprise key');
+    }
+
+    const key = `vibe_ent_${crypto.randomBytes(24).toString('hex')}`;
+    user.enterprise_key = key;
+    await this.userRepository.save(user);
+
+    return this.userToResponse(user);
+  }
+
+  async revokeEnterpriseKey(userId: number): Promise<UserResponse> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    user.enterprise_key = null;
+    user.enterprise_key_requested = false;
+    await this.userRepository.save(user);
+
+    return this.userToResponse(user);
+  }
+
+  async verifyLicenseKey(licenseKey: string): Promise<{ valid: boolean; ownerName?: string; ownerEmail?: string }> {
+    const user = await this.userRepository.findOne({ where: { enterprise_key: licenseKey } });
+    if (!user || user.status === 'BANNED') {
+      return { valid: false };
+    }
+
+    return {
+      valid: true,
+      ownerName: user.name,
+      ownerEmail: user.email,
+    };
+  }
+
+  async ensureSuperAdminCreated(): Promise<void> {
+    const superAdmin = await this.userRepository.findOne({
+      where: { role: 'SUPER_ADMIN' },
+    });
+    if (superAdmin) {
+      return;
+    }
+
+    const name = process.env.SUPER_ADMIN_NAME || 'Super Admin';
+    const email = process.env.SUPER_ADMIN_EMAIL || 'vibemessageadmin@sailorlabs.in';
+    const password = process.env.SUPER_ADMIN_PASSWORD || 'VibeMessageAdmin@123';
+    const password_hash = await bcrypt.hash(password, 10);
+
+    const newSuperAdmin = this.userRepository.create({
+      name,
+      email,
+      password_hash,
+      role: 'SUPER_ADMIN',
+      status: 'APPROVED',
+      app_limit: null,
+      can_manage_retention: true,
+    });
+
+    await this.userRepository.save(newSuperAdmin);
+    console.log(`✅ Default Super Admin created: ${email} (password configured in env or default VibeMessageAdmin@123)`);
   }
 }

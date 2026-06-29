@@ -60,18 +60,24 @@ export class AuthService {
 
     const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
 
+    const isSelfHosted = process.env.IS_SELF_HOSTED === 'true';
+
     const user = this.userRepository.create({
       name,
       email,
       password_hash,
       role: 'ADMIN',
-      status: 'PENDING',
-      app_limit: 5,
+      status: isSelfHosted ? 'APPROVED' : 'PENDING',
+      app_limit: isSelfHosted ? null : 5,
     });
 
     await this.userRepository.save(user);
 
     const token = this.generateToken(user);
+
+    if (isSelfHosted) {
+      return { token, user: this.userToResponse(user) };
+    }
 
     // Send email verification
     const VERIFICATION_TOKEN_PREFIX = 'email_verify:';

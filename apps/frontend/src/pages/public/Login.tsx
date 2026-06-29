@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
+import { systemService } from '../../services/systemService';
 import { motion } from 'motion/react';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { loginUser, clearError } from '../../store/slices/authSlice';
@@ -16,6 +17,13 @@ export const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [hideForgotPassword, setHideForgotPassword] = useState(false);
+
+  useEffect(() => {
+    systemService.getPublicSettings().then((s) => {
+      setHideForgotPassword(s.hide_forgot_password);
+    }).catch(console.error);
+  }, []);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -236,14 +244,16 @@ export const Login: React.FC = () => {
                 </motion.div>
               </div>
 
-              <motion.div variants={itemVariants} className="flex items-center justify-end mt-1">
-                <Link
-                  to="/forgot-password"
-                  className="text-sm font-bold text-theme-primary-500 hover:text-theme-primary-600 transition-colors"
-                >
-                  Forgot password?
-                </Link>
-              </motion.div>
+              {!hideForgotPassword && (
+                <motion.div variants={itemVariants} className="flex items-center justify-end mt-1">
+                  <Link
+                    to="/forgot-password"
+                    className="text-sm font-bold text-theme-primary-500 hover:text-theme-primary-600 transition-colors"
+                  >
+                    Forgot password?
+                  </Link>
+                </motion.div>
+              )}
 
               <motion.button
                 variants={itemVariants}

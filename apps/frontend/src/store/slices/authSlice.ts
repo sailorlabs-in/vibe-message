@@ -119,6 +119,32 @@ export const resetPassword = createAsyncThunk<
   }
 });
 
+export const requestEnterpriseKey = createAsyncThunk<
+  User,
+  void,
+  { rejectValue: string }
+>('auth/requestEnterpriseKey', async (_, { rejectWithValue }) => {
+  try {
+    const response = await ApiRequest('/user/enterprise-key/request', 'post');
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to request enterprise key');
+  }
+});
+
+export const shuffleEnterpriseKey = createAsyncThunk<
+  User,
+  void,
+  { rejectValue: string }
+>('auth/shuffleEnterpriseKey', async (_, { rejectWithValue }) => {
+  try {
+    const response = await ApiRequest('/user/enterprise-key/shuffle', 'post');
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to shuffle enterprise key');
+  }
+});
+
 // Slice
 const authSlice = createSlice({
   name: 'auth',
@@ -255,6 +281,36 @@ const authSlice = createSlice({
       .addCase(resetPassword.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to reset password';
+      });
+
+    // Request Enterprise Key
+    builder
+      .addCase(requestEnterpriseKey.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(requestEnterpriseKey.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(requestEnterpriseKey.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to request enterprise key';
+      });
+
+    // Shuffle Enterprise Key
+    builder
+      .addCase(shuffleEnterpriseKey.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(shuffleEnterpriseKey.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(shuffleEnterpriseKey.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to shuffle enterprise key';
       });
   },
 });

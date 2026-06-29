@@ -5,8 +5,38 @@ import { config } from './config/env';
 import express from 'express';
 import cors from 'cors';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { UserService } from './modules/user/user.service';
+import { InternalNotificationService } from './modules/system/internal-notification.service';
 
 async function bootstrap() {
+  if (process.env.IS_SELF_HOSTED === 'true') {
+    console.log('🚀 Starting Vibe Message in Self-Hosted Enterprise Mode...');
+    const enterpriseKey = process.env.ENTERPRISE_KEY;
+    if (!enterpriseKey) {
+      console.error('❌ Enterprise Error: ENTERPRISE_KEY environment variable is required for self-hosted deployments.');
+      process.exit(1);
+    }
+    const verifyUrl = process.env.VIBE_MAIN_SERVER_URL || 'https://vibe-message.sailorlabs.in/api';
+    console.log(`📡 Verifying license key with main server: ${verifyUrl}`);
+    try {
+      const response = await fetch(`${verifyUrl}/user/verify-license`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ licenseKey: enterpriseKey }),
+      });
+      const resData: any = await response.json();
+      if (!response.ok || !resData.success || !resData.data?.valid) {
+        console.error('❌ Enterprise Error: Invalid or inactive ENTERPRISE_KEY.');
+        process.exit(1);
+      }
+      console.log(`✅ Enterprise License verified successfully!`);
+      console.log(`👤 License Owner: ${resData.data.ownerName} (${resData.data.ownerEmail})`);
+    } catch (err: any) {
+      console.error('❌ Enterprise Error: Failed to contact the validation server.', err.message);
+      process.exit(1);
+    }
+  }
+
   const app = await NestFactory.create(AppModule);
 
   // Trust proxy for rate limiting behind Nginx Ingress
@@ -91,6 +121,17 @@ async function bootstrap() {
   await app.listen(port);
   console.log(`🚀 Server running on port ${port}`);
   console.log(`📝 Environment: ${config.server.nodeEnv}`);
+
+  // Seed Database (SuperAdmin and Admin Notification App)
+  try {
+    const userService = app.get(UserService);
+    await userService.ensureSuperAdminCreated();
+
+    const internalNotificationService = app.get(InternalNotificationService);
+    await internalNotificationService.getOrCreateInternalApp();
+  } catch (err: any) {
+    console.error('⚠️ Database seeding failed:', err.message);
+  }
 }
 
 bootstrap();

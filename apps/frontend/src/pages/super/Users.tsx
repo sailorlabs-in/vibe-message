@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { systemService } from '../../services/systemService';
 import { motion } from 'motion/react';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import {
@@ -10,6 +11,8 @@ import {
   removeUser,
   updateRole,
   updateUserRetentionPermission,
+  approveEnterpriseKey,
+  revokeEnterpriseKey,
 } from '../../store/slices/adminSlice';
 import { User, UserStatus, UserRole } from '../../types';
 import { UsersSkeleton } from '../../components/common/SkeletonLoader';
@@ -44,6 +47,13 @@ export const Users: React.FC = () => {
   const [appLimit, setAppLimit] = useState<string>('');
   const [warningMessage, setWarningMessage] = useState('');
   const [openMenu, setOpenMenu] = useState<{ id: number; anchorEl: HTMLElement } | null>(null);
+  const [isSelfHosted, setIsSelfHosted] = useState(false);
+
+  useEffect(() => {
+    systemService.getPublicSettings().then((s) => {
+      setIsSelfHosted(s.is_self_hosted);
+    }).catch(console.error);
+  }, []);
 
   useEffect(() => {
     dispatch(fetchAllUsers(filter === 'ALL' ? undefined : filter));
@@ -78,6 +88,24 @@ export const Users: React.FC = () => {
       toast.success(`Retention permission ${!user.can_manage_retention ? 'granted' : 'revoked'}`);
     } else {
       toast.error('Failed to update retention permission');
+    }
+  };
+
+  const handleApproveEnterpriseKey = async (user: User) => {
+    const result = await dispatch(approveEnterpriseKey(user.id));
+    if (approveEnterpriseKey.fulfilled.match(result)) {
+      toast.success(`Enterprise license approved for ${user.name}`);
+    } else {
+      toast.error('Failed to approve enterprise key');
+    }
+  };
+
+  const handleRevokeEnterpriseKey = async (user: User) => {
+    const result = await dispatch(revokeEnterpriseKey(user.id));
+    if (revokeEnterpriseKey.fulfilled.match(result)) {
+      toast.success(`Enterprise license revoked for ${user.name}`);
+    } else {
+      toast.error('Failed to revoke enterprise key');
     }
   };
 
@@ -194,6 +222,11 @@ export const Users: React.FC = () => {
                 <th className="py-4 px-5 text-xs font-bold uppercase tracking-widest text-theme-text-muted">
                   Role
                 </th>
+                {!isSelfHosted && (
+                  <th className="py-4 px-5 text-xs font-bold uppercase tracking-widest text-theme-text-muted">
+                    License Key
+                  </th>
+                )}
                 <th className="py-4 px-5 text-xs font-bold uppercase tracking-widest text-theme-text-muted">
                   App Limit
                 </th>
@@ -206,7 +239,7 @@ export const Users: React.FC = () => {
               {users.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={isSelfHosted ? 5 : 6}
                     className="py-16 text-center text-theme-text-secondary font-medium"
                   >
                     <div className="flex flex-col items-center gap-3">
@@ -253,6 +286,23 @@ export const Users: React.FC = () => {
                       </span>
                     </td>
 
+                    {/* Enterprise Key */}
+                    {!isSelfHosted && (
+                      <td className="py-4 px-5">
+                        {user.enterprise_key ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800/40">
+                            Active
+                          </span>
+                        ) : user.enterprise_key_requested ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/40 animate-pulse">
+                            Requested
+                          </span>
+                        ) : (
+                          <span className="text-theme-text-muted text-sm">-</span>
+                        )}
+                      </td>
+                    )}
+
                     {/* App Limit */}
                     <td className="py-4 px-5">
                       <span className="bg-theme-bg-secondary border border-theme-border px-3 py-1 rounded-lg font-mono text-sm text-theme-text-primary">
@@ -287,7 +337,10 @@ export const Users: React.FC = () => {
                           onSendWarning={(u) => openModal(u, 'warning')}
                           onToggleRetentionPerm={handleToggleRetentionPerm}
                           onRoleChange={handleRoleChange}
+                          onApproveEnterpriseKey={handleApproveEnterpriseKey}
+                          onRevokeEnterpriseKey={handleRevokeEnterpriseKey}
                           onDelete={(u) => openModal(u, 'delete')}
+                          isSelfHosted={isSelfHosted}
                         />
                       )}
                     </td>

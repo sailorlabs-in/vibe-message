@@ -126,6 +126,32 @@ export const unregisterAllSystemDevices = createAsyncThunk<void, void, { rejectV
   }
 );
 
+export const approveEnterpriseKey = createAsyncThunk<
+  User,
+  number,
+  { rejectValue: string }
+>('admin/approveEnterpriseKey', async (userId, { rejectWithValue }) => {
+  try {
+    const response = await ApiRequest(`/admin/users/${userId}/enterprise-key`, 'post');
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to approve enterprise key');
+  }
+});
+
+export const revokeEnterpriseKey = createAsyncThunk<
+  User,
+  number,
+  { rejectValue: string }
+>('admin/revokeEnterpriseKey', async (userId, { rejectWithValue }) => {
+  try {
+    const response = await ApiRequest(`/admin/users/${userId}/enterprise-key`, 'delete');
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to revoke enterprise key');
+  }
+});
+
 // Slice
 const adminSlice = createSlice({
   name: 'admin',
@@ -264,6 +290,42 @@ const adminSlice = createSlice({
       .addCase(unregisterAllSystemDevices.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to unregister devices';
+      });
+
+    // Approve Enterprise Key
+    builder
+      .addCase(approveEnterpriseKey.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(approveEnterpriseKey.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.users.findIndex((user) => user.id === action.payload.id);
+        if (index !== -1) {
+          state.users[index] = action.payload;
+        }
+      })
+      .addCase(approveEnterpriseKey.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to approve enterprise key';
+      });
+
+    // Revoke Enterprise Key
+    builder
+      .addCase(revokeEnterpriseKey.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(revokeEnterpriseKey.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.users.findIndex((user) => user.id === action.payload.id);
+        if (index !== -1) {
+          state.users[index] = action.payload;
+        }
+      })
+      .addCase(revokeEnterpriseKey.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to revoke enterprise key';
       });
   },
 });

@@ -123,7 +123,8 @@ export class AppService {
       throw new ForbiddenException('Your account must be approved to create apps');
     }
 
-    if (user.app_limit !== null) {
+    const isSelfHosted = process.env.IS_SELF_HOSTED === 'true';
+    if (user.app_limit !== null && !isSelfHosted) {
       const currentCount = await this.appRepository.count({
         where: { user_id: userId },
       });
@@ -184,6 +185,10 @@ export class AppService {
   ): Promise<AppEntity> {
     const { app, currentUserRole } = await this.checkAppAccessAndRole(publicAppId, userId, role);
 
+    if (app.name === 'Admin Panel Notifications') {
+      throw new ForbiddenException('The internal notifications app cannot be modified.');
+    }
+
     if (currentUserRole === 'viewer') {
       throw new ForbiddenException('You do not have permission to edit this app');
     }
@@ -210,6 +215,10 @@ export class AppService {
   async rotateAppSecret(publicAppId: string, userId: number, role: UserRole): Promise<AppEntity> {
     const { app, currentUserRole } = await this.checkAppAccessAndRole(publicAppId, userId, role);
 
+    if (app.name === 'Admin Panel Notifications') {
+      throw new ForbiddenException('The internal notifications app credentials cannot be rotated.');
+    }
+
     if (currentUserRole !== 'superadmin' && currentUserRole !== 'owner') {
       throw new ForbiddenException('Only the owner can rotate the secret key');
     }
@@ -222,6 +231,10 @@ export class AppService {
 
   async deleteApp(publicAppId: string, userId: number, role: UserRole): Promise<void> {
     const { app, currentUserRole } = await this.checkAppAccessAndRole(publicAppId, userId, role);
+
+    if (app.name === 'Admin Panel Notifications') {
+      throw new ForbiddenException('The internal notifications app cannot be deleted.');
+    }
 
     if (currentUserRole !== 'superadmin' && currentUserRole !== 'owner') {
       throw new ForbiddenException('Only the owner can delete this app');

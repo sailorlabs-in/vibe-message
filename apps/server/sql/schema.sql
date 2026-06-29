@@ -13,6 +13,14 @@ DROP TABLE IF EXISTS system_settings CASCADE;
 CREATE TABLE system_settings (
   id SERIAL PRIMARY KEY,
   default_retention_days INTEGER NOT NULL DEFAULT 14,
+  smtp_host VARCHAR(255) NULL,
+  smtp_port INTEGER NULL,
+  smtp_secure BOOLEAN NULL,
+  smtp_user VARCHAR(255) NULL,
+  smtp_pass VARCHAR(255) NULL,
+  smtp_from VARCHAR(255) NULL,
+  hide_forgot_password BOOLEAN DEFAULT false,
+  hide_email_verification BOOLEAN DEFAULT false,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -29,6 +37,8 @@ CREATE TABLE users (
   status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'BANNED')),
   app_limit INTEGER,
   can_manage_retention BOOLEAN DEFAULT false,
+  enterprise_key VARCHAR(255) NULL,
+  enterprise_key_requested BOOLEAN DEFAULT false,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

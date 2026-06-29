@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  vibe-message-server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    container_name: vibe-message-server
+    ports:
+      - "${PORT:-5000}:5000"
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=5000
+      - IS_SELF_HOSTED=true
+      - ENTERPRISE_KEY=${ENTERPRISE_KEY}
+      - VIBE_MAIN_SERVER_URL=${VIBE_MAIN_SERVER_URL:-https://vibe-message.sailorlabs.in/api}
+      
+      # Database: Use provided DATABASE_URL, fallback to local Postgres container
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres_secret123@postgres:5432/vibe_message}
+      
+      # Redis: Use provided REDIS_HOST, fallback to local Redis container
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      
+      # Security & JWT
+      - JWT_SECRET=${JWT_SECRET:-change-this-to-a-secure-key-in-production}
+      
+      # Super Admin (created on initial launch)
+      - SUPER_ADMIN_EMAIL=${SUPER_ADMIN_EMAIL:-vibemessageadmin@sailorlabs.in}
+      - SUPER_ADMIN_PASSWORD=${SUPER_ADMIN_PASSWORD:-VibeMessageAdmin@123}
+      - SUPER_ADMIN_NAME=${SUPER_ADMIN_NAME:-Super Admin}
+      
+      # Internal Admin Notifications App Credentials (keeps keys stable across restarts/database resets)
+      - ADMIN_APP_ID=${ADMIN_APP_ID:-vibe_admin_app_id}
+      - ADMIN_SECRET_KEY=${ADMIN_SECRET_KEY:-vibe_admin_secret_key_1234567890}
+      - ADMIN_PUBLIC_KEY=${ADMIN_PUBLIC_KEY:-BF2_J2P5_VAPID_DEFAULT_PUBLIC_KEY_FOR_SELFHOSTED_PLEASE_CHANGE}
+      
+      # VAPID Keys (for push notifications)
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
+      - VAPID_SUBJECT=${VAPID_SUBJECT:-mailto:admin@example.com}
+      
+      # CORS
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-*}
+      
+      # Mail Configuration
+      - SMTP_HOST=${SMTP_HOST}
+      - SMTP_PORT=${SMTP_PORT:-587}
+      - SMTP_SECURE=${SMTP_SECURE:-false}
+      - SMTP_USER=${SMTP_USER}
+      - SMTP_PASS=${SMTP_PASS}
+      - SMTP_FROM=${SMTP_FROM}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: always
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: vibe-postgres
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres_secret123
+      - POSTGRES_DB=vibe_message
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d vibe_message"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+    # Set profile so Postgres only runs if user does not provide external credentials
+    # (By default it runs, unless they run docker compose up vibe-message-server directly)
+
+  redis:
+    image: redis:7-alpine
+    container_name: vibe-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:

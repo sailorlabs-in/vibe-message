@@ -33,6 +33,12 @@ export class User {
   @Column({ name: 'can_manage_retention', default: false })
   can_manage_retention!: boolean;
 
+  @Column({ name: 'enterprise_key', type: 'varchar', length: 255, nullable: true })
+  enterprise_key!: string | null;
+
+  @Column({ name: 'enterprise_key_requested', default: false })
+  enterprise_key_requested!: boolean;
+
   @CreateDateColumn({ name: 'created_at' })
   created_at!: Date;
 

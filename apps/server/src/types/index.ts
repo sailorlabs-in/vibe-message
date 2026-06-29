@@ -11,6 +11,8 @@ export interface User {
   status: UserStatus;
   app_limit: number | null;
   can_manage_retention: boolean;
+  enterprise_key: string | null;
+  enterprise_key_requested: boolean;
   created_at: Date;
   updated_at: Date;
 }
@@ -23,6 +25,8 @@ export interface UserResponse {
   status: UserStatus;
   app_limit: number | null;
   can_manage_retention: boolean;
+  enterprise_key: string | null;
+  enterprise_key_requested: boolean;
   created_at: Date;
   updated_at: Date;
 }

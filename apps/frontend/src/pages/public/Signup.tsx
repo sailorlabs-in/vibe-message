@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { systemService } from '../../services/systemService';
 import { motion } from 'motion/react';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { signupUser, clearError } from '../../store/slices/authSlice';
@@ -29,11 +30,23 @@ export const Signup: React.FC = () => {
     dispatch(clearError());
   }, [dispatch]);
 
+  const [isSelfHosted, setIsSelfHosted] = useState(false);
+
+  useEffect(() => {
+    systemService.getPublicSettings().then((s) => {
+      setIsSelfHosted(s.is_self_hosted);
+    }).catch(console.error);
+  }, []);
+
   useEffect(() => {
     if (user) {
-      navigate('/pending');
+      if (isSelfHosted) {
+        navigate('/dashboard');
+      } else {
+        navigate('/pending');
+      }
     }
-  }, [user, navigate]);
+  }, [user, navigate, isSelfHosted]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

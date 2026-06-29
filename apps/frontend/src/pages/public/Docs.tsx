@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { systemService } from '../../services/systemService';
 import {
   RiMagicLine,
   RiKeyLine,
@@ -15,7 +16,6 @@ import {
   RiInformationLine,
   RiCheckLine,
   RiErrorWarningLine,
-  RiArchiveLine,
   RiServerLine,
   RiSmartphoneLine,
   RiCodeLine,
@@ -26,6 +26,17 @@ type TabType = 'overview' | 'quickstart' | 'sdk' | 'backend' | 'react' | 'nextjs
 
 export const Docs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+
+  useEffect(() => {
+    systemService
+      .getPublicSettings()
+      .then((s) => {
+        if (s.is_self_hosted) {
+          window.location.href = 'https://vibe-message.sailorlabs.in/docs';
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'overview', label: 'Platform Overview', icon: <RiMagicLine size={18} /> },
@@ -151,13 +162,11 @@ export const Docs: React.FC = () => {
                       </p>
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-red-900/30">
-                      <p className="text-sm text-red-200 flex items-start">
-                        <RiArchiveLine size={18} className="shrink-0 mr-2 opacity-50" />
+                    <div className="mt-8 pt-6 border-t border-red-900/30 bg-gradient-to-r from-theme-primary-500/10 to-theme-accent-500/10 p-4 rounded-2xl border border-theme-primary-500/20">
+                      <p className="text-sm text-theme-text-primary flex items-start">
+                        <RiServerLine size={18} className="shrink-0 mr-2.5 text-theme-primary-500 dark:text-theme-primary-400" />
                         <span>
-                          <strong className="text-white">Coming Soon:</strong> Pre-configured Docker
-                          images for self-hosted, unmetered commercial deployments on your own
-                          infrastructure.
+                          <strong className="text-theme-primary-500 dark:text-theme-primary-400">Self-Hosted Deployments:</strong> Use pre-configured Docker compose setups. Obtain your <strong className="text-theme-text-primary font-semibold">Enterprise License Key</strong> in settings to run on your own servers unmetered.
                         </span>
                       </p>
                     </div>

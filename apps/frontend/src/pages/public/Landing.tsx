@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import {
   RiArrowRightLine,
@@ -15,10 +15,23 @@ import {
   RiGlobalLine,
   RiCheckboxCircleLine,
 } from '@remixicon/react';
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
+import { systemService } from '../../services/systemService';
 
 export const Landing: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    systemService
+      .getPublicSettings()
+      .then((s) => {
+        if (s.is_self_hosted) {
+          navigate('/login', { replace: true });
+        }
+      })
+      .catch(console.error);
+  }, [navigate]);
 
   return (
     <div className="min-h-screen text-theme-text-primary overflow-x-hidden font-sans mt-[-120px]">

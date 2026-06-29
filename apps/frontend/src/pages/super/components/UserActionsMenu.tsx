@@ -11,6 +11,7 @@ import {
   RiDeleteBinLine,
   RiFoldersLine,
   RiShieldKeyholeLine,
+  RiKeyLine,
 } from '@remixicon/react';
 import { User, UserStatus } from '../../../types';
 
@@ -24,7 +25,10 @@ interface UserActionsMenuProps {
   onSendWarning: (user: User) => void;
   onToggleRetentionPerm: (user: User) => void;
   onRoleChange: (userId: number, role: 'SUPER_ADMIN' | 'ADMIN') => void;
+  onApproveEnterpriseKey?: (user: User) => void;
+  onRevokeEnterpriseKey?: (user: User) => void;
   onDelete: (user: User) => void;
+  isSelfHosted?: boolean;
 }
 
 interface MenuItemProps {
@@ -73,7 +77,10 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
   onSendWarning,
   onToggleRetentionPerm,
   onRoleChange,
+  onApproveEnterpriseKey,
+  onRevokeEnterpriseKey,
   onDelete,
+  isSelfHosted = false,
 }) => {
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -219,6 +226,33 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
               onRoleChange(user.id, 'ADMIN');
             }}
           />
+        )}
+
+        {!isSelfHosted && (
+          <>
+            <MenuDivider />
+            {user.enterprise_key ? (
+              <MenuItem
+                icon={<RiKeyLine size={16} />}
+                label="Revoke Enterprise Key"
+                variant="danger"
+                onClick={() => {
+                  onClose();
+                  onRevokeEnterpriseKey?.(user);
+                }}
+              />
+            ) : (
+              <MenuItem
+                icon={<RiKeyLine size={16} />}
+                label={user.enterprise_key_requested ? "Approve License" : "Issue License"}
+                variant={user.enterprise_key_requested ? "success" : "default"}
+                onClick={() => {
+                  onClose();
+                  onApproveEnterpriseKey?.(user);
+                }}
+              />
+            )}
+          </>
         )}
 
         <MenuDivider />

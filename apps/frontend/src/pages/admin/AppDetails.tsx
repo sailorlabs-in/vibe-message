@@ -249,7 +249,7 @@ const result = await vibe.notification({
             </>
           )}
         </div>
-        {!isEditing && (
+        {!isEditing && app.name !== 'Admin Panel Notifications' && (
           <div className="flex gap-2">
             {app.currentUserRole !== 'viewer' && (
               <button
@@ -394,7 +394,7 @@ const result = await vibe.notification({
                     type="password"
                   />
                   <CopyButton text={app.secret_key} />
-                  {(app.currentUserRole === 'owner' || app.currentUserRole === 'superadmin') && (
+                  {(app.currentUserRole === 'owner' || app.currentUserRole === 'superadmin') && app.name !== 'Admin Panel Notifications' && (
                     <button
                       onClick={handleRotateSecret}
                       disabled={loading}
