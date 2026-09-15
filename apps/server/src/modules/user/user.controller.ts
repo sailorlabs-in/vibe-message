@@ -29,7 +29,11 @@ export class UserController {
   @Get('verify-license')
   @ApiTags('External Notifications APIs')
   @ApiOperation({ summary: 'Verify an enterprise license key from a self-hosted instance' })
-  @ApiQuery({ name: 'licenseKey', description: 'The enterprise license key to verify', required: true })
+  @ApiQuery({
+    name: 'licenseKey',
+    description: 'The enterprise license key to verify',
+    required: true,
+  })
   @ApiResponse({ status: 200, description: 'License verification status' })
   async verifyLicense(@Query('licenseKey') licenseKey: string) {
     const result = await this.userService.verifyLicenseKey(licenseKey);

@@ -22,7 +22,10 @@ if (isDummy(publicKey) || isDummy(privateKey)) {
 try {
   webpush.setVapidDetails(subject, publicKey, privateKey);
 } catch (err: any) {
-  console.warn('⚠️ Web-push setup failed. Retrying with freshly generated VAPID keys...', err.message);
+  console.warn(
+    '⚠️ Web-push setup failed. Retrying with freshly generated VAPID keys...',
+    err.message
+  );
   try {
     const keys = webpush.generateVAPIDKeys();
     publicKey = keys.publicKey;

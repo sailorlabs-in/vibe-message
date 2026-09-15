@@ -84,7 +84,12 @@ export class AuthService {
     const VERIFICATION_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 hours
     const verifyToken = crypto.randomBytes(32).toString('hex');
     const redisKey = `${VERIFICATION_TOKEN_PREFIX}${verifyToken}`;
-    await this.redisService.client.set(redisKey, String(user.id), 'EX', VERIFICATION_TOKEN_TTL_SECONDS);
+    await this.redisService.client.set(
+      redisKey,
+      String(user.id),
+      'EX',
+      VERIFICATION_TOKEN_TTL_SECONDS
+    );
 
     const verifyUrl = `${config.frontendUrl}/verify-email?token=${verifyToken}`;
 
@@ -242,7 +247,12 @@ export class AuthService {
     const VERIFICATION_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 hours
     const verifyToken = crypto.randomBytes(32).toString('hex');
     const redisKey = `${VERIFICATION_TOKEN_PREFIX}${verifyToken}`;
-    await this.redisService.client.set(redisKey, String(user.id), 'EX', VERIFICATION_TOKEN_TTL_SECONDS);
+    await this.redisService.client.set(
+      redisKey,
+      String(user.id),
+      'EX',
+      VERIFICATION_TOKEN_TTL_SECONDS
+    );
 
     const verifyUrl = `${config.frontendUrl}/verify-email?token=${verifyToken}`;
 

@@ -66,12 +66,18 @@ export class SystemController {
       success: true,
       data: {
         default_retention_days: settings ? settings.default_retention_days : 14,
-        smtp_host: smtpEnvConfigured ? config.mail.host : (settings?.smtp_host || ''),
-        smtp_port: smtpEnvConfigured ? config.mail.port : (settings?.smtp_port || 587),
-        smtp_secure: smtpEnvConfigured ? config.mail.secure : (settings?.smtp_secure || false),
-        smtp_user: smtpEnvConfigured ? config.mail.user : (settings?.smtp_user || ''),
-        smtp_pass: smtpEnvConfigured ? (config.mail.pass ? '********' : '') : (settings?.smtp_pass ? '********' : ''),
-        smtp_from: smtpEnvConfigured ? config.mail.from : (settings?.smtp_from || ''),
+        smtp_host: smtpEnvConfigured ? config.mail.host : settings?.smtp_host || '',
+        smtp_port: smtpEnvConfigured ? config.mail.port : settings?.smtp_port || 587,
+        smtp_secure: smtpEnvConfigured ? config.mail.secure : settings?.smtp_secure || false,
+        smtp_user: smtpEnvConfigured ? config.mail.user : settings?.smtp_user || '',
+        smtp_pass: smtpEnvConfigured
+          ? config.mail.pass
+            ? '********'
+            : ''
+          : settings?.smtp_pass
+            ? '********'
+            : '',
+        smtp_from: smtpEnvConfigured ? config.mail.from : settings?.smtp_from || '',
         smtp_env_configured: smtpEnvConfigured,
         hide_forgot_password: settings ? settings.hide_forgot_password : false,
         hide_email_verification: settings ? settings.hide_email_verification : false,

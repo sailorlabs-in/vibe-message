@@ -1,6 +1,5 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -32,11 +31,12 @@ import { RedisModule } from './modules/redis/redis.module';
 import { RedisService } from './modules/redis/redis.service';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { MailModule } from './modules/mail/mail.module';
+import { QueueModule } from './modules/queue/queue.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    ScheduleModule.forRoot(),
+    QueueModule,
     ThrottlerModule.forRootAsync({
       imports: [RedisModule],
       inject: [RedisService],

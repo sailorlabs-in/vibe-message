@@ -3,6 +3,10 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { DataSource } from 'typeorm';
 import * as os from 'os';
 import { SkipThrottle } from '@nestjs/throttler';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
+import { RedisService } from '../redis/redis.service';
+import { PUSH_QUEUE_NAME, CRON_QUEUE_NAME } from '../queue/queue.constants';
 
 @SkipThrottle()
 @ApiTags('Health')
@@ -10,7 +14,12 @@ import { SkipThrottle } from '@nestjs/throttler';
 export class HealthController {
   private readonly startedAt = new Date();
 
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+    private readonly redisService: RedisService,
+    @InjectQueue(PUSH_QUEUE_NAME) private readonly pushQueue: Queue,
+    @InjectQueue(CRON_QUEUE_NAME) private readonly cronQueue: Queue
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Check backend health status' })
@@ -23,6 +32,38 @@ export class HealthController {
       checks.database = { status: 'ok' };
     } catch (err: any) {
       checks.database = { status: 'error', message: err.message };
+    }
+
+    // --- Redis check ---
+    try {
+      const redisPing = await this.redisService.ping();
+      checks.redis = {
+        status: redisPing.ok ? 'ok' : 'error',
+        latencyMs: redisPing.latencyMs,
+        ...(redisPing.error ? { message: redisPing.error } : {}),
+      };
+    } catch (err: any) {
+      checks.redis = { status: 'error', message: err.message };
+    }
+
+    // --- BullMQ Queues check ---
+    try {
+      const [pushCounts, cronSchedulers] = await Promise.all([
+        this.pushQueue.getJobCounts('waiting', 'active', 'completed', 'failed', 'delayed'),
+        this.cronQueue.getJobSchedulers(),
+      ]);
+
+      checks.queues = {
+        status: 'ok',
+        pushNotification: pushCounts,
+        activeCronSchedules: cronSchedulers.map((r) => ({
+          name: r.name,
+          pattern: r.pattern,
+          next: r.next ? new Date(r.next).toISOString() : null,
+        })),
+      };
+    } catch (err: any) {
+      checks.queues = { status: 'error', message: err.message };
     }
 
     // --- System info ---
@@ -40,8 +81,12 @@ export class HealthController {
       },
     };
 
-    // --- Cron/Scheduler check ---
-    checks.scheduler = { status: 'ok' };
+    // --- Scheduler engine check ---
+    checks.scheduler = {
+      status: checks.queues?.status === 'ok' ? 'ok' : 'degraded',
+      engine: 'BullMQ',
+      repeatableCount: checks.queues?.activeCronSchedules?.length ?? 0,
+    };
 
     const allOk = Object.values(checks).every((c) => c.status === 'ok');
 

@@ -317,7 +317,9 @@ export class UserService {
     return this.userToResponse(user);
   }
 
-  async verifyLicenseKey(licenseKey: string): Promise<{ valid: boolean; ownerName?: string; ownerEmail?: string }> {
+  async verifyLicenseKey(
+    licenseKey: string
+  ): Promise<{ valid: boolean; ownerName?: string; ownerEmail?: string }> {
     if (process.env.IS_SELF_HOSTED === 'true') {
       throw new ForbiddenException('Licensing actions are disabled in self-hosted deployments');
     }

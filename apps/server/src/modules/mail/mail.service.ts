@@ -53,7 +53,11 @@ export class MailService {
     private readonly systemSettingsRepository: Repository<SystemSettings>
   ) {}
 
-  private async getTransporterAndSender(): Promise<{ transporter: nodemailer.Transporter; from: string; isDevMode: boolean }> {
+  private async getTransporterAndSender(): Promise<{
+    transporter: nodemailer.Transporter;
+    from: string;
+    isDevMode: boolean;
+  }> {
     if (config.mail.host) {
       const { host, port, secure, user, pass, from } = config.mail;
       const resolvedFrom = this.resolveFromAddress(from, user);
@@ -122,8 +126,6 @@ export class MailService {
     const bracketMatch = value.match(/<([^>]+)>/);
     return (bracketMatch?.[1] ?? value).trim();
   }
-
-
 
   // ---------------------------------------------------------------------------
   // Template renderer

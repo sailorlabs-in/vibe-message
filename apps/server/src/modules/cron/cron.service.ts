@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { PushService } from '../push/push.service';
 import { SystemSettings } from '../system/system_settings.entity';
 import { App as AppEntity } from '../app/app.entity';
@@ -9,6 +10,7 @@ import { Notification } from '../push/notification.entity';
 import { DeviceToken } from '../device/device_token.entity';
 import { DripCampaign, DripSentLog } from '../drip/drip.entity';
 import { RedisService } from '../redis/redis.service';
+import { PUSH_QUEUE_NAME, PushJobPayload } from '../queue/queue.constants';
 
 @Injectable()
 export class CronService {
@@ -28,20 +30,14 @@ export class CronService {
     private dripCampaignRepo: Repository<DripCampaign>,
     @InjectRepository(DripSentLog)
     private dripSentLogRepo: Repository<DripSentLog>,
-    private redisService: RedisService
+    private redisService: RedisService,
+    @InjectQueue(PUSH_QUEUE_NAME)
+    private readonly pushQueue: Queue<PushJobPayload>
   ) {}
 
-  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async handleCleanup() {
     try {
-      const lockKey = 'vibe:cleanup_lock';
-      const acquired = await this.redisService.client.set(lockKey, 'locked', 'PX', 3600000, 'NX'); // 1 hour lock
-      if (acquired !== 'OK') {
-        this.logger.debug('🧹 [Cron] Notification cleanup lock already acquired. Skipping.');
-        return;
-      }
-
-      this.logger.log('🧹 [Cron] Running daily notification cleanup job...');
+      this.logger.log('🧹 [BullMQ Cron] Running daily notification cleanup job...');
       const settings = await this.systemSettingsRepo.findOne({
         where: { id: 1 },
       });
@@ -64,39 +60,32 @@ export class CronService {
           .execute();
         deletedCount += deleteResult.affected || 0;
       }
-      this.logger.log(`✅ [Cron] Cleanup complete. Deleted ${deletedCount} expired notifications.`);
+      this.logger.log(
+        `✅ [BullMQ Cron] Cleanup complete. Deleted ${deletedCount} expired notifications.`
+      );
     } catch (error) {
-      this.logger.error('❌ [Cron] Error during notification cleanup:', error);
+      this.logger.error('❌ [BullMQ Cron] Error during notification cleanup:', error);
+      throw error;
     }
   }
 
-  @Cron(CronExpression.EVERY_MINUTE)
   async handleTimezoneScheduler() {
-    const lockKey = 'vibe:cron_lock';
     try {
-      const acquired = await this.redisService.client.set(lockKey, 'locked', 'PX', 55000, 'NX'); // 55s safety TTL
-      if (acquired !== 'OK') {
-        this.logger.debug('🌍 [Cron] Scheduler lock already held by another replica. Skipping.');
-        return;
-      }
-
-      // this.logger.log("🌍 [Cron] Timezone-aware scheduler tick (Lock Acquired)...");
+      this.logger.debug('🌍 [BullMQ Cron] Timezone-aware scheduler tick started...');
       try {
         await this.runRegularScheduler();
       } catch (err) {
-        this.logger.error('❌ [Cron] Regular scheduler error:', err);
+        this.logger.error('❌ [BullMQ Cron] Regular scheduler error:', err);
       }
 
       try {
         await this.runDripScheduler();
       } catch (err) {
-        this.logger.error('❌ [Cron] Drip scheduler error:', err);
+        this.logger.error('❌ [BullMQ Cron] Drip scheduler error:', err);
       }
     } catch (error) {
-      this.logger.error('❌ [Cron] Distributed locking error:', error);
-    } finally {
-      // Always release the lock immediately so the next minute's tick can acquire it cleanly
-      await this.redisService.client.del(lockKey).catch(() => {});
+      this.logger.error('❌ [BullMQ Cron] Scheduler error:', error);
+      throw error;
     }
   }
 
@@ -134,13 +123,16 @@ export class CronService {
         `[Scheduler] Enqueuing scheduled notification ${id} (app=${app_id}) to ${targetUserIds ? targetUserIds.length + ' user(s)' : 'all subscribers'}...`
       );
 
-      await this.redisService.client.rpush(
-        'vibe:push_queue',
-        JSON.stringify({
+      await this.pushQueue.add(
+        'deliver-push',
+        {
           notificationId: id,
           appId: app_id,
           targetUserIds,
-        })
+        },
+        {
+          jobId: `scheduled-push-${id}`,
+        }
       );
     }
   }
