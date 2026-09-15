@@ -60,25 +60,37 @@ export class AuthService {
 
     const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
 
+    const isSelfHosted = process.env.IS_SELF_HOSTED === 'true';
+
     const user = this.userRepository.create({
       name,
       email,
       password_hash,
       role: 'ADMIN',
-      status: 'PENDING',
-      app_limit: 5,
+      status: isSelfHosted ? 'APPROVED' : 'PENDING',
+      app_limit: isSelfHosted ? null : 5,
+      cron_job_limit: isSelfHosted ? null : 10,
     });
 
     await this.userRepository.save(user);
 
     const token = this.generateToken(user);
 
+    if (isSelfHosted) {
+      return { token, user: this.userToResponse(user) };
+    }
+
     // Send email verification
     const VERIFICATION_TOKEN_PREFIX = 'email_verify:';
     const VERIFICATION_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 hours
     const verifyToken = crypto.randomBytes(32).toString('hex');
     const redisKey = `${VERIFICATION_TOKEN_PREFIX}${verifyToken}`;
-    await this.redisService.client.set(redisKey, String(user.id), 'EX', VERIFICATION_TOKEN_TTL_SECONDS);
+    await this.redisService.client.set(
+      redisKey,
+      String(user.id),
+      'EX',
+      VERIFICATION_TOKEN_TTL_SECONDS
+    );
 
     const verifyUrl = `${config.frontendUrl}/verify-email?token=${verifyToken}`;
 
@@ -236,7 +248,12 @@ export class AuthService {
     const VERIFICATION_TOKEN_TTL_SECONDS = 24 * 60 * 60; // 24 hours
     const verifyToken = crypto.randomBytes(32).toString('hex');
     const redisKey = `${VERIFICATION_TOKEN_PREFIX}${verifyToken}`;
-    await this.redisService.client.set(redisKey, String(user.id), 'EX', VERIFICATION_TOKEN_TTL_SECONDS);
+    await this.redisService.client.set(
+      redisKey,
+      String(user.id),
+      'EX',
+      VERIFICATION_TOKEN_TTL_SECONDS
+    );
 
     const verifyUrl = `${config.frontendUrl}/verify-email?token=${verifyToken}`;
 

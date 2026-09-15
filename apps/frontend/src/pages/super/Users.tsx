@@ -1,22 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import { systemService } from '../../services/systemService';
 import { motion } from 'motion/react';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import {
   fetchAllUsers,
   updateStatus,
   updateAppLimit,
+  updateCronJobLimit,
   sendWarning,
   removeUser,
   updateRole,
   updateUserRetentionPermission,
+  approveEnterpriseKey,
+  revokeEnterpriseKey,
 } from '../../store/slices/adminSlice';
 import { User, UserStatus, UserRole } from '../../types';
 import { UsersSkeleton } from '../../components/common/SkeletonLoader';
 import { RiMore2Line, RiUserLine, RiShieldUserLine, RiAlertLine } from '@remixicon/react';
 import { UserActionsMenu } from './components/UserActionsMenu';
 
-type ModalMode = 'app-limit' | 'warning' | 'delete' | null;
+type ModalMode = 'app-limit' | 'cron-limit' | 'warning' | 'delete' | null;
 
 const statusColors: Record<string, string> = {
   APPROVED:
@@ -42,8 +46,19 @@ export const Users: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [appLimit, setAppLimit] = useState<string>('');
+  const [cronLimit, setCronLimit] = useState<string>('');
   const [warningMessage, setWarningMessage] = useState('');
   const [openMenu, setOpenMenu] = useState<{ id: number; anchorEl: HTMLElement } | null>(null);
+  const [isSelfHosted, setIsSelfHosted] = useState(false);
+
+  useEffect(() => {
+    systemService
+      .getPublicSettings()
+      .then((s) => {
+        setIsSelfHosted(s.is_self_hosted);
+      })
+      .catch(console.error);
+  }, []);
 
   useEffect(() => {
     dispatch(fetchAllUsers(filter === 'ALL' ? undefined : filter));
@@ -81,6 +96,24 @@ export const Users: React.FC = () => {
     }
   };
 
+  const handleApproveEnterpriseKey = async (user: User) => {
+    const result = await dispatch(approveEnterpriseKey(user.id));
+    if (approveEnterpriseKey.fulfilled.match(result)) {
+      toast.success(`Enterprise license approved for ${user.name}`);
+    } else {
+      toast.error('Failed to approve enterprise key');
+    }
+  };
+
+  const handleRevokeEnterpriseKey = async (user: User) => {
+    const result = await dispatch(revokeEnterpriseKey(user.id));
+    if (revokeEnterpriseKey.fulfilled.match(result)) {
+      toast.success(`Enterprise license revoked for ${user.name}`);
+    } else {
+      toast.error('Failed to revoke enterprise key');
+    }
+  };
+
   const handleAppLimitSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedUser) return;
@@ -91,6 +124,21 @@ export const Users: React.FC = () => {
       toast.success('App limit updated successfully');
     } else {
       toast.error('Failed to update app limit');
+    }
+  };
+
+  const handleCronLimitSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+    const limit = cronLimit === '' ? null : parseInt(cronLimit, 10);
+    const result = await dispatch(
+      updateCronJobLimit({ userId: selectedUser.id, cronJobLimit: limit })
+    );
+    if (updateCronJobLimit.fulfilled.match(result)) {
+      closeModal();
+      toast.success('Cron job limit updated successfully');
+    } else {
+      toast.error('Failed to update cron job limit');
     }
   };
 
@@ -125,6 +173,7 @@ export const Users: React.FC = () => {
     setSelectedUser(user);
     setModalMode(mode);
     if (mode === 'app-limit') setAppLimit(user.app_limit?.toString() ?? '');
+    if (mode === 'cron-limit') setCronLimit(user.cron_job_limit?.toString() ?? '');
     if (mode === 'warning') setWarningMessage('');
   };
 
@@ -132,13 +181,14 @@ export const Users: React.FC = () => {
     setSelectedUser(null);
     setModalMode(null);
     setAppLimit('');
+    setCronLimit('');
     setWarningMessage('');
   };
 
   if (loading && users.length === 0) return <UsersSkeleton />;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
@@ -194,8 +244,16 @@ export const Users: React.FC = () => {
                 <th className="py-4 px-5 text-xs font-bold uppercase tracking-widest text-theme-text-muted">
                   Role
                 </th>
+                {!isSelfHosted && (
+                  <th className="py-4 px-5 text-xs font-bold uppercase tracking-widest text-theme-text-muted">
+                    License Key
+                  </th>
+                )}
                 <th className="py-4 px-5 text-xs font-bold uppercase tracking-widest text-theme-text-muted">
                   App Limit
+                </th>
+                <th className="py-4 px-5 text-xs font-bold uppercase tracking-widest text-theme-text-muted">
+                  Cron Limit
                 </th>
                 <th className="py-4 px-5 text-xs font-bold uppercase tracking-widest text-theme-text-muted text-right">
                   Actions
@@ -206,7 +264,7 @@ export const Users: React.FC = () => {
               {users.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={isSelfHosted ? 6 : 7}
                     className="py-16 text-center text-theme-text-secondary font-medium"
                   >
                     <div className="flex flex-col items-center gap-3">
@@ -253,10 +311,34 @@ export const Users: React.FC = () => {
                       </span>
                     </td>
 
+                    {/* Enterprise Key */}
+                    {!isSelfHosted && (
+                      <td className="py-4 px-5">
+                        {user.enterprise_key ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800/40">
+                            Active
+                          </span>
+                        ) : user.enterprise_key_requested ? (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/40 animate-pulse">
+                            Requested
+                          </span>
+                        ) : (
+                          <span className="text-theme-text-muted text-sm">-</span>
+                        )}
+                      </td>
+                    )}
+
                     {/* App Limit */}
                     <td className="py-4 px-5">
                       <span className="bg-theme-bg-secondary border border-theme-border px-3 py-1 rounded-lg font-mono text-sm text-theme-text-primary">
                         {user.app_limit ?? '∞'}
+                      </span>
+                    </td>
+
+                    {/* Cron Limit */}
+                    <td className="py-4 px-5">
+                      <span className="bg-theme-bg-secondary border border-theme-border px-3 py-1 rounded-lg font-mono text-sm text-theme-text-primary">
+                        {user.cron_job_limit ?? '∞'}
                       </span>
                     </td>
 
@@ -284,10 +366,14 @@ export const Users: React.FC = () => {
                           onClose={() => setOpenMenu(null)}
                           onStatusChange={handleStatusChange}
                           onSetAppLimit={(u) => openModal(u, 'app-limit')}
+                          onSetCronJobLimit={(u) => openModal(u, 'cron-limit')}
                           onSendWarning={(u) => openModal(u, 'warning')}
                           onToggleRetentionPerm={handleToggleRetentionPerm}
                           onRoleChange={handleRoleChange}
+                          onApproveEnterpriseKey={handleApproveEnterpriseKey}
+                          onRevokeEnterpriseKey={handleRevokeEnterpriseKey}
                           onDelete={(u) => openModal(u, 'delete')}
+                          isSelfHosted={isSelfHosted}
                         />
                       )}
                     </td>
@@ -329,6 +415,51 @@ export const Users: React.FC = () => {
                   className="input"
                   min="0"
                   placeholder="e.g. 5"
+                />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button type="submit" className="btn-primary flex-1">
+                  Save Limit
+                </button>
+                <button type="button" onClick={closeModal} className="btn-secondary flex-1">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ── Cron Job Limit Modal ── */}
+      {modalMode === 'cron-limit' && selectedUser && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="bg-theme-bg-primary border border-theme-border rounded-3xl w-full max-w-md p-8 shadow-2xl"
+          >
+            <h2 className="text-2xl font-display font-extrabold mb-2 text-theme-text-primary">
+              Set Cron Job Limit
+            </h2>
+            <p className="text-theme-text-secondary text-sm mb-6">
+              Limiting maximum cron jobs for{' '}
+              <strong className="text-theme-text-primary">{selectedUser.name}</strong>
+            </p>
+            <form onSubmit={handleCronLimitSubmit} className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+                  Cron Job Limit{' '}
+                  <span className="text-theme-text-muted font-normal">
+                    (leave blank for unlimited)
+                  </span>
+                </label>
+                <input
+                  type="number"
+                  value={cronLimit}
+                  onChange={(e) => setCronLimit(e.target.value)}
+                  className="input"
+                  min="0"
+                  placeholder="e.g. 10"
                 />
               </div>
               <div className="flex gap-3 pt-2">

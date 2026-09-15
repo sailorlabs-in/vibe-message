@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { systemService } from '../../services/systemService';
 import {
   RiMagicLine,
   RiKeyLine,
@@ -15,7 +16,6 @@ import {
   RiInformationLine,
   RiCheckLine,
   RiErrorWarningLine,
-  RiArchiveLine,
   RiServerLine,
   RiSmartphoneLine,
   RiCodeLine,
@@ -26,6 +26,17 @@ type TabType = 'overview' | 'quickstart' | 'sdk' | 'backend' | 'react' | 'nextjs
 
 export const Docs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+
+  useEffect(() => {
+    systemService
+      .getPublicSettings()
+      .then((s) => {
+        if (s.is_self_hosted) {
+          window.location.href = 'https://vibemessage.sailorlabs.in/docs';
+        }
+      })
+      .catch(console.error);
+  }, []);
 
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     { id: 'overview', label: 'Platform Overview', icon: <RiMagicLine size={18} /> },
@@ -135,29 +146,37 @@ export const Docs: React.FC = () => {
                     </ul>
                   </div>
 
-                  <div className="bg-[#1a0f0f] dark:bg-[#2a0808] border border-red-900/30 rounded-3xl p-8 relative flex flex-col justify-between">
+                  <div className="bg-rose-50/70 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-900/40 rounded-3xl p-8 relative flex flex-col justify-between shadow-xs transition-colors duration-300">
                     <div>
-                      <div className="inline-flex items-center px-3 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
+                      <div className="inline-flex items-center px-3 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
                         <RiErrorWarningLine size={14} className="mr-1.5" />
                         Strictly Restricted
                       </div>
-                      <h4 className="text-2xl font-display font-bold text-white mb-4">
+                      <h4 className="text-2xl font-display font-bold text-theme-text-primary mb-4">
                         Commercial Production
                       </h4>
-                      <p className="text-base text-red-100/80 leading-relaxed mb-6">
+                      <p className="text-base text-theme-text-secondary leading-relaxed mb-6">
                         Large-scale and unmetered commercial usage is strictly restricted on the
                         public tier. Accounts generating excessive structural load outside fair-use
                         will be permanently banned to protect network stability.
                       </p>
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-red-900/30">
-                      <p className="text-sm text-red-200 flex items-start">
-                        <RiArchiveLine size={18} className="shrink-0 mr-2 opacity-50" />
+                    <div className="mt-8 pt-6 border-t border-rose-200/60 dark:border-rose-900/30 bg-white/80 dark:bg-black/25 backdrop-blur-sm p-4 rounded-2xl border border-rose-200/60 dark:border-rose-800/30">
+                      <p className="text-sm text-theme-text-secondary flex items-start leading-relaxed">
+                        <RiServerLine
+                          size={18}
+                          className="shrink-0 mr-2.5 text-theme-primary-600 dark:text-theme-primary-400 mt-0.5"
+                        />
                         <span>
-                          <strong className="text-white">Coming Soon:</strong> Pre-configured Docker
-                          images for self-hosted, unmetered commercial deployments on your own
-                          infrastructure.
+                          <strong className="text-theme-text-primary font-bold">
+                            Self-Hosted Deployments:
+                          </strong>{' '}
+                          Use pre-configured Docker compose setups. Obtain your{' '}
+                          <strong className="text-theme-primary-600 dark:text-theme-primary-400 font-semibold">
+                            Enterprise License Key
+                          </strong>{' '}
+                          in settings to run on your own servers unmetered.
                         </span>
                       </p>
                     </div>

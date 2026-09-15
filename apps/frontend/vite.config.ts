@@ -4,6 +4,12 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   
+  const rawApiUrl = env.VITE_API_URL || '';
+  const isAbsoluteUrl = /^https?:\/\//i.test(rawApiUrl);
+  const proxyTarget = isAbsoluteUrl
+    ? rawApiUrl.replace(/\/api\/?$/, '')
+    : (env.VITE_BACKEND_URL || 'http://localhost:3200');
+
   return {
     plugins: [react()],
     build: {
@@ -18,7 +24,7 @@ export default defineConfig(({ mode }) => {
       },
       proxy: {
         '/api': {
-          target: env.VITE_API_URL ? env.VITE_API_URL.replace(/\/api$/, '') : 'http://localhost:3200',
+          target: proxyTarget,
           changeOrigin: true,
         },
       },

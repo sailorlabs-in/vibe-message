@@ -64,24 +64,24 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 16 }}
             transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-            className={`relative w-full max-w-md bg-theme-bg-primary rounded-3xl shadow-2xl border p-8 overflow-hidden ${
+            className={`relative w-full max-w-md bg-theme-bg-primary rounded-2xl sm:rounded-3xl shadow-2xl border p-5 sm:p-7 md:p-8 overflow-hidden ${
               accentColor === 'red' ? 'border-red-500/20' : 'border-amber-500/20'
             }`}
           >
             {/* Icon */}
             <div
-              className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-5 mx-auto ${
+              className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center mb-4 sm:mb-5 mx-auto ${
                 accentColor === 'red'
                   ? 'bg-red-500/10 text-red-500'
                   : 'bg-amber-500/10 text-amber-500'
               }`}
             >
-              {icon ?? <RiAlertLine size={28} />}
+              {icon ?? <RiAlertLine size={24} className="sm:w-7 sm:h-7" />}
             </div>
 
             {/* Title */}
             <h3
-              className={`text-2xl font-display font-extrabold text-center mb-3 ${
+              className={`text-xl sm:text-2xl font-display font-extrabold text-center mb-2 sm:mb-3 ${
                 accentColor === 'red'
                   ? 'text-red-600 dark:text-red-400'
                   : 'text-amber-600 dark:text-amber-400'
@@ -91,19 +91,19 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             </h3>
 
             {/* Description */}
-            <p className="text-center text-theme-text-secondary leading-relaxed mb-8 text-sm">
+            <p className="text-center text-theme-text-secondary leading-relaxed mb-6 sm:mb-8 text-xs sm:text-sm">
               {description}
             </p>
 
             {/* Buttons */}
-            <div className="flex gap-3">
-              <button onClick={onClose} disabled={loading} className="btn-secondary flex-1">
+            <div className="flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-3">
+              <button onClick={onClose} disabled={loading} className="btn-secondary w-full sm:flex-1">
                 Cancel
               </button>
               <button
                 onClick={onConfirm}
                 disabled={loading}
-                className={`flex-1 px-4 py-3 font-bold rounded-xl transition-all active:scale-95 disabled:opacity-50 text-white ${
+                className={`w-full sm:flex-1 px-4 py-3 font-bold rounded-xl transition-all active:scale-95 disabled:opacity-50 text-white ${
                   accentColor === 'red'
                     ? 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-600/20'
                     : 'bg-amber-500 hover:bg-amber-600 shadow-lg shadow-amber-500/20'

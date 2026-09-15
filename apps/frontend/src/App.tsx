@@ -21,6 +21,7 @@ import { VerifyEmail } from './pages/public/VerifyEmail';
 import { Dashboard } from './pages/admin/Dashboard';
 import { Apps } from './pages/admin/Apps';
 import { AppDetails } from './pages/admin/AppDetails';
+import { CronJobs } from './pages/admin/CronJobs';
 import Profile from './pages/admin/Profile';
 import { Pending } from './pages/admin/Pending';
 
@@ -35,7 +36,7 @@ const AppContent: React.FC = () => {
     <BrowserRouter>
       <ScrollToTop />
       <AnimatedBackground />
-      <div className="min-h-screen transition-colors duration-300 pt-[100px] relative z-0">
+      <div className="min-h-screen transition-colors duration-300 pt-[100px] relative z-0 overflow-x-clip w-full max-w-full">
         <Header />
         <Routes>
           {/* Public routes */}
@@ -82,6 +83,15 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute requireApproved>
                 <AppDetails />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/cron-jobs"
+            element={
+              <ProtectedRoute requireApproved>
+                <CronJobs />
               </ProtectedRoute>
             }
           />

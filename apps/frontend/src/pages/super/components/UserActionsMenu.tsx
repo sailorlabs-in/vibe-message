@@ -11,6 +11,8 @@ import {
   RiDeleteBinLine,
   RiFoldersLine,
   RiShieldKeyholeLine,
+  RiKeyLine,
+  RiTimeLine,
 } from '@remixicon/react';
 import { User, UserStatus } from '../../../types';
 
@@ -21,10 +23,14 @@ interface UserActionsMenuProps {
   onClose: () => void;
   onStatusChange: (userId: number, status: UserStatus) => void;
   onSetAppLimit: (user: User) => void;
+  onSetCronJobLimit: (user: User) => void;
   onSendWarning: (user: User) => void;
   onToggleRetentionPerm: (user: User) => void;
   onRoleChange: (userId: number, role: 'SUPER_ADMIN' | 'ADMIN') => void;
+  onApproveEnterpriseKey?: (user: User) => void;
+  onRevokeEnterpriseKey?: (user: User) => void;
   onDelete: (user: User) => void;
+  isSelfHosted?: boolean;
 }
 
 interface MenuItemProps {
@@ -70,10 +76,14 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
   onClose,
   onStatusChange,
   onSetAppLimit,
+  onSetCronJobLimit,
   onSendWarning,
   onToggleRetentionPerm,
   onRoleChange,
+  onApproveEnterpriseKey,
+  onRevokeEnterpriseKey,
   onDelete,
+  isSelfHosted = false,
 }) => {
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -176,6 +186,15 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
         />
 
         <MenuItem
+          icon={<RiTimeLine size={16} />}
+          label="Set Cron Job Limit"
+          onClick={() => {
+            onClose();
+            onSetCronJobLimit(user);
+          }}
+        />
+
+        <MenuItem
           icon={<RiAlertLine size={16} />}
           label="Send Warning"
           variant="warning"
@@ -219,6 +238,33 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
               onRoleChange(user.id, 'ADMIN');
             }}
           />
+        )}
+
+        {!isSelfHosted && (
+          <>
+            <MenuDivider />
+            {user.enterprise_key ? (
+              <MenuItem
+                icon={<RiKeyLine size={16} />}
+                label="Revoke Enterprise Key"
+                variant="danger"
+                onClick={() => {
+                  onClose();
+                  onRevokeEnterpriseKey?.(user);
+                }}
+              />
+            ) : (
+              <MenuItem
+                icon={<RiKeyLine size={16} />}
+                label={user.enterprise_key_requested ? "Approve License" : "Issue License"}
+                variant={user.enterprise_key_requested ? "success" : "default"}
+                onClick={() => {
+                  onClose();
+                  onApproveEnterpriseKey?.(user);
+                }}
+              />
+            )}
+          </>
         )}
 
         <MenuDivider />

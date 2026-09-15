@@ -23,7 +23,7 @@ export class NotificationLog {
   @JoinColumn({ name: 'device_token_id' })
   device_token!: DeviceToken;
 
-  @Column({ length: 20 })
+  @Column({ type: 'varchar', length: 20 })
   status!: 'PENDING' | 'SENT' | 'FAILED' | 'DELIVERED';
 
   @Column({ name: 'error_message', type: 'text', nullable: true })

@@ -1,6 +1,9 @@
 import axios, { AxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://192.168.1.27:3000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL !== '/api'
+    ? import.meta.env.VITE_API_URL
+    : `${window.location.origin}/api`;
 const activeControllers = new Map<string, AbortController>();
 
 // Endpoints that should not be cancelled if multiple requests happen
