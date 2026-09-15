@@ -50,7 +50,7 @@ export const Header: React.FC = () => {
     <>
       <div className="fixed top-0 left-0 w-full z-50 flex justify-center pt-3 sm:pt-4 px-4 sm:px-6 pointer-events-none">
         <header
-          className={`pointer-events-auto bg-theme-bg-secondary/85 backdrop-blur-xl border border-theme-border/80 flex flex-col transition-all duration-300 shadow-xl shadow-black/5 ${
+          className={`pointer-events-auto bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-black/5 dark:border-white/[0.08] flex flex-col transition-all duration-300 shadow-lg shadow-black/[0.03] dark:shadow-[0_8px_32px_rgba(0,0,0,0.45)] ${
             isMenuOpen
               ? 'rounded-3xl w-full max-w-xl max-h-[850px]'
               : 'rounded-2xl sm:rounded-full w-full max-w-6xl max-h-16'
@@ -71,15 +71,15 @@ export const Header: React.FC = () => {
               </span>
             </Link>
 
-            {/* Desktop Center Navigation Pills */}
+            {/* Desktop Center Navigation */}
             {user && (
-              <nav className="hidden md:flex items-center gap-1 bg-theme-bg-primary/60 px-2 py-1 rounded-full border border-theme-border/60 mx-4">
+              <nav className="hidden md:flex items-center gap-1 bg-black/[0.03] dark:bg-white/[0.04] p-1 rounded-full mx-3">
                 <Link
                   to="/dashboard"
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
                     isActive('/dashboard')
-                      ? 'bg-theme-bg-secondary text-theme-primary-500 shadow-sm border border-theme-border font-bold'
-                      : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-muted/50'
+                      ? 'bg-white dark:bg-white/10 text-theme-primary-600 dark:text-theme-primary-400 shadow-xs font-bold'
+                      : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5'
                   }`}
                 >
                   <RiDashboardLine size={14} />
@@ -88,10 +88,10 @@ export const Header: React.FC = () => {
 
                 <Link
                   to="/apps"
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
                     isActive('/apps')
-                      ? 'bg-theme-bg-secondary text-theme-primary-500 shadow-sm border border-theme-border font-bold'
-                      : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-muted/50'
+                      ? 'bg-white dark:bg-white/10 text-theme-primary-600 dark:text-theme-primary-400 shadow-xs font-bold'
+                      : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5'
                   }`}
                 >
                   <RiApps2Line size={14} />
@@ -100,10 +100,10 @@ export const Header: React.FC = () => {
 
                 <Link
                   to="/cron-jobs"
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
                     isActive('/cron-jobs')
-                      ? 'bg-theme-bg-secondary text-theme-primary-500 shadow-sm border border-theme-border font-bold'
-                      : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-muted/50'
+                      ? 'bg-white dark:bg-white/10 text-theme-primary-600 dark:text-theme-primary-400 shadow-xs font-bold'
+                      : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5'
                   }`}
                 >
                   <RiTimeLine size={14} />
@@ -113,10 +113,10 @@ export const Header: React.FC = () => {
                 {user.role === 'SUPER_ADMIN' && (
                   <Link
                     to="/super/users"
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
                       isActive('/super/users')
-                        ? 'bg-theme-bg-secondary text-theme-primary-500 shadow-sm border border-theme-border font-bold'
-                        : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-muted/50'
+                        ? 'bg-white dark:bg-white/10 text-theme-primary-600 dark:text-theme-primary-400 shadow-xs font-bold'
+                        : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5'
                     }`}
                   >
                     <RiShieldUserLine size={14} />
@@ -126,10 +126,10 @@ export const Header: React.FC = () => {
 
                 <Link
                   to="/docs"
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
                     isActive('/docs')
-                      ? 'bg-theme-bg-secondary text-theme-primary-500 shadow-sm border border-theme-border font-bold'
-                      : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-muted/50'
+                      ? 'bg-white dark:bg-white/10 text-theme-primary-600 dark:text-theme-primary-400 shadow-xs font-bold'
+                      : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5'
                   }`}
                 >
                   <RiBookOpenLine size={14} />
@@ -139,12 +139,12 @@ export const Header: React.FC = () => {
             )}
 
             {/* Desktop Right Actions (Theme & Account) */}
-            <div className="hidden md:flex items-center gap-3 ml-auto">
+            <div className="hidden md:flex items-center gap-2.5 ml-auto">
               <ThemeSwitcher />
 
               {user ? (
                 <>
-                  <div className="w-px h-5 bg-theme-border/80 mx-0.5"></div>
+                  <div className="w-px h-5 bg-black/10 dark:bg-white/10 mx-0.5"></div>
 
                   {/* User Account Popover */}
                   <div className="relative" ref={userMenuRef}>
@@ -152,8 +152,8 @@ export const Header: React.FC = () => {
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                       className={`flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full border transition-all focus:outline-none ${
                         isUserMenuOpen
-                          ? 'bg-theme-bg-muted border-theme-primary-500/50 shadow-sm'
-                          : 'bg-theme-bg-primary/80 hover:bg-theme-bg-muted border-theme-border'
+                          ? 'bg-black/[0.06] dark:bg-white/10 border-theme-primary-500/40 shadow-xs'
+                          : 'bg-black/[0.02] dark:bg-white/[0.04] hover:bg-black/[0.05] dark:hover:bg-white/[0.08] border-black/[0.05] dark:border-white/[0.08]'
                       }`}
                     >
                       <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-theme-primary-600 to-indigo-500 text-white font-bold text-xs flex items-center justify-center shadow-xs">
@@ -172,8 +172,8 @@ export const Header: React.FC = () => {
 
                     {/* Dropdown Menu */}
                     {isUserMenuOpen && (
-                      <div className="absolute right-0 mt-2.5 w-60 rounded-2xl bg-theme-bg-secondary border border-theme-border shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                        <div className="px-3 py-2.5 border-b border-theme-border/60 mb-1">
+                      <div className="absolute right-0 mt-2.5 w-60 rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-black/5 dark:border-white/10 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.6)] p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                        <div className="px-3 py-2.5 border-b border-black/5 dark:border-white/5 mb-1">
                           <p className="text-xs font-bold text-theme-text-primary truncate">
                             {user.name}
                           </p>
@@ -189,7 +189,7 @@ export const Header: React.FC = () => {
                           <Link
                             to="/profile"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-muted transition-colors"
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                           >
                             <RiUser3Line size={15} />
                             <span>Profile & Settings</span>
@@ -197,14 +197,14 @@ export const Header: React.FC = () => {
                           <Link
                             to="/docs"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-theme-text-secondary hover:text-theme-text-primary hover:bg-theme-bg-muted transition-colors"
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                           >
                             <RiBookOpenLine size={15} />
                             <span>Documentation</span>
                           </Link>
                         </div>
 
-                        <div className="border-t border-theme-border/60 pt-1 mt-1">
+                        <div className="border-t border-black/5 dark:border-white/5 pt-1 mt-1">
                           <button
                             onClick={() => {
                               setIsUserMenuOpen(false);
@@ -276,7 +276,7 @@ export const Header: React.FC = () => {
               {user ? (
                 <>
                   {/* Mobile User Header */}
-                  <div className="p-3 bg-theme-bg-primary rounded-2xl border border-theme-border mb-3 flex items-center gap-3">
+                  <div className="p-3 bg-black/[0.03] dark:bg-white/[0.04] rounded-2xl border border-black/5 dark:border-white/[0.08] mb-3 flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-theme-primary-600 to-indigo-500 text-white font-bold text-sm flex items-center justify-center shadow-xs flex-shrink-0">
                       {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                     </div>
@@ -365,7 +365,7 @@ export const Header: React.FC = () => {
                     <span>Profile & Settings</span>
                   </Link>
 
-                  <div className="flex items-center justify-between px-4 py-3 border-t border-theme-border mt-3">
+                  <div className="flex items-center justify-between px-4 py-3 border-t border-black/5 dark:border-white/5 mt-3">
                     <div className="text-xs font-semibold text-theme-text-secondary">Theme</div>
                     <ThemeSwitcher />
                   </div>
@@ -396,7 +396,7 @@ export const Header: React.FC = () => {
                     Login
                   </Link>
 
-                  <div className="flex items-center justify-between px-4 py-3 border-t border-theme-border mt-2">
+                  <div className="flex items-center justify-between px-4 py-3 border-t border-black/5 dark:border-white/5 mt-2">
                     <div className="text-sm font-medium text-theme-text-secondary">Theme</div>
                     <ThemeSwitcher />
                   </div>
