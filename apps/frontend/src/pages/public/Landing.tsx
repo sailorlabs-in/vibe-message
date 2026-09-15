@@ -16,22 +16,18 @@ import {
   RiCheckboxCircleLine,
 } from '@remixicon/react';
 import React, { useRef, useEffect } from 'react';
-import { systemService } from '../../services/systemService';
+import { useSystem } from '../../context/SystemContext';
 
 export const Landing: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { isSelfHosted } = useSystem();
 
   useEffect(() => {
-    systemService
-      .getPublicSettings()
-      .then((s) => {
-        if (s.is_self_hosted) {
-          navigate('/login', { replace: true });
-        }
-      })
-      .catch(console.error);
-  }, [navigate]);
+    if (isSelfHosted) {
+      navigate('/login', { replace: true });
+    }
+  }, [isSelfHosted, navigate]);
 
   return (
     <div className="min-h-screen text-theme-text-primary overflow-x-hidden font-sans mt-[-120px]">
@@ -85,16 +81,31 @@ export const Landing: React.FC = () => {
                   </span>
                 </Link>
 
-                <Link
-                  to="/docs"
-                  className="z-10 group px-8 py-4 bg-theme-bg-secondary border border-theme-border text-theme-text-primary rounded-xl font-bold text-lg transition-all hover:bg-theme-bg-muted w-full sm:w-auto flex items-center justify-center shadow-sm"
-                >
-                  <RiTerminalBoxLine
-                    size={20}
-                    className="mr-2 text-theme-text-muted group-hover:text-theme-text-primary transition-colors"
-                  />
-                  Explore Documention
-                </Link>
+                {isSelfHosted ? (
+                  <a
+                    href="https://vibemessage.sailorlabs.in/docs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="z-10 group px-8 py-4 bg-theme-bg-secondary border border-theme-border text-theme-text-primary rounded-xl font-bold text-lg transition-all hover:bg-theme-bg-muted w-full sm:w-auto flex items-center justify-center shadow-sm"
+                  >
+                    <RiTerminalBoxLine
+                      size={20}
+                      className="mr-2 text-theme-text-muted group-hover:text-theme-text-primary transition-colors"
+                    />
+                    Explore Documentation
+                  </a>
+                ) : (
+                  <Link
+                    to="/docs"
+                    className="z-10 group px-8 py-4 bg-theme-bg-secondary border border-theme-border text-theme-text-primary rounded-xl font-bold text-lg transition-all hover:bg-theme-bg-muted w-full sm:w-auto flex items-center justify-center shadow-sm"
+                  >
+                    <RiTerminalBoxLine
+                      size={20}
+                      className="mr-2 text-theme-text-muted group-hover:text-theme-text-primary transition-colors"
+                    />
+                    Explore Documentation
+                  </Link>
+                )}
               </div>
             </motion.div>
 
@@ -708,12 +719,23 @@ export const Landing: React.FC = () => {
                 Create Hub Account
                 <RiArrowRightLine size={18} className="ml-2" />
               </Link>
-              <Link
-                to="/docs"
-                className="px-8 py-4 border border-theme-border bg-theme-bg-primary text-theme-text-primary rounded-xl font-bold text-lg hover:bg-theme-bg-muted transition-colors w-full sm:w-auto"
-              >
-                Read Specification
-              </Link>
+              {isSelfHosted ? (
+                <a
+                  href="https://vibemessage.sailorlabs.in/docs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-8 py-4 border border-theme-border bg-theme-bg-primary text-theme-text-primary rounded-xl font-bold text-lg hover:bg-theme-bg-muted transition-colors w-full sm:w-auto flex items-center justify-center"
+                >
+                  Read Specification
+                </a>
+              ) : (
+                <Link
+                  to="/docs"
+                  className="px-8 py-4 border border-theme-border bg-theme-bg-primary text-theme-text-primary rounded-xl font-bold text-lg hover:bg-theme-bg-muted transition-colors w-full sm:w-auto flex items-center justify-center"
+                >
+                  Read Specification
+                </Link>
+              )}
             </div>
           </motion.div>
         </section>

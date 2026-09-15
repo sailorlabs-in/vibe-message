@@ -1,7 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'motion/react';
+import { useSystem } from '../../context/SystemContext';
 
 export const License: React.FC = () => {
+  const { isSelfHosted } = useSystem();
+
+  useEffect(() => {
+    if (isSelfHosted) {
+      window.location.replace('https://vibemessage.sailorlabs.in/license');
+    }
+  }, [isSelfHosted]);
   return (
     <div className="min-h-screen py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="max-w-4xl mx-auto relative z-10">

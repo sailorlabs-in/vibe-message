@@ -66,7 +66,7 @@ export const Dashboard: React.FC = () => {
         >
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-violet-500/10 text-theme-primary-500 flex items-center justify-center shadow-inner">
+              <div className="w-10 h-10 rounded-xl bg-theme-primary-500/10 text-theme-primary-500 flex items-center justify-center shadow-inner">
                 <RiDashboardLine size={24} />
               </div>
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight drop-shadow-sm text-transparent bg-clip-text bg-gradient-to-r from-theme-text-primary to-theme-primary-500">
@@ -80,7 +80,7 @@ export const Dashboard: React.FC = () => {
           </div>
           <Link
             to="/apps?create=true"
-            className="group shrink-0 px-8 py-3.5 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-2xl font-bold shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50 transform hover:-translate-y-1 transition-all active:translate-y-0 active:shadow-md flex items-center gap-2 overflow-hidden relative"
+            className="group shrink-0 px-8 py-3.5 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-2xl font-bold shadow-lg shadow-theme-primary-500/30 hover:shadow-theme-primary-500/50 transform hover:-translate-y-1 transition-all active:translate-y-0 active:shadow-md flex items-center gap-2 overflow-hidden relative"
           >
             <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
             <RiAddLine size={22} className="relative z-10" />
@@ -100,11 +100,11 @@ export const Dashboard: React.FC = () => {
             variants={itemVariants}
             className="backdrop-blur-3xl bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-6 transform hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group cursor-pointer"
           >
-            <div className="absolute -inset-1 bg-gradient-to-r from-violet-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl rounded-2xl" />
-            <div className="absolute -right-10 -top-10 w-40 h-40 bg-violet-500/10 rounded-full blur-3xl group-hover:scale-150 group-hover:bg-violet-500/20 transition-all duration-500"></div>
+            <div className="absolute -inset-1 bg-gradient-to-r from-theme-primary-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl rounded-2xl" />
+            <div className="absolute -right-10 -top-10 w-40 h-40 bg-theme-primary-500/10 rounded-full blur-3xl group-hover:scale-150 group-hover:bg-theme-primary-500/20 transition-all duration-500"></div>
 
             <div className="relative z-10">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-violet-500/10 to-transparent border border-violet-500/20 text-theme-primary-500 flex items-center justify-center mb-6 shadow-sm">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-theme-primary-500/10 to-transparent border border-theme-primary-500/20 text-theme-primary-500 flex items-center justify-center mb-6 shadow-sm">
                 <RiGridLine size={26} />
               </div>
               <h3 className="text-theme-text-secondary font-semibold mb-2">
@@ -172,10 +172,10 @@ export const Dashboard: React.FC = () => {
           {/* Card 3: Quick Actions Dashboard */}
           <motion.div
             variants={itemVariants}
-            className="backdrop-blur-3xl bg-violet-500/5 dark:bg-violet-500/10 border border-violet-500/30 rounded-2xl shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-6 transform hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center relative overflow-hidden group"
+            className="backdrop-blur-3xl bg-theme-primary-500/5 dark:bg-theme-primary-500/10 border border-theme-primary-500/30 rounded-2xl shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-6 transform hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center relative overflow-hidden group"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-violet-500/10 via-violet-500/5 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="absolute -top-24 -left-24 w-64 h-64 bg-violet-500/20 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-theme-primary-500/10 via-theme-primary-500/5 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute -top-24 -left-24 w-64 h-64 bg-theme-primary-500/20 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
 
             <div className="relative z-10">
               <h3 className="text-theme-text-primary font-black text-2xl mb-3">Quick Pipeline</h3>
@@ -187,7 +187,7 @@ export const Dashboard: React.FC = () => {
                 className="w-full px-6 py-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/50 rounded-2xl font-bold text-theme-text-primary transition-all duration-300 shadow-md hover:shadow-xl flex items-center justify-between group/btn relative overflow-hidden"
               >
                 <span className="relative z-10 text-base">Manage Portfolio</span>
-                <span className="relative z-10 w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center text-theme-primary-500 group-hover/btn:bg-theme-primary-500 group-hover/btn:text-white transition-colors duration-300">
+                <span className="relative z-10 w-10 h-10 rounded-xl bg-theme-primary-500/10 flex items-center justify-center text-theme-primary-500 group-hover/btn:bg-theme-primary-500 group-hover/btn:text-white transition-colors duration-300">
                   <RiArrowRightLine
                     size={20}
                     className="transform group-hover/btn:translate-x-1 transition-transform"
@@ -207,7 +207,7 @@ export const Dashboard: React.FC = () => {
         >
           <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 flex justify-between items-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-violet-500/10 text-theme-primary-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-theme-primary-500/10 text-theme-primary-500 flex items-center justify-center">
                 <RiSmartphoneLine size={18} />
               </div>
               <h2 className="text-2xl font-bold text-theme-text-primary">Recent Projects</h2>
@@ -215,7 +215,7 @@ export const Dashboard: React.FC = () => {
             {(apps?.length ?? 0) > 5 && (
               <Link
                 to="/apps"
-                className="hidden sm:flex text-theme-primary-500 hover:text-theme-primary-600 font-bold text-sm transition-colors items-center gap-1.5 px-4 py-2 rounded-xl hover:bg-violet-500/10"
+                className="hidden sm:flex text-theme-primary-500 hover:text-theme-primary-600 font-bold text-sm transition-colors items-center gap-1.5 px-4 py-2 rounded-xl hover:bg-theme-primary-500/10"
               >
                 View All Directory
                 <RiArrowRightSLine size={18} />
@@ -226,37 +226,34 @@ export const Dashboard: React.FC = () => {
           <div className="p-4 sm:p-6">
             {(apps?.length ?? 0) === 0 ? (
               <div className="text-center py-20 px-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-violet-500/5 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-theme-primary-500/5 pointer-events-none"></div>
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.4, type: 'spring' }}
-                  className="w-32 h-32 mx-auto mb-8 rounded-full bg-gradient-to-br from-theme-bg-muted to-violet-500/10 flex items-center justify-center p-1 shadow-inner relative"
+                  className="w-32 h-32 mx-auto mb-8 rounded-full bg-gradient-to-br from-theme-bg-muted to-theme-primary-500/10 flex items-center justify-center p-1 shadow-inner relative"
                 >
-                  <div className="absolute inset-0 rounded-full border-2 border-violet-500/20 border-dashed animate-[spin_10s_linear_infinite]"></div>
+                  <div className="absolute inset-0 rounded-full border-2 border-theme-primary-500/20 border-dashed animate-[spin_10s_linear_infinite]"></div>
                   <div className="w-full h-full rounded-full bg-theme-bg-primary flex items-center justify-center shadow-lg relative z-10">
                     <RiBriefcase4Line size={48} className="text-theme-primary-500" />
                   </div>
                 </motion.div>
-                <h3 className="text-2xl font-black text-theme-text-primary mb-3">
-                  Your Workspace is Empty
+                <h3 className="text-2xl font-bold text-theme-text-primary mb-3">
+                  No Notification Hubs Found
                 </h3>
-                <p className="text-theme-text-secondary text-lg mb-10 max-w-md mx-auto leading-relaxed">
-                  Start your journey by creating your first application. Connect your users in
-                  moments.
+                <p className="text-theme-text-secondary max-w-sm mx-auto mb-8 leading-relaxed">
+                  Start your realtime notification journey by initializing your first app integration.
                 </p>
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Link
-                    to="/apps/new"
-                    className="inline-flex px-10 py-4 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-2xl font-bold shadow-xl shadow-theme-primary-500/25 transition-all text-lg items-center gap-3"
-                  >
-                    <RiAddLine size={24} />
-                    Deploy First App
-                  </Link>
-                </motion.div>
+                <Link
+                  to="/apps?create=true"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-2xl font-bold shadow-lg shadow-theme-primary-500/30 hover:shadow-theme-primary-500/50 transform hover:-translate-y-1 transition-all active:translate-y-0"
+                >
+                  <RiAddLine size={20} />
+                  <span>Create First App</span>
+                </Link>
               </div>
             ) : (
-              <div className="flex flex-col gap-3">
+              <div className="grid gap-3 sm:gap-4">
                 {apps.slice(0, 5).map((app, index) => (
                   <motion.div
                     key={app.id}
@@ -266,7 +263,7 @@ export const Dashboard: React.FC = () => {
                   >
                     <Link
                       to={`/apps/${app.public_app_id}`}
-                      className="group flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border items-start sm:items-center border-slate-200 dark:border-slate-700/50 rounded-2xl hover:border-violet-500/50 hover:shadow-xl dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all cursor-pointer relative overflow-hidden"
+                      className="group flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border items-start sm:items-center border-slate-200 dark:border-slate-700/50 rounded-2xl hover:border-theme-primary-500/50 hover:shadow-xl dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all cursor-pointer relative overflow-hidden"
                     >
                       {/* Hover Indicator Line */}
                       <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-theme-primary-400 to-theme-primary-600 opacity-0 group-hover:opacity-100 transition-opacity rounded-l-2xl"></div>
@@ -321,7 +318,7 @@ export const Dashboard: React.FC = () => {
               <div className="mt-6 text-center sm:hidden">
                 <Link
                   to="/apps"
-                  className="inline-flex items-center gap-2 text-theme-primary-500 font-bold px-6 py-3 rounded-xl bg-violet-500/10"
+                  className="inline-flex items-center gap-2 text-theme-primary-500 font-bold px-6 py-3 rounded-xl bg-theme-primary-500/10"
                 >
                   View All Directory
                   <RiArrowRightLine size={18} />

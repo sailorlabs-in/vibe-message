@@ -601,7 +601,8 @@ REDIS_PORT=6379`;
               const Icon = tab.icon;
               const isActive = currentTab === tab.key;
               const isLastAndOdd =
-                index === (availableTabs?.length ?? 0) - 1 && (availableTabs?.length ?? 0) % 2 === 1;
+                index === (availableTabs?.length ?? 0) - 1 &&
+                (availableTabs?.length ?? 0) % 2 === 1;
               return (
                 <button
                   key={tab.key}
@@ -1375,7 +1376,7 @@ REDIS_PORT=6379`;
                       </div>
 
                       {/* Save Button */}
-                      <div className="pt-4 border-t border-theme-border/60">
+                      <div className="flex flex-col sm:flex-row justify-end pt-5 border-t border-theme-border/60">
                         <button
                           type="button"
                           onClick={handleUpdateSettings}
@@ -1395,22 +1396,39 @@ REDIS_PORT=6379`;
                           )}
                         </button>
                       </div>
+                    </div>
+                  </SectionCard>
 
-                      {/* Critical System Danger Action */}
-                      <div className="pt-6 border-t border-red-500/20 bg-red-500/5 dark:bg-red-950/20 -mx-5 sm:-mx-7 -mb-5 sm:-mb-7 p-5 sm:p-7 rounded-b-2xl sm:rounded-b-3xl space-y-3">
-                        <div className="flex items-center gap-2 text-red-600 dark:text-red-400 font-bold text-sm">
-                          <RiAlertLine size={18} />
-                          System Danger Action: Purge Push Device Tokens
+                  {/* ── System Danger Zone Section Card ── */}
+                  <SectionCard
+                    danger
+                    icon={<RiAlertLine size={20} />}
+                    title="System Danger Zone"
+                    subtitle="Irreversible system-wide maintenance and emergency actions."
+                    badge={
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/20 uppercase tracking-wide">
+                        Destructive
+                      </span>
+                    }
+                  >
+                    <div className="space-y-4">
+                      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 p-5 rounded-2xl bg-red-500/5 dark:bg-red-950/20 border border-red-500/20">
+                        <div className="space-y-1.5 max-w-xl">
+                          <h4 className="text-sm font-bold text-red-600 dark:text-red-400 flex items-center gap-2">
+                            <RiAlertLine size={18} className="shrink-0" />
+                            Purge Push Device Tokens System-Wide
+                          </h4>
+                          <p className="text-xs sm:text-sm text-theme-text-secondary leading-relaxed">
+                            Forcibly purges all registered push tokens across every application in the
+                            database. All client devices will stop receiving alerts until users re-open
+                            their browsers to re-register.
+                          </p>
                         </div>
-                        <p className="text-xs sm:text-sm text-theme-text-secondary leading-relaxed">
-                          Forcibly purges all registered push tokens across every application in the
-                          database. All client devices must re-open their browsers to re-register.
-                        </p>
                         <button
                           type="button"
                           onClick={() => setShowSystemConfirmModal(true)}
                           disabled={loading}
-                          className="btn-danger flex items-center justify-center gap-2 w-full sm:w-auto min-h-[42px]"
+                          className="shrink-0 px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-600/25 transition-all duration-200 hover:-translate-y-0.5 active:scale-95 flex items-center justify-center gap-2 min-h-[42px]"
                         >
                           <RiAlertLine size={16} />
                           Unregister All Devices System-Wide

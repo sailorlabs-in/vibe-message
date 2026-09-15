@@ -57,7 +57,7 @@ export const ForgotPassword: React.FC = () => {
             <motion.div
               animate={{ x: [0, 40, 0], y: [0, -40, 0], rotate: [0, 60, 0] }}
               transition={{ duration: 18, repeat: Infinity, ease: 'linear' }}
-              className="absolute -top-20 -left-20 w-96 h-96 bg-violet-500/20 rounded-full blur-[80px]"
+              className="absolute -top-20 -left-20 w-96 h-96 bg-theme-primary-500/20 rounded-full blur-[80px]"
             />
             <motion.div
               animate={{ x: [0, -40, 0], y: [0, 40, 0], rotate: [0, -60, 0] }}

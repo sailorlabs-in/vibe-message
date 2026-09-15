@@ -8,6 +8,7 @@
     "libs/*"
   ],
   "scripts": {
+    "serve:self": "cross-env IS_SELF_HOSTED=true npm run serve-all:dev",
     "serve-all:dev": "nx run-many --target=dev --all --parallel=10",
     "build-all:prod": "nx run-many --target=build --all --parallel=10",
     "serve:frontend:dev": "nx run vibe-message-frontend:dev",
@@ -31,6 +32,7 @@
     "@typescript-eslint/parser": "^8.61.1",
     "baseline-browser-mapping": "^2.10.10",
     "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
     "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",

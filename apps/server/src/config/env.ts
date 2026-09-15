@@ -1,6 +1,9 @@
 import dotenv from 'dotenv';
+import { resolve } from 'path';
 
 dotenv.config();
+dotenv.config({ path: resolve(__dirname, '../../.env') });
+dotenv.config({ path: resolve(process.cwd(), 'apps/server/.env') });
 
 interface EnvConfig {
   database: {
