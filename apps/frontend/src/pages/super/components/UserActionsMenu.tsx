@@ -12,6 +12,7 @@ import {
   RiFoldersLine,
   RiShieldKeyholeLine,
   RiKeyLine,
+  RiTimeLine,
 } from '@remixicon/react';
 import { User, UserStatus } from '../../../types';
 
@@ -22,6 +23,7 @@ interface UserActionsMenuProps {
   onClose: () => void;
   onStatusChange: (userId: number, status: UserStatus) => void;
   onSetAppLimit: (user: User) => void;
+  onSetCronJobLimit: (user: User) => void;
   onSendWarning: (user: User) => void;
   onToggleRetentionPerm: (user: User) => void;
   onRoleChange: (userId: number, role: 'SUPER_ADMIN' | 'ADMIN') => void;
@@ -74,6 +76,7 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
   onClose,
   onStatusChange,
   onSetAppLimit,
+  onSetCronJobLimit,
   onSendWarning,
   onToggleRetentionPerm,
   onRoleChange,
@@ -179,6 +182,15 @@ export const UserActionsMenu: React.FC<UserActionsMenuProps> = ({
           onClick={() => {
             onClose();
             onSetAppLimit(user);
+          }}
+        />
+
+        <MenuItem
+          icon={<RiTimeLine size={16} />}
+          label="Set Cron Job Limit"
+          onClick={() => {
+            onClose();
+            onSetCronJobLimit(user);
           }}
         />
 

@@ -69,6 +69,7 @@ export class AuthService {
       role: 'ADMIN',
       status: isSelfHosted ? 'APPROVED' : 'PENDING',
       app_limit: isSelfHosted ? null : 5,
+      cron_job_limit: isSelfHosted ? null : 10,
     });
 
     await this.userRepository.save(user);

@@ -68,6 +68,19 @@ export const updateAppLimit = createAsyncThunk<
   }
 });
 
+export const updateCronJobLimit = createAsyncThunk<
+  User,
+  { userId: number; cronJobLimit: number | null },
+  { rejectValue: string }
+>('admin/updateCronJobLimit', async ({ userId, cronJobLimit }, { rejectWithValue }) => {
+  try {
+    const response = await ApiRequest(`/admin/users/${userId}/cron-job-limit`, 'patch', { cronJobLimit });
+    return response.data;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || 'Failed to update cron job limit');
+  }
+});
+
 export const updateUserRetentionPermission = createAsyncThunk<
   User,
   { userId: number; canManageRetention: boolean },
@@ -211,6 +224,24 @@ const adminSlice = createSlice({
       .addCase(updateAppLimit.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to update app limit';
+      });
+
+    // Update cron job limit
+    builder
+      .addCase(updateCronJobLimit.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateCronJobLimit.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.users.findIndex((user) => user.id === action.payload.id);
+        if (index !== -1) {
+          state.users[index] = action.payload;
+        }
+      })
+      .addCase(updateCronJobLimit.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update cron job limit';
       });
 
     // Update retention permission

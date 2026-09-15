@@ -15,6 +15,8 @@ import {
 } from '@remixicon/react';
 import toast from 'react-hot-toast';
 import { cronJobService } from '../../services/cronJobService';
+import { systemService } from '../../services/systemService';
+import { useAppSelector } from '../../store/store';
 import { CronJob, HttpMethod } from '../../types/cron-job';
 import { CronJobModal } from './components/CronJobModal';
 import { CronJobLogsModal } from './components/CronJobLogsModal';
@@ -22,6 +24,8 @@ import { ConfirmModal } from '../../components/common/ConfirmModal';
 import { describeCron } from '../../utils/cronHelper';
 
 export const CronJobs: React.FC = () => {
+  const { user } = useAppSelector((state) => state.auth);
+  const [isSelfHosted, setIsSelfHosted] = useState(false);
   const [jobs, setJobs] = useState<CronJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,6 +50,12 @@ export const CronJobs: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    systemService.getPublicSettings().then((s) => {
+      setIsSelfHosted(s.is_self_hosted);
+    }).catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -119,6 +129,13 @@ export const CronJobs: React.FC = () => {
     return { total, active, paused, failing };
   }, [jobs]);
 
+  const isLimitReached = Boolean(
+    !isSelfHosted &&
+      user?.cron_job_limit !== null &&
+      user?.cron_job_limit !== undefined &&
+      jobs.length >= user.cron_job_limit
+  );
+
   const getMethodBadgeClass = (method: HttpMethod) => {
     switch (method) {
       case 'GET':
@@ -154,17 +171,58 @@ export const CronJobs: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            setEditingJob(null);
-            setIsCreateModalOpen(true);
-          }}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-theme-primary-600 hover:bg-theme-primary-700 text-white font-semibold text-sm rounded-xl shadow-lg shadow-theme-primary-500/20 transition-all hover:scale-105"
-        >
-          <RiAddLine size={18} />
-          Create Cron Job
-        </button>
+        <div className="flex items-center gap-3">
+          {!isSelfHosted && user?.cron_job_limit !== null && user?.cron_job_limit !== undefined && (
+            <div
+              className={`text-xs px-3.5 py-2 rounded-xl border font-semibold flex items-center gap-1.5 ${
+                isLimitReached
+                  ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
+                  : 'bg-theme-bg-secondary text-theme-text-secondary border-theme-border'
+              }`}
+            >
+              {isLimitReached && <RiAlertLine size={15} />}
+              <span>
+                Quota: {jobs.length} / {user.cron_job_limit}
+              </span>
+            </div>
+          )}
+
+          <button
+            onClick={() => {
+              if (isLimitReached) {
+                toast.error(
+                  `Cron job limit reached (${user?.cron_job_limit} jobs max). Contact Super Admin to increase your limit.`
+                );
+                return;
+              }
+              setEditingJob(null);
+              setIsCreateModalOpen(true);
+            }}
+            disabled={isLimitReached}
+            className={`inline-flex items-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-xl transition-all ${
+              isLimitReached
+                ? 'bg-theme-bg-muted text-theme-text-muted cursor-not-allowed border border-theme-border opacity-70'
+                : 'bg-theme-primary-600 hover:bg-theme-primary-700 text-white shadow-lg shadow-theme-primary-500/20 hover:scale-105'
+            }`}
+            title={isLimitReached ? `Quota reached (${user?.cron_job_limit} max)` : undefined}
+          >
+            <RiAddLine size={18} />
+            Create Cron Job
+          </button>
+        </div>
       </div>
+
+      {/* Limit Reached Warning Banner */}
+      {isLimitReached && (
+        <div className="mb-8 p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-3 text-sm text-rose-600 dark:text-rose-400">
+          <RiAlertLine size={20} className="shrink-0" />
+          <div>
+            <span className="font-semibold">Cron Job Limit Reached:</span> You have reached your
+            maximum allowance of {user?.cron_job_limit} cron jobs. Contact a Super Admin to
+            increase your limit.
+          </div>
+        </div>
+      )}
 
       {/* Metrics Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -173,7 +231,14 @@ export const CronJobs: React.FC = () => {
             <span className="text-xs font-semibold uppercase tracking-wider">Total Jobs</span>
             <RiGlobalLine size={18} />
           </div>
-          <div className="text-2xl font-bold text-theme-text-primary">{stats.total}</div>
+          <div className="text-2xl font-bold text-theme-text-primary">
+            {stats.total}
+            {!isSelfHosted && user?.cron_job_limit !== null && user?.cron_job_limit !== undefined && (
+              <span className="text-sm font-normal text-theme-text-secondary ml-1.5">
+                / {user.cron_job_limit}
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="p-5 rounded-2xl bg-theme-bg-secondary border border-theme-border shadow-sm">

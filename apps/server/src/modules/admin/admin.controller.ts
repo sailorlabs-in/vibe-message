@@ -79,6 +79,18 @@ export class AdminController {
     return { success: true, data: user };
   }
 
+  @Patch('users/:id/cron-job-limit')
+  async updateUserCronJobLimit(
+    @Param('id') id: string,
+    @Body() body: { cronJobLimit: number | null }
+  ) {
+    const user = await this.userService.updateUserCronJobLimit(
+      parseInt(id, 10),
+      body.cronJobLimit
+    );
+    return { success: true, data: user };
+  }
+
   @Post('users/:id/warn')
   async warnUser(@Req() req: any, @Param('id') id: string, @Body() data: CreateWarningRequest) {
     const warning = await this.userService.createWarning(parseInt(id, 10), req.user.userId, data);

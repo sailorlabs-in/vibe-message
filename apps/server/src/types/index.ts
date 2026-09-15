@@ -10,6 +10,7 @@ export interface User {
   role: UserRole;
   status: UserStatus;
   app_limit: number | null;
+  cron_job_limit: number | null;
   can_manage_retention: boolean;
   enterprise_key: string | null;
   enterprise_key_requested: boolean;
@@ -24,6 +25,7 @@ export interface UserResponse {
   role: UserRole;
   status: UserStatus;
   app_limit: number | null;
+  cron_job_limit: number | null;
   can_manage_retention: boolean;
   enterprise_key: string | null;
   enterprise_key_requested: boolean;

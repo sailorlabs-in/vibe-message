@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { User } from '../user/user.entity';
 import { CronJob } from './entities/cron-job.entity';
 import { CronJobLog } from './entities/cron-job-log.entity';
 import { HttpCronQueueScheduler } from './http-cron-queue.scheduler';
@@ -26,6 +27,8 @@ export class HttpCronService {
     private readonly cronJobRepo: Repository<CronJob>,
     @InjectRepository(CronJobLog)
     private readonly cronJobLogRepo: Repository<CronJobLog>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
     private readonly scheduler: HttpCronQueueScheduler
   ) {}
 
@@ -76,6 +79,21 @@ export class HttpCronService {
 
     if (!dto.title || !dto.title.trim()) {
       throw new BadRequestException('Title is required');
+    }
+
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Check maximum cron job limit
+    if (user.cron_job_limit !== null && process.env.IS_SELF_HOSTED !== 'true') {
+      const currentCount = await this.cronJobRepo.count({ where: { user_id: userId } });
+      if (currentCount >= user.cron_job_limit) {
+        throw new ForbiddenException(
+          `You have reached your maximum limit of ${user.cron_job_limit} cron jobs. Please contact an administrator to increase your limit.`
+        );
+      }
     }
 
     const job = this.cronJobRepo.create({

@@ -124,6 +124,18 @@ export class UserService {
     return this.userToResponse(user);
   }
 
+  async updateUserCronJobLimit(userId: number, limit: number | null): Promise<UserResponse> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException('User not found or cannot modify');
+    }
+
+    user.cron_job_limit = limit;
+    await this.userRepository.save(user);
+
+    return this.userToResponse(user);
+  }
+
   async createWarning(
     userId: number,
     createdBy: number,
@@ -358,6 +370,7 @@ export class UserService {
       role: 'SUPER_ADMIN',
       status: 'APPROVED',
       app_limit: null,
+      cron_job_limit: null,
       can_manage_retention: true,
     });
 

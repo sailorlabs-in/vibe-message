@@ -30,6 +30,9 @@ export class User {
   @Column({ name: 'app_limit', type: 'int', nullable: true })
   app_limit!: number | null;
 
+  @Column({ name: 'cron_job_limit', type: 'int', nullable: true })
+  cron_job_limit!: number | null;
+
   @Column({ name: 'can_manage_retention', default: false })
   can_manage_retention!: boolean;
 

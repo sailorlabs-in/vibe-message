@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CronJob } from './entities/cron-job.entity';
 import { CronJobLog } from './entities/cron-job-log.entity';
+import { User } from '../user/user.entity';
 import { HttpCronController } from './http-cron.controller';
 import { HttpCronService } from './http-cron.service';
 import { HttpCronQueueScheduler } from './http-cron-queue.scheduler';
@@ -10,7 +11,7 @@ import { SystemModule } from '../system/system.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([CronJob, CronJobLog]),
+    TypeOrmModule.forFeature([CronJob, CronJobLog, User]),
     SystemModule,
   ],
   controllers: [HttpCronController],
