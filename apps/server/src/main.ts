@@ -122,8 +122,7 @@ async function bootstrap() {
     );
   }
 
-  const swaggerPath =
-    process.env.IS_SELF_HOSTED === 'true' ? '/docs' : apiPrefix === '' ? '/' : apiPrefix;
+  const swaggerPath = '/docs';
 
   // Basic Auth for Swagger (from old index.ts)
   expressApp.use(swaggerPath, (req, res, next) => {

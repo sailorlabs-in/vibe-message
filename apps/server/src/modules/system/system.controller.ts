@@ -97,10 +97,13 @@ export class SystemController {
       hide_email_verification,
     } = body;
 
-    if (default_retention_days !== undefined && (typeof default_retention_days !== 'number' || default_retention_days < 1)) {
-      return res
-        .status(HttpStatus.BAD_REQUEST)
-        .json({ success: false, message: 'Invalid retention days value.' });
+    if (default_retention_days !== undefined) {
+      const parsedDays = Number(default_retention_days);
+      if (isNaN(parsedDays) || parsedDays < 1) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: 'Invalid retention days value.' });
+      }
     }
 
     let settings = await this.systemSettingsRepository.findOne({
@@ -112,18 +115,23 @@ export class SystemController {
     }
 
     if (default_retention_days !== undefined) {
-      settings.default_retention_days = default_retention_days;
+      settings.default_retention_days = Math.floor(Number(default_retention_days));
     }
 
     // Only allow updating SMTP settings if NOT configured via env
     const smtpEnvConfigured = !!config.mail.host;
     if (!smtpEnvConfigured) {
       if (smtp_host !== undefined) settings.smtp_host = smtp_host;
-      if (smtp_port !== undefined) settings.smtp_port = smtp_port;
-      if (smtp_secure !== undefined) settings.smtp_secure = smtp_secure;
+      if (smtp_port !== undefined) {
+        const parsedPort = Number(smtp_port);
+        settings.smtp_port = !isNaN(parsedPort) ? Math.floor(parsedPort) : 587;
+      }
+      if (smtp_secure !== undefined) {
+        settings.smtp_secure = smtp_secure === true || smtp_secure === 'true';
+      }
       if (smtp_user !== undefined) settings.smtp_user = smtp_user;
       if (smtp_from !== undefined) settings.smtp_from = smtp_from;
-      
+
       // Overwrite password if provided and not the masked placeholder
       if (smtp_pass !== undefined && smtp_pass !== '********') {
         settings.smtp_pass = smtp_pass;

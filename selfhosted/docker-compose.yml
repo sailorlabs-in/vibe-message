@@ -32,7 +32,9 @@ services:
       - SUPER_ADMIN_PASSWORD=${SUPER_ADMIN_PASSWORD:-VibeMessageAdmin@123}
       - SUPER_ADMIN_NAME=${SUPER_ADMIN_NAME:-Super Admin}
       
-      # Subject/contact info for auto-generated VAPID keys
+      # Subject/contact info and optional persistent keys for VAPID
+      - VAPID_PUBLIC_KEY=${VAPID_PUBLIC_KEY:-}
+      - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY:-}
       - VAPID_SUBJECT=${VAPID_SUBJECT:-mailto:admin@example.com}
       
       - ALLOWED_ORIGINS=*
@@ -41,6 +43,8 @@ services:
         condition: service_healthy
       redis-selfhosted:
         condition: service_started
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     restart: always
 
   postgres-selfhosted:

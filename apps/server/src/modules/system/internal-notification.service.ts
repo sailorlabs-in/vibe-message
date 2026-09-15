@@ -5,7 +5,6 @@ import { App as AppEntity } from '../app/app.entity';
 import { User } from '../user/user.entity';
 import { Notification } from '../push/notification.entity';
 import { initServerClient } from 'vibe-message';
-import { generateAppId, generateSecretKey } from '../../utils/crypto';
 import { getVapidPublicKey } from '../../utils/webPush';
 
 const INTERNAL_APP_NAME = 'Admin Panel Notifications';

@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not } from 'typeorm';
@@ -24,6 +25,8 @@ import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -318,8 +321,11 @@ export class UserService {
     if (process.env.IS_SELF_HOSTED === 'true') {
       throw new ForbiddenException('Licensing actions are disabled in self-hosted deployments');
     }
-    const user = await this.userRepository.findOne({ where: { enterprise_key: licenseKey } });
-    if (!user || user.status === 'BANNED') {
+    if (!licenseKey || typeof licenseKey !== 'string' || !licenseKey.trim()) {
+      return { valid: false };
+    }
+    const user = await this.userRepository.findOne({ where: { enterprise_key: licenseKey.trim() } });
+    if (!user || user.status !== 'APPROVED') {
       return { valid: false };
     }
 
@@ -354,6 +360,6 @@ export class UserService {
     });
 
     await this.userRepository.save(newSuperAdmin);
-    console.log(`✅ Default Super Admin created: ${email} (password configured in env or default VibeMessageAdmin@123)`);
+    this.logger.log(`✅ Default Super Admin created: ${email}`);
   }
 }
