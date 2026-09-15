@@ -60,12 +60,14 @@ export const Header: React.FC = () => {
             {/* Brand / Logo */}
             <Link
               to="/"
-              className="flex items-center gap-2.5 flex-shrink-0 group transition-transform duration-200 hover:scale-[1.02]"
+              className="flex items-center gap-2.5 flex-shrink-0 group transition-all duration-200 hover:opacity-90"
             >
-              <div className="w-8 h-8 rounded-xl bg-theme-primary-500/10 text-theme-primary-500 flex items-center justify-center border border-theme-primary-500/20 group-hover:border-theme-primary-500/40 transition-colors">
-                <img src="/favicon.png" alt="Vibe Message Logo" className="w-5 h-5 object-contain" />
-              </div>
-              <span className="text-base font-bold text-theme-text-primary tracking-tight group-hover:text-theme-primary-500 transition-colors flex items-center gap-1.5">
+              <img
+                src="/favicon.png"
+                alt="Vibe Message Logo"
+                className="w-7 h-7 object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105"
+              />
+              <span className="text-base font-bold text-theme-text-primary tracking-tight group-hover:text-theme-primary-500 transition-colors flex items-center gap-1">
                 <span>Vibe</span>
                 <span className="text-theme-primary-500">Message</span>
               </span>

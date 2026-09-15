@@ -36,6 +36,7 @@ CREATE TABLE users (
   role VARCHAR(20) NOT NULL CHECK (role IN ('SUPER_ADMIN', 'ADMIN')),
   status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'APPROVED', 'BANNED')),
   app_limit INTEGER,
+  cron_job_limit INTEGER,
   can_manage_retention BOOLEAN DEFAULT false,
   enterprise_key VARCHAR(255) NULL,
   enterprise_key_requested BOOLEAN DEFAULT false,

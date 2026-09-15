@@ -21,10 +21,10 @@ export class User {
   @Column({ name: 'password_hash', length: 255 })
   password_hash!: string;
 
-  @Column({ length: 20 })
+  @Column({ type: 'varchar', length: 20 })
   role!: 'SUPER_ADMIN' | 'ADMIN';
 
-  @Column({ length: 20, default: 'PENDING' })
+  @Column({ type: 'varchar', length: 20, default: 'PENDING' })
   status!: 'PENDING' | 'APPROVED' | 'BANNED';
 
   @Column({ name: 'app_limit', type: 'int', nullable: true })
