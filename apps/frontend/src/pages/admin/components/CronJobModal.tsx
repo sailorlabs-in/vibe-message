@@ -11,7 +11,7 @@ import {
 import toast from 'react-hot-toast';
 import { cronJobService } from '../../../services/cronJobService';
 import { CronJob, HttpMethod } from '../../../types/cron-job';
-import { CRON_PRESETS, describeCron, isValidCron } from '../../../utils/cronHelper';
+import { CRON_PRESETS, CRON_CATEGORIES, describeCron, isValidCron } from '../../../utils/cronHelper';
 
 interface CronJobModalProps {
   isOpen: boolean;
@@ -37,6 +37,9 @@ export const CronJobModal: React.FC<CronJobModalProps> = ({
   const [timeoutSeconds, setTimeoutSeconds] = useState(30);
   const [retries, setRetries] = useState(0);
   const [notifyOnFailure, setNotifyOnFailure] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<
+    'frequent' | 'hourly' | 'daily' | 'weekly' | 'monthly'
+  >('frequent');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,6 +54,26 @@ export const CronJobModal: React.FC<CronJobModalProps> = ({
       setRetries(editingJob.retries || 0);
       setNotifyOnFailure(editingJob.notify_on_failure !== false);
       setBody(editingJob.body || '');
+
+      const matched = CRON_PRESETS.find((p) => p.value === editingJob.schedule);
+      if (matched) {
+        setSelectedCategory(matched.category);
+      } else {
+        const parts = editingJob.schedule.split(/\s+/);
+        if (parts.length >= 5) {
+          if (parts[2] !== '*' || parts[3] !== '*') {
+            setSelectedCategory('monthly');
+          } else if (parts[4] !== '*') {
+            setSelectedCategory('weekly');
+          } else if (parts[1] !== '*') {
+            setSelectedCategory('daily');
+          } else if (parts[0] !== '*' && !parts[0].startsWith('*/')) {
+            setSelectedCategory('hourly');
+          } else {
+            setSelectedCategory('frequent');
+          }
+        }
+      }
 
       if (editingJob.headers) {
         setHeaders(
@@ -69,6 +92,7 @@ export const CronJobModal: React.FC<CronJobModalProps> = ({
       setUrl('');
       setMethod('GET');
       setSchedule('*/5 * * * *');
+      setSelectedCategory('frequent');
       setHeaders([]);
       setBody('');
       setTimeoutSeconds(30);
@@ -251,43 +275,82 @@ export const CronJobModal: React.FC<CronJobModalProps> = ({
           </div>
 
           {/* Schedule Section */}
-          <div className="space-y-3">
-            <label className="block text-xs font-semibold text-theme-text-secondary uppercase tracking-wider">
-              Execution Schedule (Cron)
-            </label>
+          <div className="space-y-3.5">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-semibold text-theme-text-secondary uppercase tracking-wider">
+                Execution Schedule
+              </label>
+              <span className="text-[11px] text-theme-text-muted">
+                Choose a preset or type a custom cron expression
+              </span>
+            </div>
 
-            {/* Presets Chips */}
-            <div className="flex flex-wrap gap-2">
-              {CRON_PRESETS.slice(0, 6).map((preset) => (
+            {/* Category Segmented Tabs */}
+            <div className="flex items-center gap-1.5 p-1 bg-theme-bg-primary rounded-xl border border-theme-border overflow-x-auto">
+              {CRON_CATEGORIES.map((cat) => (
                 <button
-                  key={preset.value}
+                  key={cat.id}
                   type="button"
-                  onClick={() => setSchedule(preset.value)}
-                  className={`text-xs px-3 py-1.5 rounded-lg border font-medium transition-all ${
-                    schedule === preset.value
-                      ? 'bg-theme-primary-500/15 border-theme-primary-500 text-theme-primary-500 font-semibold'
-                      : 'bg-theme-bg-primary border-theme-border text-theme-text-secondary hover:border-theme-primary-500/40'
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`flex-1 min-w-[70px] py-1.5 px-3 rounded-lg text-xs font-semibold whitespace-nowrap text-center transition-all ${
+                    selectedCategory === cat.id
+                      ? 'bg-theme-bg-secondary text-theme-primary-500 shadow-sm border border-theme-border font-bold'
+                      : 'text-theme-text-secondary hover:text-theme-text-primary'
                   }`}
                 >
-                  {preset.label}
+                  {cat.name}
                 </button>
               ))}
             </div>
 
+            {/* Presets Grid for Selected Category */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {CRON_PRESETS.filter((p) => p.category === selectedCategory).map((preset) => {
+                const isSelected = schedule === preset.value;
+                return (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    onClick={() => setSchedule(preset.value)}
+                    className={`p-2.5 rounded-xl border text-left transition-all flex flex-col justify-between ${
+                      isSelected
+                        ? 'bg-theme-primary-500/15 border-theme-primary-500 text-theme-primary-500 shadow-sm ring-1 ring-theme-primary-500'
+                        : 'bg-theme-bg-primary border-theme-border text-theme-text-secondary hover:border-theme-primary-500/40 hover:bg-theme-bg-muted/40'
+                    }`}
+                  >
+                    <span className="text-xs font-bold text-theme-text-primary truncate block">
+                      {preset.label}
+                    </span>
+                    <span className="text-[10px] text-theme-text-muted truncate block mt-0.5">
+                      {preset.description}
+                    </span>
+                    <span className="text-[10px] font-mono text-theme-primary-400 mt-1.5 block">
+                      {preset.value}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
             {/* Cron Input & Preview */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <input
-                type="text"
-                value={schedule}
-                onChange={(e) => setSchedule(e.target.value)}
-                placeholder="* * * * *"
-                className="flex-1 px-4 py-2.5 bg-theme-bg-primary border border-theme-border rounded-xl text-theme-text-primary font-mono text-sm focus:outline-none focus:border-theme-primary-500 transition-colors"
-                required
-              />
-              <div className="px-3.5 py-2.5 rounded-xl bg-theme-bg-primary border border-theme-border/60 text-xs text-theme-text-secondary flex items-center gap-1.5">
-                <span className="font-semibold text-theme-primary-400">Preview:</span>
-                <span className="truncate">{describeCron(schedule)}</span>
+            <div className="space-y-1.5 pt-1">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <input
+                  type="text"
+                  value={schedule}
+                  onChange={(e) => setSchedule(e.target.value)}
+                  placeholder="* * * * *"
+                  className="flex-1 px-4 py-2.5 bg-theme-bg-primary border border-theme-border rounded-xl text-theme-text-primary font-mono text-sm focus:outline-none focus:border-theme-primary-500 transition-colors"
+                  required
+                />
+                <div className="px-3.5 py-2.5 rounded-xl bg-theme-bg-primary border border-theme-border/60 text-xs text-theme-text-secondary flex items-center gap-1.5">
+                  <span className="font-semibold text-theme-primary-400">Preview:</span>
+                  <span className="truncate">{describeCron(schedule)}</span>
+                </div>
               </div>
+              <p className="text-[11px] text-theme-text-muted font-mono">
+                5 fields: minute (0–59) • hour (0–23) • day of month (1–31) • month (1–12) • day of week (0–7)
+              </p>
             </div>
           </div>
 
