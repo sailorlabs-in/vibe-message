@@ -65,9 +65,9 @@ export const Header: React.FC = () => {
               <img
                 src="/favicon.png"
                 alt="Vibe Message Logo"
-                className="w-7 h-7 object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105"
+                className="w-7 h-7 object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105 shrink-0"
               />
-              <span className="text-base font-bold text-theme-text-primary tracking-tight group-hover:text-theme-primary-500 transition-colors flex items-center gap-1">
+              <span className="text-base font-bold text-theme-text-primary tracking-tight group-hover:text-theme-primary-500 transition-colors flex items-center gap-1 whitespace-nowrap">
                 <span>Vibe</span>
                 <span className="text-theme-primary-500">Message</span>
               </span>
@@ -75,98 +75,98 @@ export const Header: React.FC = () => {
 
             {/* Desktop Center Navigation */}
             {user && (
-              <nav className="hidden md:flex items-center gap-1 bg-black/[0.03] dark:bg-white/[0.04] p-1 rounded-full mx-3">
+              <nav className="hidden lg:flex items-center gap-1 bg-black/[0.03] dark:bg-white/[0.04] p-1 rounded-full mx-2 xl:mx-3 shrink-0">
                 <Link
                   to="/dashboard"
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-2.5 xl:px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
                     isActive('/dashboard')
                       ? 'bg-white dark:bg-white/10 text-theme-primary-600 dark:text-theme-primary-400 shadow-xs font-bold'
                       : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5'
                   }`}
                 >
-                  <RiDashboardLine size={14} />
+                  <RiDashboardLine size={14} className="shrink-0" />
                   <span>Dashboard</span>
                 </Link>
 
                 <Link
                   to="/apps"
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-2.5 xl:px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
                     isActive('/apps')
                       ? 'bg-white dark:bg-white/10 text-theme-primary-600 dark:text-theme-primary-400 shadow-xs font-bold'
                       : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5'
                   }`}
                 >
-                  <RiApps2Line size={14} />
+                  <RiApps2Line size={14} className="shrink-0" />
                   <span>Apps</span>
                 </Link>
 
                 <Link
                   to="/cron-jobs"
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-2.5 xl:px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
                     isActive('/cron-jobs')
                       ? 'bg-white dark:bg-white/10 text-theme-primary-600 dark:text-theme-primary-400 shadow-xs font-bold'
                       : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5'
                   }`}
                 >
-                  <RiTimeLine size={14} />
+                  <RiTimeLine size={14} className="shrink-0" />
                   <span>Cron Jobs</span>
                 </Link>
 
                 {user.role === 'SUPER_ADMIN' && (
                   <Link
                     to="/super/users"
-                    className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                    className={`flex items-center gap-1.5 px-2.5 xl:px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
                       isActive('/super/users')
                         ? 'bg-white dark:bg-white/10 text-theme-primary-600 dark:text-theme-primary-400 shadow-xs font-bold'
                         : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5'
                     }`}
                   >
-                    <RiShieldUserLine size={14} />
+                    <RiShieldUserLine size={14} className="shrink-0" />
                     <span>Users</span>
                   </Link>
                 )}
 
                 <Link
                   to="/docs"
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-2.5 xl:px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
                     isActive('/docs')
                       ? 'bg-white dark:bg-white/10 text-theme-primary-600 dark:text-theme-primary-400 shadow-xs font-bold'
                       : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5'
                   }`}
                 >
-                  <RiBookOpenLine size={14} />
+                  <RiBookOpenLine size={14} className="shrink-0" />
                   <span>Docs</span>
                 </Link>
               </nav>
             )}
 
             {/* Desktop Right Actions (Theme & Account) */}
-            <div className="hidden md:flex items-center gap-2.5 ml-auto">
+            <div className="hidden lg:flex items-center gap-2 xl:gap-2.5 ml-auto shrink-0">
               <ThemeSwitcher />
 
               {user ? (
                 <>
-                  <div className="w-px h-5 bg-black/10 dark:bg-white/10 mx-0.5"></div>
+                  <div className="w-px h-5 bg-black/10 dark:bg-white/10 mx-0.5 shrink-0"></div>
 
                   {/* User Account Popover */}
-                  <div className="relative" ref={userMenuRef}>
+                  <div className="relative shrink-0" ref={userMenuRef}>
                     <button
                       onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                      className={`flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full border transition-all focus:outline-none ${
+                      className={`flex items-center gap-2 p-1 pl-1.5 pr-2.5 rounded-full border transition-all focus:outline-none shrink-0 ${
                         isUserMenuOpen
                           ? 'bg-black/[0.06] dark:bg-white/10 border-theme-primary-500/40 shadow-xs'
                           : 'bg-black/[0.02] dark:bg-white/[0.04] hover:bg-black/[0.05] dark:hover:bg-white/[0.08] border-black/[0.05] dark:border-white/[0.08]'
                       }`}
                     >
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-theme-primary-600 to-indigo-500 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-theme-primary-600 to-indigo-500 text-white font-bold text-xs flex items-center justify-center shadow-xs shrink-0">
                         {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                       </div>
-                      <span className="text-xs font-semibold text-theme-text-primary max-w-[110px] truncate">
+                      <span className="text-xs font-semibold text-theme-text-primary max-w-[90px] xl:max-w-[120px] truncate">
                         {user.name || user.email.split('@')[0]}
                       </span>
                       <RiArrowDownSLine
                         size={14}
-                        className={`text-theme-text-secondary transition-transform duration-200 ${
+                        className={`text-theme-text-secondary transition-transform duration-200 shrink-0 ${
                           isUserMenuOpen ? 'rotate-180' : ''
                         }`}
                       />
@@ -223,16 +223,16 @@ export const Header: React.FC = () => {
                   </div>
                 </>
               ) : (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <Link
                     to="/docs"
-                    className="text-xs text-theme-text-secondary hover:text-theme-primary-500 font-medium px-3 py-2 transition-colors"
+                    className="text-xs text-theme-text-secondary hover:text-theme-primary-500 font-medium px-3 py-2 transition-colors whitespace-nowrap shrink-0"
                   >
                     Docs
                   </Link>
                   <Link
                     to="/login"
-                    className="text-xs px-4 py-2 bg-theme-primary-600 hover:bg-theme-primary-700 text-white rounded-full font-semibold transition-all shadow-md shadow-theme-primary-500/20 hover:scale-105"
+                    className="text-xs px-4 py-2 bg-theme-primary-600 hover:bg-theme-primary-700 text-white rounded-full font-semibold transition-all shadow-md shadow-theme-primary-500/20 hover:scale-105 whitespace-nowrap shrink-0"
                   >
                     Login
                   </Link>
@@ -240,11 +240,26 @@ export const Header: React.FC = () => {
               )}
             </div>
 
-            {/* Mobile Menu Toggle Button */}
-            <div className="flex items-center md:hidden">
+            {/* Mobile/Tablet Menu Toggle & Quick Actions */}
+            <div className="flex items-center gap-2 lg:hidden">
+              <div className="hidden sm:flex items-center">
+                <ThemeSwitcher />
+              </div>
+
+              {user && (
+                <button
+                  onClick={toggleMenu}
+                  className="w-8 h-8 rounded-full bg-gradient-to-tr from-theme-primary-600 to-indigo-500 text-white font-bold text-xs hidden sm:flex items-center justify-center shadow-xs shrink-0 hover:opacity-90 transition-opacity"
+                  title="Open navigation menu"
+                  aria-label="User navigation menu"
+                >
+                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </button>
+              )}
+
               <button
                 onClick={toggleMenu}
-                className="text-theme-text-primary hover:text-theme-primary-500 focus:outline-none p-2 -mr-1 transition-colors relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-theme-bg-muted"
+                className="text-theme-text-primary hover:text-theme-primary-500 focus:outline-none p-2 -mr-1 transition-colors relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-theme-bg-muted shrink-0"
                 aria-label="Toggle Menu"
               >
                 <div className="flex flex-col items-center justify-center w-5 h-5 relative">
@@ -270,7 +285,7 @@ export const Header: React.FC = () => {
 
           {/* Mobile Navigation Drawer */}
           <div
-            className={`md:hidden flex flex-col w-full transition-all duration-300 ease-out overflow-hidden ${
+            className={`lg:hidden flex flex-col w-full transition-all duration-300 ease-out overflow-hidden ${
               isMenuOpen ? 'opacity-100 visible pt-2 pb-4' : 'opacity-0 invisible max-h-0'
             }`}
           >

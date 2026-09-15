@@ -52,9 +52,12 @@ export const Users: React.FC = () => {
   const [isSelfHosted, setIsSelfHosted] = useState(false);
 
   useEffect(() => {
-    systemService.getPublicSettings().then((s) => {
-      setIsSelfHosted(s.is_self_hosted);
-    }).catch(console.error);
+    systemService
+      .getPublicSettings()
+      .then((s) => {
+        setIsSelfHosted(s.is_self_hosted);
+      })
+      .catch(console.error);
   }, []);
 
   useEffect(() => {
@@ -185,7 +188,7 @@ export const Users: React.FC = () => {
   if (loading && users.length === 0) return <UsersSkeleton />;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}

@@ -204,7 +204,7 @@ const result = await vibe.notification({
         hidden: { opacity: 0 },
         visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
       }}
-      className="max-w-5xl mx-auto px-4 py-8"
+      className="max-w-6xl mx-auto px-4 py-8"
     >
       <motion.div variants={fadeUpVariants} className="flex justify-between items-start mb-8">
         <div className="flex-1">
@@ -394,15 +394,16 @@ const result = await vibe.notification({
                     type="password"
                   />
                   <CopyButton text={app.secret_key} />
-                  {(app.currentUserRole === 'owner' || app.currentUserRole === 'superadmin') && app.name !== 'Admin Panel Notifications' && (
-                    <button
-                      onClick={handleRotateSecret}
-                      disabled={loading}
-                      className="btn-danger whitespace-nowrap"
-                    >
-                      {loading ? 'Rotating...' : 'Rotate Key'}
-                    </button>
-                  )}
+                  {(app.currentUserRole === 'owner' || app.currentUserRole === 'superadmin') &&
+                    app.name !== 'Admin Panel Notifications' && (
+                      <button
+                        onClick={handleRotateSecret}
+                        disabled={loading}
+                        className="btn-danger whitespace-nowrap"
+                      >
+                        {loading ? 'Rotating...' : 'Rotate Key'}
+                      </button>
+                    )}
                 </div>
                 <p className="text-xs text-red-600 dark:text-red-400 mt-2 font-medium">
                   Keep this secret! Never expose it in client-side code.
