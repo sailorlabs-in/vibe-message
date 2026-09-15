@@ -42,7 +42,7 @@ export const Dashboard: React.FC = () => {
     },
   };
 
-  if (loading && apps.length === 0) {
+  if (loading && (apps?.length ?? 0) === 0) {
     return (
       <div className="min-h-[calc(100vh-120px)] transition-colors duration-300 px-4 py-8">
         <DashboardSkeleton />
@@ -50,8 +50,9 @@ export const Dashboard: React.FC = () => {
     );
   }
 
-  const activeAppsCount = apps.filter((app) => app.is_active).length;
-  const ownedAppsCount = apps.filter((app) => app.user_id === user?.id).length;
+  const safeApps = Array.isArray(apps) ? apps : [];
+  const activeAppsCount = safeApps.filter((app) => app.is_active).length;
+  const ownedAppsCount = safeApps.filter((app) => app.user_id === user?.id).length;
 
   return (
     <div className="min-h-[calc(100vh-120px)] relative overflow-hidden transition-colors duration-300 px-4 py-8">
@@ -211,7 +212,7 @@ export const Dashboard: React.FC = () => {
               </div>
               <h2 className="text-2xl font-bold text-theme-text-primary">Recent Projects</h2>
             </div>
-            {apps.length > 5 && (
+            {(apps?.length ?? 0) > 5 && (
               <Link
                 to="/apps"
                 className="hidden sm:flex text-theme-primary-500 hover:text-theme-primary-600 font-bold text-sm transition-colors items-center gap-1.5 px-4 py-2 rounded-xl hover:bg-violet-500/10"
@@ -223,7 +224,7 @@ export const Dashboard: React.FC = () => {
           </div>
 
           <div className="p-4 sm:p-6">
-            {apps.length === 0 ? (
+            {(apps?.length ?? 0) === 0 ? (
               <div className="text-center py-20 px-4 relative">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-violet-500/5 pointer-events-none"></div>
                 <motion.div
@@ -316,7 +317,7 @@ export const Dashboard: React.FC = () => {
               </div>
             )}
 
-            {apps.length > 5 && (
+            {(apps?.length ?? 0) > 5 && (
               <div className="mt-6 text-center sm:hidden">
                 <Link
                   to="/apps"

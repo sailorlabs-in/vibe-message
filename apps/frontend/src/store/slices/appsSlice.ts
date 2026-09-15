@@ -25,7 +25,9 @@ export const fetchApps = createAsyncThunk<App[], number | undefined, { rejectVal
     try {
       const url = userId ? `/apps?userId=${userId}` : '/apps';
       const response = await ApiRequest(url, 'get');
-      return response.data;
+      if (Array.isArray(response?.data)) return response.data;
+      if (Array.isArray(response)) return response;
+      return [];
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch apps');
     }
@@ -200,7 +202,7 @@ const appsSlice = createSlice({
       })
       .addCase(fetchApps.fulfilled, (state, action) => {
         state.loading = false;
-        state.apps = action.payload;
+        state.apps = Array.isArray(action.payload) ? action.payload : [];
       })
       .addCase(fetchApps.rejected, (state, action) => {
         state.loading = false;

@@ -23,7 +23,9 @@ export const fetchAllUsers = createAsyncThunk<
   try {
     const url = status ? `/admin/users?status=${status}` : '/admin/users';
     const response = await ApiRequest(url, 'get');
-    return response.data;
+    if (Array.isArray(response?.data)) return response.data;
+    if (Array.isArray(response)) return response;
+    return [];
   } catch (error: any) {
     return rejectWithValue(error.response?.data?.message || 'Failed to fetch users');
   }
@@ -183,7 +185,7 @@ const adminSlice = createSlice({
       })
       .addCase(fetchAllUsers.fulfilled, (state, action) => {
         state.loading = false;
-        state.users = action.payload;
+        state.users = Array.isArray(action.payload) ? action.payload : [];
       })
       .addCase(fetchAllUsers.rejected, (state, action) => {
         state.loading = false;

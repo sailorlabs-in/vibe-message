@@ -601,7 +601,7 @@ REDIS_PORT=6379`;
               const Icon = tab.icon;
               const isActive = currentTab === tab.key;
               const isLastAndOdd =
-                index === availableTabs.length - 1 && availableTabs.length % 2 === 1;
+                index === (availableTabs?.length ?? 0) - 1 && (availableTabs?.length ?? 0) % 2 === 1;
               return (
                 <button
                   key={tab.key}

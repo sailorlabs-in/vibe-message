@@ -126,7 +126,7 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
     return <TableSkeleton rows={4} cols={4} />;
   }
 
-  if (notifications.length === 0) {
+  if ((notifications?.length ?? 0) === 0) {
     return (
       <div className="card py-10">
         <div className="flex justify-end px-2 -mt-2 mb-2">
@@ -163,10 +163,10 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
         </h2>
 
         <div className="flex items-center gap-3">
-          {!isScheduled && notifications.length > 0 && !isViewer && (
+          {!isScheduled && (notifications?.length ?? 0) > 0 && !isViewer && (
             <button
               onClick={() => setShowClearConfirmModal(true)}
-              disabled={clearing || notifications.length === 0}
+              disabled={clearing || (notifications?.length ?? 0) === 0}
               className="px-4 py-2 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-200 dark:hover:bg-red-900/40 rounded-lg font-medium text-sm transition-colors flex items-center gap-2 outline-none focus:ring-2 focus:ring-red-500/50 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <RiDeleteBinLine size={16} />
@@ -290,7 +290,7 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
                             <div className="text-sm text-theme-text-secondary animate-pulse">
                               Loading delivery logs...
                             </div>
-                          ) : logs.length === 0 ? (
+                          ) : (logs?.length ?? 0) === 0 ? (
                             <div className="text-sm text-theme-text-secondary">
                               No delivery logs found.
                             </div>
@@ -299,19 +299,19 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
                               <div className="flex gap-4 mb-4 text-sm">
                                 <div className="px-3 py-1.5 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg">
                                   <span className="font-bold">
-                                    {logs.filter((l) => l.status === 'DELIVERED').length}
+                                    {(logs || []).filter((l) => l.status === 'DELIVERED').length}
                                   </span>{' '}
                                   Delivered
                                 </div>
                                 <div className="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg">
                                   <span className="font-bold">
-                                    {logs.filter((l) => l.status === 'SENT').length}
+                                    {(logs || []).filter((l) => l.status === 'SENT').length}
                                   </span>{' '}
                                   Sent
                                 </div>
                                 <div className="px-3 py-1.5 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg">
                                   <span className="font-bold">
-                                    {logs.filter((l) => l.status === 'FAILED').length}
+                                    {(logs || []).filter((l) => l.status === 'FAILED').length}
                                   </span>{' '}
                                   Failed
                                 </div>

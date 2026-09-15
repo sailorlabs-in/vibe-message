@@ -152,7 +152,7 @@ export const Members: React.FC<MembersProps> = ({ appId }) => {
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-theme-text-primary flex items-center gap-2">
             <RiUserSharedLine className="text-theme-primary-500" />
-            Authorized Collaborators ({members.length})
+            Authorized Collaborators ({members?.length ?? 0})
           </h2>
           <button
             onClick={() => dispatch(fetchAppMembers(appId))}
@@ -163,7 +163,7 @@ export const Members: React.FC<MembersProps> = ({ appId }) => {
           </button>
         </div>
 
-        {loading && members.length === 0 ? (
+        {loading && (members?.length ?? 0) === 0 ? (
           <TableSkeleton rows={3} cols={4} />
         ) : (
           <div className="overflow-x-auto">

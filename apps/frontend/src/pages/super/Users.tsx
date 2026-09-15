@@ -185,7 +185,7 @@ export const Users: React.FC = () => {
     setWarningMessage('');
   };
 
-  if (loading && users.length === 0) return <UsersSkeleton />;
+  if (loading && (users?.length ?? 0) === 0) return <UsersSkeleton />;
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -261,7 +261,7 @@ export const Users: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {users.length === 0 ? (
+              {(users?.length ?? 0) === 0 ? (
                 <tr>
                   <td
                     colSpan={isSelfHosted ? 6 : 7}
@@ -274,7 +274,7 @@ export const Users: React.FC = () => {
                   </td>
                 </tr>
               ) : (
-                users.map((user, idx) => (
+                (users || []).map((user, idx) => (
                   <tr
                     key={user.id}
                     className={`border-b border-slate-200/50 dark:border-slate-500/50 hover:bg-black/5 dark:hover:bg-white/5 transition-colors ${idx % 2 === 0 ? '' : 'bg-black/[0.02] dark:bg-white/[0.02]'}`}
