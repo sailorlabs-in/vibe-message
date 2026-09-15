@@ -1,6 +1,7 @@
 export const PUSH_QUEUE_NAME = 'push-notification';
 export const CRON_QUEUE_NAME = 'scheduler-cron';
 export const MAIL_QUEUE_NAME = 'mail-queue';
+export const HTTP_CRON_QUEUE_NAME = 'http-cron-queue';
 
 export interface PushJobPayload {
   notificationId: number;
@@ -14,3 +15,9 @@ export interface MailJobPayload {
   template: string;
   templateData: Record<string, any>;
 }
+
+export interface HttpCronJobPayload {
+  cronJobId: number;
+  isManual?: boolean;
+}
+

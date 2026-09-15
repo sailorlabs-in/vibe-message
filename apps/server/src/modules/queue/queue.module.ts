@@ -2,7 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
 import { RedisModule } from '../redis/redis.module';
 import { RedisService } from '../redis/redis.service';
-import { PUSH_QUEUE_NAME, CRON_QUEUE_NAME, MAIL_QUEUE_NAME } from './queue.constants';
+import { PUSH_QUEUE_NAME, CRON_QUEUE_NAME, MAIL_QUEUE_NAME, HTTP_CRON_QUEUE_NAME } from './queue.constants';
 
 @Global()
 @Module({
@@ -66,6 +66,20 @@ import { PUSH_QUEUE_NAME, CRON_QUEUE_NAME, MAIL_QUEUE_NAME } from './queue.const
           removeOnFail: {
             count: 1000,
             age: 604800,
+          },
+        },
+      },
+      {
+        name: HTTP_CRON_QUEUE_NAME,
+        defaultJobOptions: {
+          attempts: 1, // We handle retries directly according to job settings
+          removeOnComplete: {
+            count: 2000,
+            age: 86400, // 24 hours
+          },
+          removeOnFail: {
+            count: 5000,
+            age: 604800, // 7 days
           },
         },
       }

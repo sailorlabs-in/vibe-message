@@ -21,6 +21,7 @@ import { VerifyEmail } from './pages/public/VerifyEmail';
 import { Dashboard } from './pages/admin/Dashboard';
 import { Apps } from './pages/admin/Apps';
 import { AppDetails } from './pages/admin/AppDetails';
+import { CronJobs } from './pages/admin/CronJobs';
 import Profile from './pages/admin/Profile';
 import { Pending } from './pages/admin/Pending';
 
@@ -82,6 +83,15 @@ const AppContent: React.FC = () => {
             element={
               <ProtectedRoute requireApproved>
                 <AppDetails />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/cron-jobs"
+            element={
+              <ProtectedRoute requireApproved>
+                <CronJobs />
               </ProtectedRoute>
             }
           />

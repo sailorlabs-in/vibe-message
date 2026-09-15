@@ -15,6 +15,8 @@ import { NotificationLog } from './modules/push/notification_log.entity';
 import { Warning } from './modules/user/warning.entity';
 import { SystemSettings } from './modules/system/system_settings.entity';
 import { DripCampaign, DripStep, DripSentLog } from './modules/drip/drip.entity';
+import { CronJob } from './modules/http-cron/entities/cron-job.entity';
+import { CronJobLog } from './modules/http-cron/entities/cron-job-log.entity';
 
 // Modules
 import { AuthModule } from './modules/auth/auth.module';
@@ -32,6 +34,7 @@ import { RedisService } from './modules/redis/redis.service';
 import { ThrottlerStorageRedisService } from '@nest-lab/throttler-storage-redis';
 import { MailModule } from './modules/mail/mail.module';
 import { QueueModule } from './modules/queue/queue.module';
+import { HttpCronModule } from './modules/http-cron/http-cron.module';
 
 @Module({
   imports: [
@@ -67,6 +70,8 @@ import { QueueModule } from './modules/queue/queue.module';
           DripCampaign,
           DripStep,
           DripSentLog,
+          CronJob,
+          CronJobLog,
         ],
         synchronize: true, // We use SQL files for migration, so keep this false in prod
       }),
@@ -84,6 +89,7 @@ import { QueueModule } from './modules/queue/queue.module';
     HealthModule,
     RedisModule,
     MailModule,
+    HttpCronModule,
   ],
 
   controllers: [],

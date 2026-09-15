@@ -54,6 +54,12 @@ export const Header: React.FC = () => {
                   >
                     Apps
                   </Link>
+                  <Link
+                    to="/cron-jobs"
+                    className="text-sm text-theme-text-secondary hover:text-theme-primary-500 font-medium transition-colors"
+                  >
+                    Cron Jobs
+                  </Link>
                   {user.role === 'SUPER_ADMIN' && (
                     <Link
                       to="/super/users"
@@ -146,6 +152,12 @@ export const Header: React.FC = () => {
                     className="block px-4 py-3 text-sm font-semibold text-theme-text-primary rounded-xl hover:bg-theme-bg-muted hover:text-theme-primary-500 transition-colors"
                   >
                     Apps
+                  </Link>
+                  <Link
+                    to="/cron-jobs"
+                    className="block px-4 py-3 text-sm font-semibold text-theme-text-primary rounded-xl hover:bg-theme-bg-muted hover:text-theme-primary-500 transition-colors"
+                  >
+                    Cron Jobs
                   </Link>
                   {user.role === 'SUPER_ADMIN' && (
                     <Link
