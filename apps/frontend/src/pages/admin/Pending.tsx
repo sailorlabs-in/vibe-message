@@ -1,11 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { RiTimerLine, RiArrowLeftLine } from '@remixicon/react';
-import { useAppDispatch } from '../../store/store';
+import { RiMailSendLine, RiArrowLeftLine, RiLoader4Line, RiCheckboxCircleFill } from '@remixicon/react';
+import { useAppDispatch, useAppSelector } from '../../store/store';
 import { logoutUser } from '../../store/slices/authSlice';
+import ApiRequest from '../../services/ApiRequest';
+import toast from 'react-hot-toast';
 
 export const Pending: React.FC = () => {
   const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
+
+  const handleResend = async () => {
+    if (!user?.email) return;
+    setResending(true);
+    try {
+      await ApiRequest('/auth/resend-verification', 'post', { email: user.email }, false);
+      setResent(true);
+      toast.success('Verification email resent successfully!');
+      setTimeout(() => setResent(false), 5000);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || 'Failed to resend verification email');
+    } finally {
+      setResending(false);
+    }
+  };
 
   return (
     <div className="min-h-[calc(100vh-120px)] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative">
@@ -42,7 +62,7 @@ export const Pending: React.FC = () => {
             <div className="absolute inset-0 bg-amber-500/30 animate-ping rounded-full blur-xl"></div>
             <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-2xl animate-pulse"></div>
             <div className="relative flex items-center justify-center w-full h-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-full shadow-xl border-2 border-amber-500/50 text-amber-500">
-              <RiTimerLine size={56} />
+              <RiMailSendLine size={56} />
             </div>
           </div>
 
@@ -52,30 +72,46 @@ export const Pending: React.FC = () => {
             transition={{ delay: 0.2 }}
             className="text-4xl md:text-5xl font-black tracking-tight text-theme-text-primary drop-shadow-sm mb-6"
           >
-            Review Pending
+            Verify Your Email
           </motion.h2>
 
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-lg md:text-xl text-theme-text-secondary font-medium leading-relaxed mb-10 max-w-lg mx-auto"
+            className="text-lg md:text-xl text-theme-text-secondary font-medium leading-relaxed mb-8 max-w-lg mx-auto"
           >
-            Your account is currently waiting for super admin approval. We will notify you to grant
-            full access to the platform.
+            We've sent a verification link to <strong className="text-theme-text-primary">{user?.email}</strong>. Please check your inbox and click the link to activate your account.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-amber-500/10 text-amber-500 font-bold text-sm sm:text-base shadow-sm ring-1 ring-inset ring-amber-500/30 backdrop-blur-sm"
+            className="flex flex-col items-center gap-4 mb-10 max-w-sm mx-auto"
           >
-            <span className="relative flex h-3 w-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-500 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
-            </span>
-            Waiting for Administrator
+            <button
+              onClick={handleResend}
+              disabled={resending || resent}
+              className="w-full py-4 px-6 bg-gradient-to-r from-theme-primary-500 to-theme-primary-600 hover:from-theme-primary-600 hover:to-theme-primary-700 text-white rounded-2xl font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2 shadow-lg shadow-theme-primary-500/30"
+            >
+              {resending ? (
+                <>
+                  <RiLoader4Line size={20} className="animate-spin" />
+                  Resending Link...
+                </>
+              ) : resent ? (
+                <>
+                  <RiCheckboxCircleFill size={20} className="text-white" />
+                  Resent Successfully!
+                </>
+              ) : (
+                <>
+                  <RiMailSendLine size={20} />
+                  Resend Verification Email
+                </>
+              )}
+            </button>
           </motion.div>
 
           <motion.div

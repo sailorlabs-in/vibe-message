@@ -10,7 +10,7 @@ import {
   UseGuards,
   Req,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { UserService } from '../user/user.service';
 import { DeviceService } from '../device/device.service';
 import { InternalNotificationService } from '../system/internal-notification.service';
@@ -79,6 +79,18 @@ export class AdminController {
     return { success: true, data: user };
   }
 
+  @Patch('users/:id/cron-job-limit')
+  async updateUserCronJobLimit(
+    @Param('id') id: string,
+    @Body() body: { cronJobLimit: number | null }
+  ) {
+    const user = await this.userService.updateUserCronJobLimit(
+      parseInt(id, 10),
+      body.cronJobLimit
+    );
+    return { success: true, data: user };
+  }
+
   @Post('users/:id/warn')
   async warnUser(@Req() req: any, @Param('id') id: string, @Body() data: CreateWarningRequest) {
     const warning = await this.userService.createWarning(parseInt(id, 10), req.user.userId, data);
@@ -99,5 +111,19 @@ export class AdminController {
   async deleteAllDevicesSystemWide() {
     await this.deviceService.unregisterAllDevicesSystemWide();
     return { success: true, message: 'All devices unregistered globally' };
+  }
+
+  @Post('users/:id/enterprise-key')
+  @ApiOperation({ summary: 'Generate and assign an enterprise license key to a user' })
+  async generateEnterpriseKey(@Param('id') id: string) {
+    const user = await this.userService.generateEnterpriseKey(parseInt(id, 10));
+    return { success: true, data: user };
+  }
+
+  @Delete('users/:id/enterprise-key')
+  @ApiOperation({ summary: 'Revoke and clear enterprise key for a user' })
+  async revokeEnterpriseKey(@Param('id') id: string) {
+    const user = await this.userService.revokeEnterpriseKey(parseInt(id, 10));
+    return { success: true, data: user };
   }
 }

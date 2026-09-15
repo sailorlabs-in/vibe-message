@@ -1,4 +1,13 @@
 /** @type {import('tailwindcss').Config} */
+function withAlpha(variableName, fallbackHex) {
+  return ({ opacityValue }) => {
+    if (opacityValue !== undefined) {
+      return `rgb(var(${variableName}-rgb) / ${opacityValue})`;
+    }
+    return `var(${variableName}, ${fallbackHex})`;
+  };
+}
+
 export default {
   content: [
     "./index.html",
@@ -11,25 +20,29 @@ export default {
         sans: ['"DM Sans"', 'sans-serif'],
         display: ['"Space Grotesk"', 'sans-serif'],
       },
+      borderColor: ({ theme }) => ({
+        ...theme('colors'),
+        DEFAULT: 'var(--border-color, #E5E7EB)',
+      }),
       colors: {
-        'theme-bg-primary': 'var(--bg-primary)',
-        'theme-bg-secondary': 'var(--bg-secondary)',
-        'theme-bg-muted': 'var(--bg-muted)',
+        'theme-bg-primary': withAlpha('--bg-primary', '#F8F7FC'),
+        'theme-bg-secondary': withAlpha('--bg-secondary', '#FFFFFF'),
+        'theme-bg-muted': withAlpha('--bg-muted', '#F1F0FA'),
         
-        'theme-primary-100': 'var(--primary-100)',
-        'theme-primary-400': 'var(--primary-400)',
-        'theme-primary-500': 'var(--primary-500)',
-        'theme-primary-600': 'var(--primary-600)',
+        'theme-primary-100': withAlpha('--primary-100', '#EDE9FE'),
+        'theme-primary-400': withAlpha('--primary-400', '#C4B5FD'),
+        'theme-primary-500': withAlpha('--primary-500', '#A78BFA'),
+        'theme-primary-600': withAlpha('--primary-600', '#8B5CF6'),
         
-        'theme-accent-100': 'var(--accent-100)',
-        'theme-accent-400': 'var(--accent-400)',
-        'theme-accent-500': 'var(--accent-500)',
+        'theme-accent-100': withAlpha('--accent-100', '#D1FAE5'),
+        'theme-accent-400': withAlpha('--accent-400', '#6EE7B7'),
+        'theme-accent-500': withAlpha('--accent-500', '#10B981'),
         
-        'theme-text-primary': 'var(--text-primary)',
-        'theme-text-secondary': 'var(--text-secondary)',
-        'theme-text-muted': 'var(--text-muted)',
+        'theme-text-primary': withAlpha('--text-primary', '#1F2937'),
+        'theme-text-secondary': withAlpha('--text-secondary', '#6B7280'),
+        'theme-text-muted': withAlpha('--text-muted', '#9CA3AF'),
         
-        'theme-border': 'var(--border-color)',
+        'theme-border': withAlpha('--border-color', '#E5E7EB'),
         
         'theme-success': 'var(--state-success)',
         'theme-warning': 'var(--state-warning)',

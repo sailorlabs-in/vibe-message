@@ -1,12 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
+import { InjectQueue } from '@nestjs/bullmq';
+import { Queue } from 'bullmq';
 import { Notification as NotificationEntity } from './notification.entity';
 import { NotificationLog as NotificationLogEntity } from './notification_log.entity';
 import { DeviceToken as DeviceTokenEntity } from '../device/device_token.entity';
 import { NotificationPayload, PushSubscription } from '../../types';
 import { webpush } from '../../utils/webPush';
 import { RedisService } from '../redis/redis.service';
+import { PUSH_QUEUE_NAME, PushJobPayload } from '../queue/queue.constants';
 
 const RETRY_CONFIG = {
   maxRetries: 3,
@@ -47,7 +50,9 @@ export class PushService {
     @InjectRepository(DeviceTokenEntity)
     private deviceTokenRepository: Repository<DeviceTokenEntity>,
     private dataSource: DataSource,
-    private redisService: RedisService
+    private redisService: RedisService,
+    @InjectQueue(PUSH_QUEUE_NAME)
+    private readonly pushQueue: Queue<PushJobPayload>
   ) {}
 
   private async sendToDevice(
@@ -58,13 +63,10 @@ export class PushService {
     try {
       await webpush.sendNotification(subscription as any, payload);
     } catch (error: any) {
-      if (error.statusCode === 410) {
-        throw error;
-      }
       if (isRetryableError(error) && attempt < RETRY_CONFIG.maxRetries) {
         const delay = getRetryDelay(attempt);
-        console.log(
-          `[Push Service] Retry attempt ${attempt + 1}/${RETRY_CONFIG.maxRetries} after ${delay}ms`
+        console.warn(
+          `Retrying push delivery (attempt ${attempt + 1}/${RETRY_CONFIG.maxRetries}) in ${delay}ms...`
         );
         await sleep(delay);
         return this.sendToDevice(subscription, payload, attempt + 1);
@@ -96,17 +98,38 @@ export class PushService {
       await queryRunner.commitTransaction();
 
       if (scheduledAt) {
+        const scheduledTime = new Date(scheduledAt).getTime();
+        const delayMs = Math.max(0, scheduledTime - Date.now());
+        // If scheduled within next 24 hours, also enqueue as delayed job for second-precision delivery
+        if (delayMs > 0 && delayMs <= 24 * 60 * 60 * 1000) {
+          await this.pushQueue.add(
+            'deliver-push',
+            {
+              notificationId: savedNotification.id,
+              appId,
+              targetUserIds,
+            },
+            {
+              delay: delayMs,
+              jobId: `scheduled-push-${savedNotification.id}`,
+            }
+          );
+          return { notificationId: savedNotification.id, sent: 0, failed: 0, queued: true };
+        }
         return { notificationId: savedNotification.id, sent: 0, failed: 0, queued: false };
       }
 
-      // Enqueue job in Redis for async delivery
-      await this.redisService.client.rpush(
-        'vibe:push_queue',
-        JSON.stringify({
+      // Enqueue job in BullMQ for async delivery
+      await this.pushQueue.add(
+        'deliver-push',
+        {
           notificationId: savedNotification.id,
           appId,
           targetUserIds,
-        })
+        },
+        {
+          jobId: `push-${savedNotification.id}`,
+        }
       );
 
       return {
@@ -143,6 +166,18 @@ export class PushService {
         return { sent: 0, failed: 0 };
       }
 
+      // If scheduled, ensure it hasn't already been dispatched by another process/worker
+      if (savedNotification.scheduled_at && savedNotification.dispatched_at) {
+        await queryRunner.commitTransaction();
+        return { sent: 0, failed: 0 };
+      }
+
+      if (!savedNotification.dispatched_at) {
+        await queryRunner.manager.update(NotificationEntity, savedNotification.id, {
+          dispatched_at: new Date(),
+        });
+      }
+
       const notification: NotificationPayload = JSON.parse(savedNotification.payload_json);
 
       const queryBuilder = queryRunner.manager
@@ -167,19 +202,29 @@ export class PushService {
       let failedCount = 0;
 
       const sendPromises = devices.map(async (device) => {
+        let savedLog: NotificationLogEntity | null = null;
         try {
-          const subscription = JSON.parse(device.subscription_json);
-          const payload = JSON.stringify(notification);
-
-          await this.sendToDevice(subscription, payload);
-
           const log = this.notificationLogRepository.create({
             notification_id: savedNotification.id,
             device_token_id: device.id,
-            status: 'SENT',
-            sent_at: new Date(),
+            status: 'PENDING',
           });
-          await queryRunner.manager.save(log);
+          savedLog = await queryRunner.manager.save(log);
+
+          const subscription = JSON.parse(device.subscription_json);
+
+          // Inject the log ID as metadata into the payload so clients/SDK can report back
+          const payloadWithMeta = {
+            ...notification,
+            notificationLogId: savedLog.id,
+          };
+          const payload = JSON.stringify(payloadWithMeta);
+
+          await this.sendToDevice(subscription, payload);
+
+          savedLog.status = 'SENT';
+          savedLog.sent_at = new Date();
+          await queryRunner.manager.save(savedLog);
 
           sentCount++;
         } catch (error: any) {
@@ -191,14 +236,21 @@ export class PushService {
                 : 'PERMANENT_ERROR';
           const errorMessage = `${errorCategory}: ${error.message || 'Unknown error'}`;
 
-          const log = this.notificationLogRepository.create({
-            notification_id: savedNotification.id,
-            device_token_id: device.id,
-            status: 'FAILED',
-            error_message: errorMessage,
-            sent_at: new Date(),
-          });
-          await queryRunner.manager.save(log);
+          if (savedLog) {
+            savedLog.status = 'FAILED';
+            savedLog.error_message = errorMessage;
+            savedLog.sent_at = new Date();
+            await queryRunner.manager.save(savedLog);
+          } else {
+            const log = this.notificationLogRepository.create({
+              notification_id: savedNotification.id,
+              device_token_id: device.id,
+              status: 'FAILED',
+              error_message: errorMessage,
+              sent_at: new Date(),
+            });
+            await queryRunner.manager.save(log);
+          }
 
           failedCount++;
 
@@ -265,5 +317,16 @@ export class PushService {
 
   async clearAppNotifications(appId: number): Promise<void> {
     await this.notificationRepository.delete({ app_id: appId });
+  }
+
+  async updateLogStatus(
+    logId: number,
+    status: 'DELIVERED' | 'FAILED',
+    errorMessage?: string
+  ): Promise<void> {
+    await this.notificationLogRepository.update(logId, {
+      status,
+      error_message: errorMessage || null,
+    });
   }
 }

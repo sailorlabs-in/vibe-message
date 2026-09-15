@@ -37,7 +37,7 @@ export class Notification {
   @Column({ name: 'dispatched_at', type: 'timestamp', nullable: true })
   dispatched_at!: Date | null;
 
-  @Column({ name: 'created_by', nullable: true })
+  @Column({ name: 'created_by', type: 'int', nullable: true })
   created_by!: number | null;
 
   @ManyToOne('User')

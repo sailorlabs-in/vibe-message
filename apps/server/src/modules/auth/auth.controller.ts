@@ -7,6 +7,8 @@ import {
   ChangePasswordDto,
   ForgotPasswordDto,
   ResetPasswordDto,
+  VerifyEmailDto,
+  ResendVerificationDto,
 } from './dto/auth.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '../../common/guards/auth.guard';
@@ -106,5 +108,21 @@ export class AuthController {
   async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     await this.authService.resetPassword(resetPasswordDto.token, resetPasswordDto.newPassword);
     return { success: true, message: 'Password reset successfully' };
+  }
+
+  @Post('verify-email')
+  @ApiOperation({ summary: 'Verify email using token' })
+  @ApiResponse({ status: 200, description: 'Email verified successfully' })
+  async verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
+    const user = await this.authService.verifyEmail(verifyEmailDto.token);
+    return { success: true, data: user, message: 'Email verified successfully!' };
+  }
+
+  @Post('resend-verification')
+  @ApiOperation({ summary: 'Resend email verification' })
+  @ApiResponse({ status: 200, description: 'Verification email resent if pending' })
+  async resendVerification(@Body() resendVerificationDto: ResendVerificationDto) {
+    await this.authService.resendVerificationEmail(resendVerificationDto.email);
+    return { success: true, message: 'Verification email has been resent successfully!' };
   }
 }

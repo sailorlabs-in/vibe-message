@@ -31,7 +31,7 @@ export class AppMember {
   @JoinColumn({ name: 'user_id' })
   user!: User;
 
-  @Column({ length: 20 })
+  @Column({ type: 'varchar', length: 20 })
   role!: 'owner' | 'moderator' | 'viewer';
 
   @CreateDateColumn({ name: 'created_at' })

@@ -34,6 +34,12 @@ interface EnvConfig {
   redis: {
     host: string;
     port: number;
+    url?: string;
+    password?: string;
+    username?: string;
+    db?: number;
+    tls?: boolean;
+    keyPrefix?: string;
   };
   mail: {
     host: string;
@@ -72,9 +78,9 @@ export const config: EnvConfig = {
     name: getEnvVar('SUPER_ADMIN_NAME', 'Super Admin'),
   },
   vapid: {
-    publicKey: getEnvVar('VAPID_PUBLIC_KEY'),
-    privateKey: getEnvVar('VAPID_PRIVATE_KEY'),
-    subject: getEnvVar('VAPID_SUBJECT'),
+    publicKey: getOptionalEnvVar('VAPID_PUBLIC_KEY', ''),
+    privateKey: getOptionalEnvVar('VAPID_PRIVATE_KEY', ''),
+    subject: getOptionalEnvVar('VAPID_SUBJECT', 'mailto:admin@example.com'),
   },
   server: {
     port: parseInt(getEnvVar('PORT', '3000'), 10),
@@ -95,8 +101,14 @@ export const config: EnvConfig = {
     pass: getEnvVar('SWAGGER_PASS', 'Umang6Sailor'),
   },
   redis: {
-    host: getEnvVar('REDIS_HOST', '192.168.1.2'),
+    url: getOptionalEnvVar('REDIS_URL') || undefined,
+    host: getEnvVar('REDIS_HOST', 'localhost'),
     port: parseInt(getEnvVar('REDIS_PORT', '6379'), 10),
+    password: getOptionalEnvVar('REDIS_PASSWORD') || undefined,
+    username: getOptionalEnvVar('REDIS_USERNAME') || undefined,
+    db: parseInt(getOptionalEnvVar('REDIS_DB', '0'), 10),
+    tls: getOptionalEnvVar('REDIS_TLS', 'false') === 'true',
+    keyPrefix: getOptionalEnvVar('REDIS_KEY_PREFIX', ''),
   },
   mail: {
     host: getOptionalEnvVar('SMTP_HOST'),

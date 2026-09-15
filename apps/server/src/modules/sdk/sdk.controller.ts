@@ -6,13 +6,15 @@ import { DeviceService } from '../device/device.service';
 import { getVapidPublicKey } from '../../utils/webPush';
 import { decryptPayload } from '../../utils/crypto';
 import { validateRegisterDevice, validateUnregisterDevice } from '../../utils/validation';
+import { PushService } from '../push/push.service';
 
 @ApiTags('External Notifications APIs')
 @Controller('sdk')
 export class SdkController {
   constructor(
     private readonly appService: AppService,
-    private readonly deviceService: DeviceService
+    private readonly deviceService: DeviceService,
+    private readonly pushService: PushService
   ) {}
 
   @Get('vapid-public-key')
@@ -108,6 +110,29 @@ export class SdkController {
       if (error.status) {
         return res.status(error.status).json({ success: false, message: error.message });
       }
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: 'Internal server error' });
+    }
+  }
+
+  @Post('track')
+  async trackNotification(
+    @Body() body: { logId: number; status: 'DELIVERED' | 'FAILED'; errorMessage?: string },
+    @Res() res: Response
+  ) {
+    try {
+      const { logId, status, errorMessage } = body;
+      if (!logId || !status) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: 'logId and status are required' });
+      }
+
+      await this.pushService.updateLogStatus(logId, status, errorMessage);
+
+      return res.json({ success: true, message: 'Notification delivery tracked successfully' });
+    } catch (error) {
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: 'Internal server error' });
