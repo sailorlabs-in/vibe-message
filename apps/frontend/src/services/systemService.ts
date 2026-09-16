@@ -1,4 +1,5 @@
 import ApiRequest from './ApiRequest';
+import { decryptPayload, SYSTEM_ENCRYPTION_KEY } from '../utils/crypto';
 
 export interface SystemSettings {
   default_retention_days: number;
@@ -31,7 +32,20 @@ export const systemService = {
   },
 
   getPublicSettings: async (): Promise<PublicSystemSettings> => {
-    const response = await ApiRequest('/system/public-settings', 'get', undefined, false);
-    return response.data;
+    try {
+      const response = await ApiRequest('/system/public-settings', 'get', undefined, false);
+      const rawData = response?.data !== undefined ? response.data : response;
+      if (typeof rawData === 'string') {
+        return decryptPayload<PublicSystemSettings>(rawData, SYSTEM_ENCRYPTION_KEY);
+      }
+      return rawData;
+    } catch (err) {
+      console.error('Failed to decrypt public settings:', err);
+      return {
+        is_self_hosted: false,
+        hide_forgot_password: false,
+        hide_email_verification: false,
+      };
+    }
   },
 };

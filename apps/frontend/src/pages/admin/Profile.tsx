@@ -1419,9 +1419,9 @@ REDIS_PORT=6379`;
                             Purge Push Device Tokens System-Wide
                           </h4>
                           <p className="text-xs sm:text-sm text-theme-text-secondary leading-relaxed">
-                            Forcibly purges all registered push tokens across every application in the
-                            database. All client devices will stop receiving alerts until users re-open
-                            their browsers to re-register.
+                            Forcibly purges all registered push tokens across every application in
+                            the database. All client devices will stop receiving alerts until users
+                            re-open their browsers to re-register.
                           </p>
                         </div>
                         <button

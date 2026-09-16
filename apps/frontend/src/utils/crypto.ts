@@ -1,28 +1,7 @@
-import { customAlphabet } from 'nanoid';
 import CryptoJS from 'crypto-js';
 
-// Generate public app ID (short, URL-safe)
-const nanoidAppId = customAlphabet(
-  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-  16
-);
-
-// Generate secret key (longer, more secure)
-const nanoidSecret = customAlphabet(
-  '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_',
-  64
-);
-
-export const generateAppId = (): string => {
-  return `app_${nanoidAppId()}`;
-};
-
-export const generateSecretKey = (): string => {
-  return `sk_${nanoidSecret()}`;
-};
-
 export const SYSTEM_ENCRYPTION_KEY =
-  process.env.VIBE_SYSTEM_KEY || 'vibe_sys_k9x2m4p7q1w8e3r5t6y0u2i4o8p1a3s5';
+  (import.meta as any).env?.VITE_VIBE_SYSTEM_KEY || 'vibe_sys_k9x2m4p7q1w8e3r5t6y0u2i4o8p1a3s5';
 
 /**
  * Encrypts a payload object symmetrically using AES.
@@ -37,21 +16,21 @@ export function encryptPayload(payload: any, secret: string = SYSTEM_ENCRYPTION_
 
 /**
  * Decrypts an AES encrypted payload using a secret.
- * @param encryptedPayload Base64 string from SDK.
+ * @param encryptedPayload Base64 string.
  * @param secret The secret string acting as the decryption key.
  * @returns The decrypted JS object or throws an error if decryption fails.
  */
-export function decryptPayload(
+export function decryptPayload<T = any>(
   encryptedPayload: string,
   secret: string = SYSTEM_ENCRYPTION_KEY
-): any {
+): T {
   try {
     const bytes = CryptoJS.AES.decrypt(encryptedPayload, secret);
     const decryptedString = bytes.toString(CryptoJS.enc.Utf8);
     if (!decryptedString) {
       throw new Error('Decryption failed, returned empty string');
     }
-    return JSON.parse(decryptedString);
+    return JSON.parse(decryptedString) as T;
   } catch (error) {
     // eslint-disable-next-line preserve-caught-error
     throw new Error('Invalid or corrupted encrypted payload');
