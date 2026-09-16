@@ -41,6 +41,8 @@ async function bootstrap() {
       console.error('❌ Enterprise Error: Failed to contact the validation server.', err.message);
       process.exit(1);
     }
+  } else {
+    console.log('🚀 Starting Vibe Message in Standard Cloud Mode...');
   }
 
   const app = await NestFactory.create(AppModule);
@@ -157,7 +159,9 @@ async function bootstrap() {
         res.sendFile(join(frontendDistPath, 'index.html'));
       });
     } else {
-      console.warn(`⚠️ Frontend build not found at: ${frontendDistPath}. Frontend serving bypassed.`);
+      console.warn(
+        `⚠️ Frontend build not found at: ${frontendDistPath}. Frontend serving bypassed.`
+      );
     }
   }
 
