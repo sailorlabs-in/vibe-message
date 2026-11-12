@@ -31,4 +31,7 @@ export class NotificationLog {
 
   @Column({ name: 'sent_at', type: 'timestamp', nullable: true })
   sent_at!: Date | null;
+
+  @Column({ name: 'delivered_at', type: 'timestamp', nullable: true })
+  delivered_at!: Date | null;
 }

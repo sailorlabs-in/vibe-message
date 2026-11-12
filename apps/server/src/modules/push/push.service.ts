@@ -331,10 +331,16 @@ export class PushService {
     status: 'DELIVERED' | 'FAILED',
     errorMessage?: string
   ): Promise<void> {
-    await this.notificationLogRepository.update(logId, {
+    const updateData: Partial<NotificationLogEntity> = {
       status,
       error_message: errorMessage || null,
-    });
+    };
+
+    if (status === 'DELIVERED') {
+      updateData.delivered_at = new Date();
+    }
+
+    await this.notificationLogRepository.update(logId, updateData);
   }
 
   async getNotificationPayloadPreview(

@@ -123,16 +123,35 @@ export class SdkController {
   ) {
     try {
       const { logId, status, errorMessage } = body;
+
+      // Validate required fields
       if (!logId || !status) {
         return res
           .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: 'logId and status are required' });
       }
 
-      await this.pushService.updateLogStatus(logId, status, errorMessage);
+      // Validate logId is a safe positive integer (guards against integer overflow in Postgres)
+      const parsedLogId = Number(logId);
+      if (!Number.isInteger(parsedLogId) || parsedLogId <= 0 || parsedLogId > 2147483647) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: 'Invalid logId' });
+      }
 
-      return res.json({ success: true, message: 'Notification delivery tracked successfully' });
-    } catch (error) {
+      // Validate status is one of the allowed values
+      const allowedStatuses: Array<'DELIVERED' | 'FAILED'> = ['DELIVERED', 'FAILED'];
+      if (!allowedStatuses.includes(status)) {
+        return res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: 'status must be DELIVERED or FAILED' });
+      }
+
+      await this.pushService.updateLogStatus(parsedLogId, status, errorMessage);
+
+      return res.status(HttpStatus.OK).json({ success: true, message: 'Notification delivery tracked successfully' });
+    } catch (error: any) {
+      console.error('[SDK Track] Error updating notification log status:', error?.message || error);
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: 'Internal server error' });
