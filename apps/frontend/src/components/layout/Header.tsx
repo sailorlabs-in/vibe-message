@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useSystem } from '../../context/SystemContext';
 import { ThemeSwitcher } from '../common/ThemeSwitcher';
 import {
   RiLogoutBoxLine,
@@ -14,8 +15,11 @@ import {
 } from '@remixicon/react';
 import { ConfirmModal } from '../common/ConfirmModal';
 
+const ORIGINAL_DOCS_URL = 'https://vibemessage.sailorlabs.in/docs';
+
 export const Header: React.FC = () => {
   const { user, logout } = useAuth();
+  const { isSelfHosted } = useSystem();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
@@ -59,15 +63,17 @@ export const Header: React.FC = () => {
           <div className="flex justify-between items-center h-14 sm:h-16 w-full px-4 sm:px-6 flex-shrink-0">
             {/* Brand / Logo */}
             <Link
-              to="/"
+              to={isSelfHosted ? (user ? '/dashboard' : '/login') : '/'}
               className="flex items-center gap-2.5 flex-shrink-0 group transition-all duration-200 hover:opacity-90"
             >
               <img
                 src="/favicon.png"
                 alt="Vibe Message Logo"
-                className="w-7 h-7 object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105 shrink-0"
+                className={`w-7 h-7 object-contain drop-shadow-sm transition-transform duration-200 group-hover:scale-105 shrink-0 ${
+                  isSelfHosted ? 'brand-logo-img' : ''
+                }`}
               />
-              <span className="text-base font-bold text-theme-text-primary tracking-tight group-hover:text-theme-primary-500 transition-colors flex items-center gap-1 whitespace-nowrap">
+              <span className="text-base font-bold text-theme-text-primary tracking-tight group-hover:text-theme-primary-500 transition-colors flex items-center gap-1.5 whitespace-nowrap">
                 <span>Vibe</span>
                 <span className="text-theme-primary-500">Message</span>
               </span>
@@ -126,17 +132,29 @@ export const Header: React.FC = () => {
                   </Link>
                 )}
 
-                <Link
-                  to="/docs"
-                  className={`flex items-center gap-1.5 px-2.5 xl:px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
-                    isActive('/docs')
-                      ? 'bg-white dark:bg-white/10 text-theme-primary-600 dark:text-theme-primary-400 shadow-xs font-bold'
-                      : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5'
-                  }`}
-                >
-                  <RiBookOpenLine size={14} className="shrink-0" />
-                  <span>Docs</span>
-                </Link>
+                {isSelfHosted ? (
+                  <a
+                    href={ORIGINAL_DOCS_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 px-2.5 xl:px-3.5 py-1.5 rounded-full text-xs font-semibold text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5 transition-all whitespace-nowrap shrink-0"
+                  >
+                    <RiBookOpenLine size={14} className="shrink-0" />
+                    <span>Docs</span>
+                  </a>
+                ) : (
+                  <Link
+                    to="/docs"
+                    className={`flex items-center gap-1.5 px-2.5 xl:px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap shrink-0 ${
+                      isActive('/docs')
+                        ? 'bg-white dark:bg-white/10 text-theme-primary-600 dark:text-theme-primary-400 shadow-xs font-bold'
+                        : 'text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5'
+                    }`}
+                  >
+                    <RiBookOpenLine size={14} className="shrink-0" />
+                    <span>Docs</span>
+                  </Link>
+                )}
               </nav>
             )}
 
@@ -196,14 +214,27 @@ export const Header: React.FC = () => {
                             <RiUser3Line size={15} />
                             <span>Profile & Settings</span>
                           </Link>
-                          <Link
-                            to="/docs"
-                            onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                          >
-                            <RiBookOpenLine size={15} />
-                            <span>Documentation</span>
-                          </Link>
+                          {isSelfHosted ? (
+                            <a
+                              href={ORIGINAL_DOCS_URL}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                            >
+                              <RiBookOpenLine size={15} />
+                              <span>Documentation</span>
+                            </a>
+                          ) : (
+                            <Link
+                              to="/docs"
+                              onClick={() => setIsUserMenuOpen(false)}
+                              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-theme-text-secondary hover:text-theme-text-primary hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                            >
+                              <RiBookOpenLine size={15} />
+                              <span>Documentation</span>
+                            </Link>
+                          )}
                         </div>
 
                         <div className="border-t border-black/5 dark:border-white/5 pt-1 mt-1">
@@ -224,12 +255,23 @@ export const Header: React.FC = () => {
                 </>
               ) : (
                 <div className="flex items-center gap-2 shrink-0">
-                  <Link
-                    to="/docs"
-                    className="text-xs text-theme-text-secondary hover:text-theme-primary-500 font-medium px-3 py-2 transition-colors whitespace-nowrap shrink-0"
-                  >
-                    Docs
-                  </Link>
+                  {isSelfHosted ? (
+                    <a
+                      href={ORIGINAL_DOCS_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-theme-text-secondary hover:text-theme-primary-500 font-medium px-3 py-2 transition-colors whitespace-nowrap shrink-0"
+                    >
+                      Docs
+                    </a>
+                  ) : (
+                    <Link
+                      to="/docs"
+                      className="text-xs text-theme-text-secondary hover:text-theme-primary-500 font-medium px-3 py-2 transition-colors whitespace-nowrap shrink-0"
+                    >
+                      Docs
+                    </Link>
+                  )}
                   <Link
                     to="/login"
                     className="text-xs px-4 py-2 bg-theme-primary-600 hover:bg-theme-primary-700 text-white rounded-full font-semibold transition-all shadow-md shadow-theme-primary-500/20 hover:scale-105 whitespace-nowrap shrink-0"
@@ -358,17 +400,30 @@ export const Header: React.FC = () => {
                     </Link>
                   )}
 
-                  <Link
-                    to="/docs"
-                    className={`flex items-center gap-2.5 px-4 py-3 text-sm font-semibold rounded-xl transition-colors ${
-                      isActive('/docs')
-                        ? 'bg-theme-primary-500/10 text-theme-primary-500'
-                        : 'text-theme-text-primary hover:bg-theme-bg-muted'
-                    }`}
-                  >
-                    <RiBookOpenLine size={18} />
-                    <span>Docs</span>
-                  </Link>
+                  {isSelfHosted ? (
+                    <a
+                      href={ORIGINAL_DOCS_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center gap-2.5 px-4 py-3 text-sm font-semibold rounded-xl text-theme-text-primary hover:bg-theme-bg-muted transition-colors"
+                    >
+                      <RiBookOpenLine size={18} />
+                      <span>Docs</span>
+                    </a>
+                  ) : (
+                    <Link
+                      to="/docs"
+                      className={`flex items-center gap-2.5 px-4 py-3 text-sm font-semibold rounded-xl transition-colors ${
+                        isActive('/docs')
+                          ? 'bg-theme-primary-500/10 text-theme-primary-500'
+                          : 'text-theme-text-primary hover:bg-theme-bg-muted'
+                      }`}
+                    >
+                      <RiBookOpenLine size={18} />
+                      <span>Docs</span>
+                    </Link>
+                  )}
 
                   <Link
                     to="/profile"
@@ -400,12 +455,24 @@ export const Header: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <Link
-                    to="/docs"
-                    className="block px-4 py-3 text-sm font-semibold text-theme-text-primary rounded-xl hover:bg-theme-bg-muted hover:text-theme-primary-500 transition-colors"
-                  >
-                    Docs
-                  </Link>
+                  {isSelfHosted ? (
+                    <a
+                      href={ORIGINAL_DOCS_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block px-4 py-3 text-sm font-semibold text-theme-text-primary rounded-xl hover:bg-theme-bg-muted hover:text-theme-primary-500 transition-colors"
+                    >
+                      Docs
+                    </a>
+                  ) : (
+                    <Link
+                      to="/docs"
+                      className="block px-4 py-3 text-sm font-semibold text-theme-text-primary rounded-xl hover:bg-theme-bg-muted hover:text-theme-primary-500 transition-colors"
+                    >
+                      Docs
+                    </Link>
+                  )}
                   <Link
                     to="/login"
                     className="block px-4 py-3 text-sm font-semibold text-theme-text-primary rounded-xl hover:bg-theme-bg-muted hover:text-theme-primary-500 transition-colors"

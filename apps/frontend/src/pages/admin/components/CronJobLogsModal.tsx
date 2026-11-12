@@ -118,12 +118,12 @@ export const CronJobLogsModal: React.FC<CronJobLogsModalProps> = ({
 
         {/* Logs List */}
         <div className="flex-1 overflow-y-auto p-6 space-y-3">
-          {loading && logs.length === 0 ? (
+          {loading && (logs?.length ?? 0) === 0 ? (
             <div className="py-16 text-center text-theme-text-secondary">
               <div className="w-8 h-8 border-2 border-theme-primary-500/20 border-t-theme-primary-500 rounded-full animate-spin mx-auto mb-3" />
               <p className="text-sm">Loading execution logs...</p>
             </div>
-          ) : logs.length === 0 ? (
+          ) : (logs?.length ?? 0) === 0 ? (
             <div className="py-16 text-center text-theme-text-secondary">
               <RiTimeLine size={36} className="mx-auto text-theme-text-muted mb-2" />
               <p className="text-sm font-semibold text-theme-text-primary">No executions recorded yet</p>
@@ -132,7 +132,7 @@ export const CronJobLogsModal: React.FC<CronJobLogsModalProps> = ({
               </p>
             </div>
           ) : (
-            logs.map((log) => (
+            (logs || []).map((log) => (
               <div
                 key={log.id}
                 className="bg-theme-bg-primary border border-theme-border rounded-xl overflow-hidden transition-all"

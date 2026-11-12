@@ -8,10 +8,12 @@
     "libs/*"
   ],
   "scripts": {
+    "serve:self": "cross-env IS_SELF_HOSTED=true npm run serve-all:dev",
     "serve-all:dev": "nx run-many --target=dev --all --parallel=10",
     "build-all:prod": "nx run-many --target=build --all --parallel=10",
     "serve:frontend:dev": "nx run vibe-message-frontend:dev",
-    "serve:server:dev": "nx run vibe-message-server:dev",
+    "serve:server:dev": "cross-env IS_SELF_HOSTED=false nx run vibe-message-server:dev",
+    "serve:server:self": "cross-env IS_SELF_HOSTED=true nx run vibe-message-server:dev",
     "serve:notification-demo:dev": "nx run notification-demo:dev",
     "build:frontend:prod": "nx run vibe-message-frontend:build",
     "build:server:prod": "nx run vibe-message-server:build",
@@ -27,10 +29,12 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/crypto-js": "^4.2.2",
     "@typescript-eslint/eslint-plugin": "^8.61.1",
     "@typescript-eslint/parser": "^8.61.1",
     "baseline-browser-mapping": "^2.10.10",
     "concurrently": "^9.2.1",
+    "cross-env": "^10.1.0",
     "eslint": "^10.5.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.6",

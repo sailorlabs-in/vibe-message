@@ -32,7 +32,7 @@ export const Docs: React.FC = () => {
       .getPublicSettings()
       .then((s) => {
         if (s.is_self_hosted) {
-          window.location.href = 'https://vibemessage.sailorlabs.in/docs';
+          window.location.replace('https://vibemessage.sailorlabs.in/docs');
         }
       })
       .catch(console.error);

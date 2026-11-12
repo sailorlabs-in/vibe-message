@@ -13,9 +13,9 @@ export const PushPreview: React.FC<PushPreviewProps> = ({ title, body, icon, app
   return (
     <div className="flex flex-col items-center justify-center p-8 bg-gray-100 dark:bg-[#0a0a0a] rounded-xl border border-theme-border relative overflow-hidden min-h-[400px]">
       {/* Background decoration to simulate a desktop / phone screen */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-theme-primary-500/10 to-purple-500/10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-theme-primary-500/10 to-theme-accent-500/10 pointer-events-none" />
       <div className="absolute -top-32 -right-32 w-64 h-64 bg-theme-primary-500/20 blur-3xl rounded-full" />
-      <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-purple-500/20 blur-3xl rounded-full" />
+      <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-theme-primary-500/20 blur-3xl rounded-full" />
 
       <h3 className="absolute top-4 left-6 text-xs font-semibold text-theme-text-secondary uppercase tracking-wider">
         Live Preview

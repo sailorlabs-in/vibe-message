@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { SystemProvider, useSystem } from './context/SystemContext';
 import { Header } from './components/layout/Header';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
@@ -31,7 +32,47 @@ import { ScrollToTop } from './components/common/ScrollToTop';
 import { AnimatedBackground } from './components/common/AnimatedBackground';
 import Footer from './components/layout/Footer';
 
+const ORIGINAL_DOCS_URL = 'https://vibemessage.sailorlabs.in/docs';
+const ORIGINAL_TERMS_URL = 'https://vibemessage.sailorlabs.in/terms-of-service';
+const ORIGINAL_LICENSE_URL = 'https://vibemessage.sailorlabs.in/license';
+
+const ExternalDocsRedirect: React.FC = () => {
+  React.useEffect(() => {
+    window.location.replace(ORIGINAL_DOCS_URL);
+  }, []);
+  return (
+    <div className="min-h-[50vh] flex items-center justify-center text-sm text-theme-text-muted">
+      Redirecting to documentation...
+    </div>
+  );
+};
+
+const ExternalTermsRedirect: React.FC = () => {
+  React.useEffect(() => {
+    window.location.replace(ORIGINAL_TERMS_URL);
+  }, []);
+  return (
+    <div className="min-h-[50vh] flex items-center justify-center text-sm text-theme-text-muted">
+      Redirecting to Terms of Service...
+    </div>
+  );
+};
+
+const ExternalLicenseRedirect: React.FC = () => {
+  React.useEffect(() => {
+    window.location.replace(ORIGINAL_LICENSE_URL);
+  }, []);
+  return (
+    <div className="min-h-[50vh] flex items-center justify-center text-sm text-theme-text-muted">
+      Redirecting to License Agreement...
+    </div>
+  );
+};
+
 const AppContent: React.FC = () => {
+  const { isSelfHosted } = useSystem();
+  const { user } = useAuth();
+
   return (
     <BrowserRouter>
       <ScrollToTop />
@@ -40,12 +81,31 @@ const AppContent: React.FC = () => {
         <Header />
         <Routes>
           {/* Public routes */}
-          <Route path="/" element={<Landing />} />
+          <Route
+            path="/"
+            element={
+              isSelfHosted ? (
+                <Navigate to={user ? '/dashboard' : '/login'} replace />
+              ) : (
+                <Landing />
+              )
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/docs" element={<Docs />} />
-          <Route path="/license" element={<License />} />
-          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route
+            path="/docs"
+            element={isSelfHosted ? <ExternalDocsRedirect /> : <Docs />}
+          />
+          <Route path="/doc" element={<ExternalDocsRedirect />} />
+          <Route
+            path="/license"
+            element={isSelfHosted ? <ExternalLicenseRedirect /> : <License />}
+          />
+          <Route
+            path="/terms-of-service"
+            element={isSelfHosted ? <ExternalTermsRedirect /> : <TermsOfService />}
+          />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
@@ -116,7 +176,15 @@ const AppContent: React.FC = () => {
           />
 
           {/* Catch all */}
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route
+            path="*"
+            element={
+              <Navigate
+                to={isSelfHosted ? (user ? '/dashboard' : '/login') : '/'}
+                replace
+              />
+            }
+          />
         </Routes>
       </div>
       <Footer />
@@ -127,11 +195,13 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <NotificationProvider>
-          <AppContent />
-        </NotificationProvider>
-      </AuthProvider>
+      <SystemProvider>
+        <AuthProvider>
+          <NotificationProvider>
+            <AppContent />
+          </NotificationProvider>
+        </AuthProvider>
+      </SystemProvider>
     </ThemeProvider>
   );
 };

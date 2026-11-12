@@ -81,6 +81,74 @@
     --state-info: #93C5FD;
   }
 
+  /* 🌐 Self-Hosted Mode Theme (Pastel Sunset Orange / Warm Apricot) */
+  :root.self-hosted,
+  .self-hosted {
+    /* 🌞 Self-Hosted Light Mode */
+    --bg-primary: #FFFDF9;
+    --bg-primary-rgb: 255 253 249;
+    --bg-secondary: #FFFFFF;
+    --bg-secondary-rgb: 255 255 255;
+    --bg-muted: #FFF1E3;
+    --bg-muted-rgb: 255 241 227;
+
+    --primary-400: #FDBA74;
+    --primary-400-rgb: 253 186 116;
+    --primary-500: #FB923C;
+    --primary-500-rgb: 251 146 60;
+    --primary-600: #EA580C;
+    --primary-600-rgb: 234 88 12;
+    --primary-100: #FFEDD5;
+    --primary-100-rgb: 255 237 213;
+
+    --accent-400: #6EE7B7;
+    --accent-400-rgb: 110 231 183;
+    --accent-500: #10B981;
+    --accent-500-rgb: 16 185 129;
+    --accent-100: #D1FAE5;
+    --accent-100-rgb: 209 250 229;
+
+    --border-color: #FED7AA;
+    --border-color-rgb: 254 215 170;
+  }
+
+  .dark.self-hosted,
+  .self-hosted.dark,
+  .self-hosted .dark {
+    /* 🌙 Self-Hosted Dark Mode */
+    --bg-primary: #15100D;
+    --bg-primary-rgb: 21 16 13;
+    --bg-secondary: #1F1713;
+    --bg-secondary-rgb: 31 23 19;
+    --bg-muted: #2E211A;
+    --bg-muted-rgb: 46 33 26;
+
+    --primary-400: #FDBA74;
+    --primary-400-rgb: 253 186 116;
+    --primary-500: #FB923C;
+    --primary-500-rgb: 251 146 60;
+    --primary-600: #EA580C;
+    --primary-600-rgb: 234 88 12;
+    --primary-100: #431407;
+    --primary-100-rgb: 67 20 7;
+
+    --accent-400: #6EE7B7;
+    --accent-400-rgb: 110 231 183;
+    --accent-500: #10B981;
+    --accent-500-rgb: 16 185 129;
+    --accent-100: #064E3B;
+    --accent-100-rgb: 6 78 59;
+
+    --border-color: #382417;
+    --border-color-rgb: 56 36 23;
+  }
+
+  /* Self-hosted brand logo hue shift to pastel orange */
+  .self-hosted .brand-logo-img {
+    filter: hue-rotate(130deg) saturate(1.15);
+  }
+
+
   /* Global Theme Border Override for all elements */
   *,
   ::before,

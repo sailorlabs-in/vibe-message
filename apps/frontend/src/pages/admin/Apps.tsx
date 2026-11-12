@@ -55,9 +55,11 @@ export const Apps: React.FC = () => {
     },
   };
 
-  if (loading && apps.length === 0) {
+  if (loading && (apps?.length ?? 0) === 0) {
     return <AppsSkeleton />;
   }
+
+  const safeApps = Array.isArray(apps) ? apps : [];
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -85,7 +87,7 @@ export const Apps: React.FC = () => {
         )}
       </motion.div>
 
-      {apps.length === 0 ? (
+      {safeApps.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -104,7 +106,7 @@ export const Apps: React.FC = () => {
           animate="visible"
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {apps.map((app) => (
+          {safeApps.map((app) => (
             <motion.div key={app.id} variants={itemVariants}>
               <Link
                 to={`/apps/${app.public_app_id}`}

@@ -102,7 +102,7 @@ export const Signup: React.FC = () => {
                 rotate: [0, 90, 0],
               }}
               transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-              className="absolute -bottom-10 -left-10 w-80 h-80 bg-violet-500/20 rounded-full blur-[60px]"
+              className="absolute -bottom-10 -left-10 w-80 h-80 bg-theme-primary-500/20 rounded-full blur-[60px]"
             />
           </div>
 

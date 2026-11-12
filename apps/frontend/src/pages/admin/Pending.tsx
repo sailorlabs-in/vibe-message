@@ -48,7 +48,7 @@ export const Pending: React.FC = () => {
               rotate: [0, -90, 0],
             }}
             transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-            className="absolute bottom-0 right-0 w-64 h-64 bg-violet-500/10 rounded-full blur-[60px]"
+            className="absolute bottom-0 right-0 w-64 h-64 bg-theme-primary-500/10 rounded-full blur-[60px]"
           />
         </div>
 

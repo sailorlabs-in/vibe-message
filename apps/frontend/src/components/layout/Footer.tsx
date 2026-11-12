@@ -1,16 +1,30 @@
 import { Link } from 'react-router-dom';
 import { useHealthStatus } from '../../hooks/useHealthStatus';
+import { useSystem } from '../../context/SystemContext';
+
+const ORIGINAL_DOCS_URL = 'https://vibemessage.sailorlabs.in/docs';
 
 export default function Footer() {
   const health = useHealthStatus();
+  const { isSelfHosted } = useSystem();
+
   return (
     <footer className="bg-theme-bg-primary pt-16 pb-8 border-t border-theme-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
           <div className="col-span-2 lg:col-span-2">
             <div className="flex items-center space-x-2 mb-6 text-lg font-display font-bold">
-              <img src="/favicon.png" alt="Vibe Message Logo" className="w-6 h-6 object-contain" />
+              <img
+                src="/favicon.png"
+                alt="Vibe Message Logo"
+                className={`w-6 h-6 object-contain ${isSelfHosted ? 'brand-logo-img' : ''}`}
+              />
               <span>Vibe Message</span>
+              {isSelfHosted && (
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-theme-primary-500/15 text-theme-primary-500 border border-theme-primary-500/25">
+                  Self-Hosted
+                </span>
+              )}
             </div>
             <p className="text-theme-text-secondary mb-6 max-w-xs leading-relaxed">
               Enterprise push notification engine architected to empower developers building
@@ -40,9 +54,20 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/docs" className="hover:text-theme-primary-500 transition-colors">
-                  Documentation
-                </Link>
+                {isSelfHosted ? (
+                  <a
+                    href={ORIGINAL_DOCS_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-theme-primary-500 transition-colors"
+                  >
+                    Documentation
+                  </a>
+                ) : (
+                  <Link to="/docs" className="hover:text-theme-primary-500 transition-colors">
+                    Documentation
+                  </Link>
+                )}
               </li>
             </ul>
           </div>
@@ -51,17 +76,39 @@ export default function Footer() {
             <h4 className="font-bold text-theme-text-primary mb-4">Legal</h4>
             <ul className="space-y-3 text-sm text-theme-text-secondary">
               <li>
-                <Link
-                  to="/terms-of-service"
-                  className="hover:text-theme-primary-500 transition-colors"
-                >
-                  Terms of Service
-                </Link>
+                {isSelfHosted ? (
+                  <a
+                    href="https://vibemessage.sailorlabs.in/terms-of-service"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-theme-primary-500 transition-colors"
+                  >
+                    Terms of Service
+                  </a>
+                ) : (
+                  <Link
+                    to="/terms-of-service"
+                    className="hover:text-theme-primary-500 transition-colors"
+                  >
+                    Terms of Service
+                  </Link>
+                )}
               </li>
               <li>
-                <Link to="/license" className="hover:text-theme-primary-500 transition-colors">
-                  License Agreement
-                </Link>
+                {isSelfHosted ? (
+                  <a
+                    href="https://vibemessage.sailorlabs.in/license"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-theme-primary-500 transition-colors"
+                  >
+                    License Agreement
+                  </a>
+                ) : (
+                  <Link to="/license" className="hover:text-theme-primary-500 transition-colors">
+                    License Agreement
+                  </Link>
+                )}
               </li>
             </ul>
           </div>

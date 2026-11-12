@@ -101,7 +101,7 @@ export const ResetPassword: React.FC = () => {
             <motion.div
               animate={{ x: [0, 50, 0], y: [0, -50, 0], rotate: [0, 90, 0] }}
               transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-              className="absolute -top-20 -left-20 w-96 h-96 bg-violet-500/20 rounded-full blur-[80px]"
+              className="absolute -top-20 -left-20 w-96 h-96 bg-theme-primary-500/20 rounded-full blur-[80px]"
             />
             <motion.div
               animate={{ x: [0, -50, 0], y: [0, 50, 0], rotate: [0, -90, 0] }}

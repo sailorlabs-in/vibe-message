@@ -88,6 +88,37 @@ const StatusBadge = ({ status }: { status: NotificationPermission }) => {
   );
 };
 
+// --- Input field component ---
+const InputField = ({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  placeholder: string;
+  type?: string;
+  hint?: string;
+}) => (
+  <div className="space-y-1.5">
+    <label className="block text-xs font-medium text-gray-400 uppercase tracking-wider">
+      {label}
+    </label>
+    <input
+      type={type}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full px-3.5 py-2.5 bg-[#14141c] border border-[#2e2e42] rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/60 transition-all duration-200"
+      placeholder={placeholder}
+    />
+    {hint && <p className="text-[11px] text-gray-600">{hint}</p>}
+  </div>
+);
+
 export default function Home() {
   const [appId, setAppId] = useState("");
   const [publicKey, setPublicKey] = useState("");
@@ -350,21 +381,6 @@ export default function Home() {
       setIsSending(false);
     }
   };
-
-  // --- Input field component ---
-  const InputField = ({ label, value, onChange, placeholder, type = "text", hint }: { label: string; value: string; onChange: (v: string) => void; placeholder: string; type?: string; hint?: string }) => (
-    <div className="space-y-1.5">
-      <label className="block text-xs font-medium text-gray-400 uppercase tracking-wider">{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3.5 py-2.5 bg-[#14141c] border border-[#2e2e42] rounded-lg text-sm text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500/60 transition-all duration-200"
-        placeholder={placeholder}
-      />
-      {hint && <p className="text-[11px] text-gray-600">{hint}</p>}
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-[#18181f] text-gray-100">

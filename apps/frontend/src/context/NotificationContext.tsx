@@ -68,10 +68,10 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
 
   // Fetch apps when user logs in
   useEffect(() => {
-    if (user && apps.length === 0) {
+    if (user && (apps?.length ?? 0) === 0) {
       dispatch(fetchApps());
     }
-  }, [user, apps.length, dispatch]);
+  }, [user, apps?.length, dispatch]);
 
   const initializeNotifications = useCallback(async () => {
     if (!user || initializingRef.current) return;
@@ -249,7 +249,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
 
     initializingRef.current = false;
-  }, [user, apps.length]);
+  }, [user, apps?.length]);
 
   const unregisterNotifications = useCallback(async () => {
     if (!clientRef.current || !user) return;
@@ -278,12 +278,12 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       user &&
       permissionStatus === 'granted' &&
       !initializedRef.current &&
-      (apps.length > 0 || token)
+      ((apps?.length ?? 0) > 0 || token)
     ) {
       initializedRef.current = true;
       initializeNotifications();
     }
-  }, [user, permissionStatus, apps.length, token]);
+  }, [user, permissionStatus, apps?.length, token]);
 
   const requestPermission = useCallback(async () => {
     try {

@@ -8,6 +8,7 @@ import { AuthGuard } from '../../common/guards/auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { config } from '../../config/env';
+import { encryptPayload, SYSTEM_ENCRYPTION_KEY } from '../../utils/crypto';
 
 @ApiTags('System')
 @Controller('system')
@@ -18,7 +19,9 @@ export class SystemController {
   ) {}
 
   @Get('public-settings')
-  @ApiOperation({ summary: 'Get public system configurations for login/signup rendering' })
+  @ApiOperation({
+    summary: 'Get encrypted public system configurations for login/signup rendering',
+  })
   async getPublicSettings() {
     const is_self_hosted = process.env.IS_SELF_HOSTED === 'true';
     const settings = await this.systemSettingsRepository.findOne({
@@ -29,25 +32,21 @@ export class SystemController {
     const smtpDbConfigured = !!(settings && settings.smtp_host);
     const smtpConfigured = smtpEnvConfigured || smtpDbConfigured;
 
-    // If SMTP is not configured, we MUST hide email verification and password resets
-    if (!smtpConfigured) {
-      return {
-        success: true,
-        data: {
+    const rawData = !smtpConfigured
+      ? {
           is_self_hosted,
           hide_forgot_password: true,
           hide_email_verification: true,
-        },
-      };
-    }
+        }
+      : {
+          is_self_hosted,
+          hide_forgot_password: settings ? settings.hide_forgot_password : false,
+          hide_email_verification: settings ? settings.hide_email_verification : false,
+        };
 
     return {
       success: true,
-      data: {
-        is_self_hosted,
-        hide_forgot_password: settings ? settings.hide_forgot_password : false,
-        hide_email_verification: settings ? settings.hide_email_verification : false,
-      },
+      data: encryptPayload(rawData, SYSTEM_ENCRYPTION_KEY),
     };
   }
 

@@ -44,7 +44,7 @@ export const CronJobs: React.FC = () => {
     try {
       setLoading(true);
       const data = await cronJobService.getCronJobs();
-      setJobs(data);
+      setJobs(Array.isArray(data) ? data : []);
     } catch (err: any) {
       toast.error('Failed to load cron jobs');
     } finally {
@@ -122,10 +122,11 @@ export const CronJobs: React.FC = () => {
 
   // Statistics
   const stats = useMemo(() => {
-    const total = jobs.length;
-    const active = jobs.filter((j) => j.is_enabled).length;
+    const safeJobs = Array.isArray(jobs) ? jobs : [];
+    const total = safeJobs.length;
+    const active = safeJobs.filter((j) => j.is_enabled).length;
     const paused = total - active;
-    const failing = jobs.filter((j) => j.is_enabled && j.last_status === 'FAILURE').length;
+    const failing = safeJobs.filter((j) => j.is_enabled && j.last_status === 'FAILURE').length;
     return { total, active, paused, failing };
   }, [jobs]);
 
@@ -133,7 +134,7 @@ export const CronJobs: React.FC = () => {
     !isSelfHosted &&
       user?.cron_job_limit !== null &&
       user?.cron_job_limit !== undefined &&
-      jobs.length >= user.cron_job_limit
+      (jobs?.length ?? 0) >= user.cron_job_limit
   );
 
   const getMethodBadgeClass = (method: HttpMethod) => {
@@ -321,20 +322,20 @@ export const CronJobs: React.FC = () => {
             />
           ))}
         </div>
-      ) : filteredJobs.length === 0 ? (
-        <div className="p-12 text-center rounded-2xl bg-theme-bg-secondary border border-theme-border">
-          <div className="w-12 h-12 rounded-2xl bg-theme-primary-500/10 text-theme-primary-500 flex items-center justify-center mx-auto mb-4">
-            <RiTimeLine size={28} />
+      ) : (filteredJobs?.length ?? 0) === 0 ? (
+        <div className="card text-center py-16">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-500/10 flex items-center justify-center text-slate-400">
+            <RiTimeLine size={32} />
           </div>
-          <h3 className="text-base font-bold text-theme-text-primary">
-            {jobs.length === 0 ? 'No Cron Jobs Created Yet' : 'No matching cron jobs found'}
+          <h3 className="text-lg font-bold text-theme-text-primary mb-1">
+            {(jobs?.length ?? 0) === 0 ? 'No Cron Jobs Created Yet' : 'No matching cron jobs found'}
           </h3>
-          <p className="text-xs text-theme-text-secondary max-w-md mx-auto mt-1 mb-5">
-            {jobs.length === 0
-              ? 'Schedule your first automated HTTP webhook, microservice health check, or periodic ping.'
-              : 'Try clearing your search query or adjusting your filters.'}
+          <p className="text-sm text-theme-text-secondary max-w-sm mx-auto mb-6">
+            {(jobs?.length ?? 0) === 0
+              ? 'Schedule your first automated HTTP webhook to run periodically.'
+              : 'Try adjusting your filters or search keywords.'}
           </p>
-          {jobs.length === 0 && (
+          {(jobs?.length ?? 0) === 0 && (
             <button
               onClick={() => {
                 setEditingJob(null);

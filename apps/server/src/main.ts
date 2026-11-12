@@ -41,6 +41,8 @@ async function bootstrap() {
       console.error('❌ Enterprise Error: Failed to contact the validation server.', err.message);
       process.exit(1);
     }
+  } else {
+    console.log('🚀 Starting Vibe Message in Standard Cloud Mode...');
   }
 
   const app = await NestFactory.create(AppModule);
@@ -141,22 +143,26 @@ async function bootstrap() {
 
   SwaggerModule.setup(swaggerPath, app, document);
 
-  // Serve static frontend assets in self-hosted or production configurations
-  const frontendDistPath = join(__dirname, '..', '..', 'frontend', 'dist');
-  if (existsSync(frontendDistPath)) {
-    console.log(`📂 Serving static frontend from: ${frontendDistPath}`);
-    expressApp.use(express.static(frontendDistPath));
+  // Serve static frontend assets only in self-hosted mode
+  if (process.env.IS_SELF_HOSTED === 'true') {
+    const frontendDistPath = join(__dirname, '..', '..', 'frontend', 'dist');
+    if (existsSync(frontendDistPath)) {
+      console.log(`📂 Serving static frontend from: ${frontendDistPath}`);
+      expressApp.use(express.static(frontendDistPath));
 
-    // Support client-side routing (redirect unmatched non-API routes to index.html)
-    expressApp.get(/.*/, (req, res, next) => {
-      const requestPath = req.path;
-      if (requestPath.startsWith('/api') || requestPath.startsWith(swaggerPath)) {
-        return next();
-      }
-      res.sendFile(join(frontendDistPath, 'index.html'));
-    });
-  } else {
-    console.warn(`⚠️ Frontend build not found at: ${frontendDistPath}. Frontend serving bypassed.`);
+      // Support client-side routing (redirect unmatched non-API routes to index.html)
+      expressApp.get(/.*/, (req, res, next) => {
+        const requestPath = req.path;
+        if (requestPath.startsWith('/api') || requestPath.startsWith(swaggerPath)) {
+          return next();
+        }
+        res.sendFile(join(frontendDistPath, 'index.html'));
+      });
+    } else {
+      console.warn(
+        `⚠️ Frontend build not found at: ${frontendDistPath}. Frontend serving bypassed.`
+      );
+    }
   }
 
   // NestJS handles routing natively now
