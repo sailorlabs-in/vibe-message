@@ -12,6 +12,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    optimizeDeps: {
+      include: ['@iconify/react'],
+    },
     build: {
       target: 'es2015',
     },

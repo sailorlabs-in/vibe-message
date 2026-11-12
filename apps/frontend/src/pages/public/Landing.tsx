@@ -18,6 +18,7 @@ import {
 } from '@remixicon/react';
 import { useSystem } from '../../context/SystemContext';
 import { CopyButton } from '../../components/common/CopyButton';
+import { SolarIcon, SOLAR_PRESETS } from '../../utils/solarIcons';
 
 // Sample notification scenarios for the interactive hero simulator
 interface Scenario {
@@ -37,7 +38,7 @@ const SCENARIOS: Scenario[] = [
     badge: 'Transactional',
     title: 'Order Confirmed · #8492',
     body: 'Your package is in transit via Express Air. Estimated delivery in 2 hours.',
-    icon: '📦',
+    icon: 'solar:box-bold',
     actionText: 'Track Delivery',
     latencyMs: 19,
     type: 'transactional',
@@ -47,7 +48,7 @@ const SCENARIOS: Scenario[] = [
     badge: 'Security Shield',
     title: 'Two-Factor Authentication',
     body: 'Login attempt from Tokyo, Japan (macOS · Chrome). Confirm identity to authorize.',
-    icon: '🔐',
+    icon: 'solar:shield-keyhole-bold',
     actionText: 'Authorize Session',
     latencyMs: 14,
     type: 'security',
@@ -57,7 +58,7 @@ const SCENARIOS: Scenario[] = [
     badge: 'Real-time Event',
     title: 'Flash Release is Live',
     body: 'Developer pro kits just unlocked with priority routing. 40 items remaining.',
-    icon: '⚡',
+    icon: 'solar:bolt-bold',
     actionText: 'Claim Access',
     latencyMs: 24,
     type: 'marketing',
@@ -67,14 +68,12 @@ const SCENARIOS: Scenario[] = [
     badge: 'Silent Sync',
     title: 'Background Cache Warmed',
     body: 'Service worker updated 14 offline assets silently without triggering audio prompts.',
-    icon: '🔄',
+    icon: 'solar:refresh-circle-bold',
     actionText: 'View State',
     latencyMs: 11,
     type: 'silent',
   },
 ];
-
-const EMOJI_PRESETS = ['🔔', '🚀', '🔒', '📦', '⚡', '🎉', '💬'] as const;
 
 interface CommunityPillar {
   title: string;
@@ -87,25 +86,25 @@ const COMMUNITY_PILLARS: CommunityPillar[] = [
   {
     title: 'Students & Education',
     subtitle: 'Free for universities, coursework & hackathons',
-    icon: '🎓',
+    icon: 'solar:diploma-verified-bold',
     badge: '100% Free',
   },
   {
     title: 'Personal Projects',
     subtitle: 'Zero cost for side apps, blogs & hobby portfolios',
-    icon: '🛠️',
+    icon: 'solar:toolbox-bold',
     badge: 'Zero Billing',
   },
   {
     title: 'Testing & Prototyping',
     subtitle: 'Fast MVP feedback & device handshake experiments',
-    icon: '🧪',
+    icon: 'solar:test-tube-bold',
     badge: 'Instant MVP',
   },
   {
     title: 'Small-scale Applications',
     subtitle: 'Reliable push for utility tools & indie products',
-    icon: '⚡',
+    icon: 'solar:bolt-circle-bold',
     badge: 'Community Tier',
   },
 ];
@@ -135,37 +134,7 @@ export const Landing: React.FC = () => {
   const [customTitle, setCustomTitle] = useState('Payment Received');
   const [customBody, setCustomBody] = useState('You received $1,250.00 from Acme Corp.');
   const [customAction, setCustomAction] = useState('View Invoice');
-  const [customIcon, setCustomIcon] = useState('🍦');
-
-  const handleIconChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawVal = e.target.value;
-    if (!rawVal) {
-      setCustomIcon('');
-      return;
-    }
-
-    // Strictly enforce maximum 1 emoji / grapheme cluster using Intl.Segmenter
-    let singleGrapheme: string;
-    const IntlAny = Intl as any;
-    if (typeof IntlAny !== 'undefined' && IntlAny.Segmenter) {
-      const segmenter = new IntlAny.Segmenter(undefined, { granularity: 'grapheme' });
-      const segments: string[] = Array.from(segmenter.segment(rawVal))
-        .map((s: any) => (s?.segment ? String(s.segment).trim() : ''))
-        .filter(Boolean);
-      if (segments.length === 0) {
-        setCustomIcon('');
-        return;
-      }
-      singleGrapheme = segments.length > 1 ? segments[segments.length - 1] : segments[0];
-    } else {
-      const chars = Array.from(rawVal)
-        .map((c) => c.trim())
-        .filter(Boolean);
-      singleGrapheme = chars.length > 1 ? chars[chars.length - 1] : chars[0] || '';
-    }
-
-    setCustomIcon(singleGrapheme);
-  };
+  const [customIcon, setCustomIcon] = useState('solar:bell-bing-bold');
 
   // Community pillar rotation
   const [activePillarIdx, setActivePillarIdx] = useState(0);
@@ -325,7 +294,10 @@ export const Landing: React.FC = () => {
                     <RiArrowRightLine size={18} />
                   </Link>
 
-                  <Link to="/docs" className="btn-secondary !px-7 !py-3.5 !rounded-xl text-sm font-semibold">
+                  <Link
+                    to="/docs"
+                    className="btn-secondary !px-7 !py-3.5 !rounded-xl text-sm font-semibold"
+                  >
                     <RiTerminalBoxLine size={18} className="text-theme-text-muted" />
                     <span>Explore Specification</span>
                   </Link>
@@ -347,7 +319,11 @@ export const Landing: React.FC = () => {
             {/* Right Column: Interactive Live Dispatch Simulator */}
             <motion.div
               className="lg:col-span-5 relative"
-              initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.96, y: shouldReduceMotion ? 0 : 24 }}
+              initial={{
+                opacity: 0,
+                scale: shouldReduceMotion ? 1 : 0.96,
+                y: shouldReduceMotion ? 0 : 24,
+              }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.95, delay: 0.25, ease: easeOut }}
             >
@@ -429,8 +405,8 @@ export const Landing: React.FC = () => {
 
                       {/* Notification Content Body */}
                       <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-theme-primary-500/20 border border-theme-primary-500/30 flex items-center justify-center text-lg shrink-0">
-                          {selectedScenario.icon}
+                        <div className="w-10 h-10 rounded-xl bg-theme-primary-500/20 border border-theme-primary-500/30 flex items-center justify-center shrink-0 text-theme-primary-400">
+                          <SolarIcon icon={selectedScenario.icon} className="w-5 h-5" />
                         </div>
                         <div className="min-w-0 flex-1">
                           <h4 className="text-sm font-bold text-white font-display truncate">
@@ -496,8 +472,14 @@ export const Landing: React.FC = () => {
                       <RiSpeedUpLine size={14} className="text-theme-primary-400" />
                       <span>Measured Dispatch Time:</span>
                     </div>
-                    <span className="text-emerald-400 font-bold">
-                      {transmissionSuccess ? '✓ Transmitted · ' : ''}
+                    <span className="text-emerald-400 font-bold inline-flex items-center gap-1.5">
+                      {transmissionSuccess && (
+                        <SolarIcon
+                          icon="solar:check-circle-bold"
+                          className="w-3.5 h-3.5 text-emerald-400"
+                        />
+                      )}
+                      {transmissionSuccess ? 'Transmitted · ' : ''}
                       {selectedScenario.latencyMs} ms · 200 OK
                     </span>
                   </div>
@@ -662,7 +644,10 @@ export const Landing: React.FC = () => {
                 <p className="text-xs font-mono font-bold uppercase tracking-widest text-theme-primary-500 mb-1">
                   CARRIER COMPATIBILITY MATRIX
                 </p>
-                <h2 id="matrix-heading" className="text-lg font-display font-bold text-theme-text-primary">
+                <h2
+                  id="matrix-heading"
+                  className="text-lg font-display font-bold text-theme-text-primary"
+                >
                   Native Protocol Compliance Across Modern Browsers
                 </h2>
               </div>
@@ -734,9 +719,9 @@ export const Landing: React.FC = () => {
                 Community-first hosted service. Unmetered self-hosting.
               </h2>
               <p className="text-base sm:text-lg text-theme-text-secondary leading-relaxed">
-                Our free hosted service is an ecosystem built primarily to support developers, learners,
-                and indie makers at zero cost. When you need high-volume commercial production or private
-                database control, deploy with Docker in minutes.
+                Our free hosted service is an ecosystem built primarily to support developers,
+                learners, and indie makers at zero cost. When you need high-volume commercial
+                production or private database control, deploy with Docker in minutes.
               </p>
             </motion.div>
 
@@ -792,7 +777,10 @@ export const Landing: React.FC = () => {
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className="text-base">{pillar.icon}</span>
+                          <SolarIcon
+                            icon={pillar.icon}
+                            className="w-4 h-4 text-theme-primary-500 shrink-0"
+                          />
                           <span className="font-bold font-display text-xs truncate text-theme-text-primary">
                             {pillar.title}
                           </span>
@@ -809,10 +797,7 @@ export const Landing: React.FC = () => {
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                       <span>Single Community Node · Fair-Use Policy</span>
                     </span>
-                    <Link
-                      to="/terms-of-service"
-                      className="text-theme-primary-500 hover:underline"
-                    >
+                    <Link to="/terms-of-service" className="text-theme-primary-500 hover:underline">
                       Usage Guidelines &rarr;
                     </Link>
                   </div>
@@ -1121,33 +1106,31 @@ export const Landing: React.FC = () => {
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
                         <label className="block text-xs font-mono font-medium text-theme-text-secondary">
-                          Icon Emoji / Symbol
+                          Solar Notification Icon
                         </label>
                       </div>
                       <div className="flex items-center gap-2">
-                        <input
-                          type="text"
-                          value={customIcon}
-                          onChange={handleIconChange}
-                          className="input !text-center text-lg !py-1.5 !px-2 w-12 shrink-0 font-emoji select-all"
-                          placeholder="🎉"
-                          title="Enter a single emoji"
-                        />
-                        {/* Quick Presets */}
-                        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
-                          {EMOJI_PRESETS.map((emoji) => (
+                        <div className="w-10 h-10 rounded-xl bg-theme-primary-500/10 border border-theme-primary-500/30 flex items-center justify-center shrink-0 text-theme-primary-500 shadow-xs">
+                          <SolarIcon
+                            icon={customIcon || 'solar:bell-bing-bold'}
+                            className="w-5 h-5"
+                          />
+                        </div>
+                        {/* Quick Presets from @iconify-json/solar */}
+                        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
+                          {SOLAR_PRESETS.map((preset) => (
                             <button
-                              key={emoji}
+                              key={preset.id}
                               type="button"
-                              onClick={() => setCustomIcon(emoji)}
-                              className={`w-7 h-7 rounded-lg text-sm flex items-center justify-center transition-all ${
-                                customIcon === emoji
-                                  ? 'bg-theme-primary-500/20 border border-theme-primary-500/60 scale-105 shadow-xs'
-                                  : 'bg-theme-bg-muted/60 border border-theme-border hover:bg-theme-bg-muted hover:scale-105'
+                              onClick={() => setCustomIcon(preset.id)}
+                              className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                                customIcon === preset.id
+                                  ? 'bg-theme-primary-500/20 text-theme-primary-500 border border-theme-primary-500/60 scale-105 shadow-xs'
+                                  : 'bg-theme-bg-muted/60 text-theme-text-secondary border border-theme-border hover:bg-theme-bg-muted hover:text-theme-text-primary hover:scale-105'
                               }`}
-                              title={`Set icon to ${emoji}`}
+                              title={`Set icon to ${preset.label}`}
                             >
-                              {emoji}
+                              <SolarIcon icon={preset.id} className="w-4 h-4" />
                             </button>
                           ))}
                         </div>
@@ -1188,8 +1171,11 @@ export const Landing: React.FC = () => {
                   {/* Desktop Toast Banner */}
                   <div className="rounded-2xl bg-[#1b1e2c]/90 border border-white/15 p-5 shadow-2xl backdrop-blur-xl">
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-2xl bg-theme-primary-500/20 border border-theme-primary-500/40 flex items-center justify-center text-2xl shrink-0">
-                        {customIcon || '🔔'}
+                      <div className="w-12 h-12 rounded-2xl bg-theme-primary-500/20 border border-theme-primary-500/40 flex items-center justify-center shrink-0 text-theme-primary-400">
+                        <SolarIcon
+                          icon={customIcon || 'solar:bell-bing-bold'}
+                          className="w-6 h-6"
+                        />
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between">
@@ -1368,7 +1354,11 @@ export const Landing: React.FC = () => {
         {/* =========================================================================
             7. FREQUENTLY ASKED QUESTIONS (ACCORDION)
             ========================================================================= */}
-        <section id="faq" aria-labelledby="faq-heading" className="py-28 border-t border-theme-border">
+        <section
+          id="faq"
+          aria-labelledby="faq-heading"
+          className="py-28 border-t border-theme-border"
+        >
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
               initial="hidden"
@@ -1501,12 +1491,30 @@ export const Landing: React.FC = () => {
               </Link>
             </div>
 
-            <div className="pt-4 flex items-center justify-center gap-6 text-xs font-mono text-theme-text-muted">
-              <span>✓ MIT Licensed</span>
-              <span>·</span>
-              <span>✓ Self-Hostable</span>
-              <span>·</span>
-              <span>✓ Zero Lock-in</span>
+            <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs font-mono text-theme-text-muted">
+              <span className="inline-flex items-center gap-1.5 text-theme-text-secondary">
+                <SolarIcon
+                  icon="solar:check-circle-bold"
+                  className="w-3.5 h-3.5 text-theme-primary-500"
+                />
+                MIT Licensed
+              </span>
+              <span className="hidden sm:inline">·</span>
+              <span className="inline-flex items-center gap-1.5 text-theme-text-secondary">
+                <SolarIcon
+                  icon="solar:check-circle-bold"
+                  className="w-3.5 h-3.5 text-theme-primary-500"
+                />
+                Self-Hostable
+              </span>
+              <span className="hidden sm:inline">·</span>
+              <span className="inline-flex items-center gap-1.5 text-theme-text-secondary">
+                <SolarIcon
+                  icon="solar:check-circle-bold"
+                  className="w-3.5 h-3.5 text-theme-primary-500"
+                />
+                Zero Lock-in
+              </span>
             </div>
           </div>
         </motion.section>
