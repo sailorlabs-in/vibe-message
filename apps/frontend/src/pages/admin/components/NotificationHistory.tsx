@@ -2,10 +2,18 @@ import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import ApiRequest from '../../../services/ApiRequest';
 import { TableSkeleton } from '../../../components/common/SkeletonLoader';
-import { RiNotificationLine, RiDeleteBinLine, RiRefreshLine } from '@remixicon/react';
+import {
+  RiNotificationLine,
+  RiDeleteBinLine,
+  RiRefreshLine,
+  RiShieldCheckLine,
+  RiEyeLine,
+  RiTimeLine,
+} from '@remixicon/react';
 import { useAppDispatch, useAppSelector } from '../../../store/store';
 import { clearAppNotifications } from '../../../store/slices/appsSlice';
 import { ConfirmModal } from '../../../components/common/ConfirmModal';
+import { PayloadPreviewModal } from './PayloadPreviewModal';
 
 interface Notification {
   id: number;
@@ -51,6 +59,15 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
   const [showCancelConfirmModal, setShowCancelConfirmModal] = useState(false);
   const [notificationToCancel, setNotificationToCancel] = useState<number | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [previewModalOpen, setPreviewModalOpen] = useState(false);
+  const [previewNotificationId, setPreviewNotificationId] = useState<number | null>(null);
+  const [previewRawPayload, setPreviewRawPayload] = useState<string>('');
+
+  const handlePreviewPayload = (notif: Notification) => {
+    setPreviewNotificationId(notif.id);
+    setPreviewRawPayload(notif.payload_json);
+    setPreviewModalOpen(true);
+  };
 
   useEffect(() => {
     fetchNotifications();
@@ -187,7 +204,6 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
           <thead>
             <tr className="border-b border-theme-border text-sm text-theme-text-secondary">
               <th className="p-4 font-medium">{isScheduled ? 'Scheduled For' : 'Date'}</th>
-              <th className="p-4 font-medium">Payload Preview</th>
               <th className="p-4 font-medium">Target Device ID(s)</th>
               <th className="p-4 font-medium text-center">Type</th>
               <th className="p-4 font-medium text-right">Actions</th>
@@ -195,13 +211,6 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
           </thead>
           <tbody>
             {notifications.map((notif) => {
-              let payloadObj: any = {};
-              try {
-                payloadObj = JSON.parse(notif.payload_json);
-              } catch {
-                //error
-              }
-
               const isSelected = selectedNotificationId === notif.id;
 
               return (
@@ -217,14 +226,6 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
                         {new Date(
                           isScheduled && notif.scheduled_at ? notif.scheduled_at : notif.created_at
                         ).toLocaleTimeString()}
-                      </div>
-                    </td>
-                    <td className="p-4 align-top max-w-sm">
-                      <div className="font-semibold text-theme-text-primary truncate">
-                        {payloadObj.title || 'Untitled'}
-                      </div>
-                      <div className="text-sm text-theme-text-secondary truncate mt-1">
-                        {payloadObj.body || '{ No body }'}
                       </div>
                     </td>
                     <td className="p-4 align-top text-sm text-theme-text-secondary max-w-[250px] break-all">
@@ -255,8 +256,14 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
                       )}
                     </td>
                     <td className="p-4 align-top text-right">
-                      {isScheduled ? (
-                        !isViewer && (
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => fetchLogs(notif.id)}
+                          className="text-theme-primary-500 hover:text-theme-primary-600 text-sm font-medium focus:outline-none"
+                        >
+                          {isSelected ? 'Hide Details' : 'View Details'}
+                        </button>
+                        {isScheduled && !isViewer && (
                           <button
                             onClick={() => {
                               setNotificationToCancel(notif.id);
@@ -266,142 +273,191 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
                           >
                             Cancel
                           </button>
-                        )
-                      ) : (
-                        <button
-                          onClick={() => fetchLogs(notif.id)}
-                          className="text-theme-primary-500 hover:text-theme-primary-600 text-sm font-medium focus:outline-none"
-                        >
-                          {isSelected ? 'Hide Details' : 'View Details'}
-                        </button>
-                      )}
+                        )}
+                      </div>
                     </td>
                   </tr>
 
                   {/* Expandable Logs View */}
-                  {isSelected && !isScheduled && (
+                  {isSelected && (
                     <tr>
-                      <td colSpan={5} className="bg-theme-bg-secondary/30 p-0">
+                      <td colSpan={4} className="bg-theme-bg-secondary/30 p-0">
                         <div className="p-6 border-b border-theme-border">
-                          <h4 className="text-sm font-semibold text-theme-text-primary mb-3">
-                            Delivery Breakdown
-                          </h4>
-                          {logsLoading ? (
-                            <div className="text-sm text-theme-text-secondary animate-pulse">
-                              Loading delivery logs...
+                          {/* Top Detail Action Bar with Preview Payload Button */}
+                          <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-theme-border">
+                            <div className="flex items-center gap-2">
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+                                <RiShieldCheckLine size={14} />
+                                Confidential (Encrypted in DB)
+                              </span>
+                              <span className="text-xs text-theme-text-secondary font-mono">
+                                #{notif.id}
+                              </span>
                             </div>
-                          ) : (logs?.length ?? 0) === 0 ? (
-                            <div className="text-sm text-theme-text-secondary">
-                              No delivery logs found.
+                            <button
+                              type="button"
+                              onClick={() => handlePreviewPayload(notif)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-lg text-xs font-semibold shadow-sm transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-theme-primary-500/40"
+                            >
+                              <RiEyeLine size={14} />
+                              Preview Payload
+                            </button>
+                          </div>
+
+                          {isScheduled ? (
+                            <div className="p-4 rounded-xl bg-theme-bg-secondary/40 border border-theme-border text-xs text-theme-text-secondary flex items-start gap-3">
+                              <RiTimeLine
+                                size={18}
+                                className="text-theme-primary-500 shrink-0 mt-0.5"
+                              />
+                              <div>
+                                <p className="font-semibold text-theme-text-primary text-sm">
+                                  Scheduled Message Pending Dispatch
+                                </p>
+                                <p className="mt-1">
+                                  This notification is scheduled for{' '}
+                                  <strong className="text-theme-text-primary">
+                                    {notif.scheduled_at
+                                      ? new Date(notif.scheduled_at).toLocaleString()
+                                      : 'a future date'}
+                                  </strong>
+                                  . Its payload is stored safely encrypted in the database to
+                                  guarantee confidentiality until delivery.
+                                </p>
+                              </div>
                             </div>
                           ) : (
                             <div>
-                              <div className="flex gap-4 mb-4 text-sm">
-                                <div className="px-3 py-1.5 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg">
-                                  <span className="font-bold">
-                                    {(logs || []).filter((l) => l.status === 'DELIVERED').length}
-                                  </span>{' '}
-                                  Delivered
+                              <h4 className="text-sm font-semibold text-theme-text-primary mb-3">
+                                Delivery Breakdown
+                              </h4>
+                              {logsLoading ? (
+                                <div className="text-sm text-theme-text-secondary animate-pulse">
+                                  Loading delivery logs...
                                 </div>
-                                <div className="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg">
-                                  <span className="font-bold">
-                                    {(logs || []).filter((l) => l.status === 'SENT').length}
-                                  </span>{' '}
-                                  Sent
+                              ) : (logs?.length ?? 0) === 0 ? (
+                                <div className="text-sm text-theme-text-secondary">
+                                  No delivery logs found.
                                 </div>
-                                <div className="px-3 py-1.5 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg">
-                                  <span className="font-bold">
-                                    {(logs || []).filter((l) => l.status === 'FAILED').length}
-                                  </span>{' '}
-                                  Failed
+                              ) : (
+                                <div>
+                                  <div className="flex gap-4 mb-4 text-sm">
+                                    <div className="px-3 py-1.5 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-lg">
+                                      <span className="font-bold">
+                                        {
+                                          (logs || []).filter((l) => l.status === 'DELIVERED')
+                                            .length
+                                        }
+                                      </span>{' '}
+                                      Delivered
+                                    </div>
+                                    <div className="px-3 py-1.5 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 rounded-lg">
+                                      <span className="font-bold">
+                                        {(logs || []).filter((l) => l.status === 'SENT').length}
+                                      </span>{' '}
+                                      Sent
+                                    </div>
+                                    <div className="px-3 py-1.5 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg">
+                                      <span className="font-bold">
+                                        {(logs || []).filter((l) => l.status === 'FAILED').length}
+                                      </span>{' '}
+                                      Failed
+                                    </div>
+                                  </div>
+                                  <div className="max-h-64 overflow-y-auto mt-2 border border-theme-border rounded-lg bg-theme-bg-primary">
+                                    <table className="w-full text-sm">
+                                      <thead className="bg-theme-bg-muted sticky top-0">
+                                        <tr>
+                                          <th className="px-4 py-2 font-medium text-left">
+                                            Recipient User ID
+                                          </th>
+                                          <th className="px-4 py-2 font-medium text-left">
+                                            Device ID
+                                          </th>
+                                          <th className="px-4 py-2 font-medium text-left">
+                                            Platform
+                                          </th>
+                                          <th className="px-4 py-2 font-medium text-left">
+                                            Status
+                                          </th>
+                                          <th className="px-4 py-2 font-medium text-left">
+                                            Information
+                                          </th>
+                                        </tr>
+                                      </thead>
+                                      <tbody className="divide-y divide-theme-border">
+                                        {logs.map((log) => (
+                                          <tr key={log.id}>
+                                            <td className="px-4 py-2 text-theme-text-primary font-mono text-xs">
+                                              {log.device_token?.external_user_id || 'Unknown'}
+                                            </td>
+                                            <td className="px-4 py-2 text-theme-text-secondary font-mono text-xs">
+                                              Device #{log.device_token?.id || log.device_token_id}
+                                            </td>
+                                            <td className="px-4 py-2 text-xs">
+                                              {log.device_token?.platform === 'Chrome/Android' && (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
+                                                  Chrome/Android
+                                                </span>
+                                              )}
+                                              {log.device_token?.platform === 'Safari' && (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300">
+                                                  Safari
+                                                </span>
+                                              )}
+                                              {log.device_token?.platform === 'Firefox' && (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300">
+                                                  Firefox
+                                                </span>
+                                              )}
+                                              {log.device_token?.platform === 'Edge/Windows' && (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
+                                                  Edge/Windows
+                                                </span>
+                                              )}
+                                              {![
+                                                'Chrome/Android',
+                                                'Safari',
+                                                'Firefox',
+                                                'Edge/Windows',
+                                              ].includes(log.device_token?.platform || '') && (
+                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
+                                                  {log.device_token?.platform || 'Web Push'}
+                                                </span>
+                                              )}
+                                            </td>
+                                            <td className="px-4 py-2">
+                                              {log.status === 'DELIVERED' && (
+                                                <span className="text-green-600 dark:text-green-400 font-medium text-xs">
+                                                  ● Delivered
+                                                </span>
+                                              )}
+                                              {log.status === 'SENT' && (
+                                                <span className="text-blue-600 dark:text-blue-400 font-medium text-xs">
+                                                  ● Sent
+                                                </span>
+                                              )}
+                                              {log.status === 'FAILED' && (
+                                                <span className="text-red-600 dark:text-red-400 font-medium text-xs">
+                                                  ● Failed
+                                                </span>
+                                              )}
+                                              {log.status === 'PENDING' && (
+                                                <span className="text-yellow-600 dark:text-yellow-400 font-medium text-xs">
+                                                  ● Pending
+                                                </span>
+                                              )}
+                                            </td>
+                                            <td className="px-4 py-2 text-theme-text-secondary font-mono text-xs">
+                                              {log.error_message || 'Success'}
+                                            </td>
+                                          </tr>
+                                        ))}
+                                      </tbody>
+                                    </table>
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="max-h-64 overflow-y-auto mt-2 border border-theme-border rounded-lg bg-theme-bg-primary">
-                                <table className="w-full text-sm">
-                                  <thead className="bg-theme-bg-muted sticky top-0">
-                                    <tr>
-                                      <th className="px-4 py-2 font-medium text-left">
-                                        Recipient User ID
-                                      </th>
-                                      <th className="px-4 py-2 font-medium text-left">Device ID</th>
-                                      <th className="px-4 py-2 font-medium text-left">Platform</th>
-                                      <th className="px-4 py-2 font-medium text-left">Status</th>
-                                      <th className="px-4 py-2 font-medium text-left">
-                                        Information
-                                      </th>
-                                    </tr>
-                                  </thead>
-                                  <tbody className="divide-y divide-theme-border">
-                                    {logs.map((log) => (
-                                      <tr key={log.id}>
-                                        <td className="px-4 py-2 text-theme-text-primary font-mono text-xs">
-                                          {log.device_token?.external_user_id || 'Unknown'}
-                                        </td>
-                                        <td className="px-4 py-2 text-theme-text-secondary font-mono text-xs">
-                                          Device #{log.device_token?.id || log.device_token_id}
-                                        </td>
-                                        <td className="px-4 py-2 text-xs">
-                                          {log.device_token?.platform === 'Chrome/Android' && (
-                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300">
-                                              Chrome/Android
-                                            </span>
-                                          )}
-                                          {log.device_token?.platform === 'Safari' && (
-                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300">
-                                              Safari
-                                            </span>
-                                          )}
-                                          {log.device_token?.platform === 'Firefox' && (
-                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300">
-                                              Firefox
-                                            </span>
-                                          )}
-                                          {log.device_token?.platform === 'Edge/Windows' && (
-                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300">
-                                              Edge/Windows
-                                            </span>
-                                          )}
-                                          {![
-                                            'Chrome/Android',
-                                            'Safari',
-                                            'Firefox',
-                                            'Edge/Windows',
-                                          ].includes(log.device_token?.platform || '') && (
-                                            <span className="inline-flex items-center px-1.5 py-0.5 rounded font-medium bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200">
-                                              {log.device_token?.platform || 'Web Push'}
-                                            </span>
-                                          )}
-                                        </td>
-                                        <td className="px-4 py-2">
-                                          {log.status === 'DELIVERED' && (
-                                            <span className="text-green-600 dark:text-green-400 font-medium text-xs">
-                                              ● Delivered
-                                            </span>
-                                          )}
-                                          {log.status === 'SENT' && (
-                                            <span className="text-blue-600 dark:text-blue-400 font-medium text-xs">
-                                              ● Sent
-                                            </span>
-                                          )}
-                                          {log.status === 'FAILED' && (
-                                            <span className="text-red-600 dark:text-red-400 font-medium text-xs">
-                                              ● Failed
-                                            </span>
-                                          )}
-                                          {log.status === 'PENDING' && (
-                                            <span className="text-yellow-600 dark:text-yellow-400 font-medium text-xs">
-                                              ● Pending
-                                            </span>
-                                          )}
-                                        </td>
-                                        <td className="px-4 py-2 text-theme-text-secondary font-mono text-xs">
-                                          {log.error_message || 'Success'}
-                                        </td>
-                                      </tr>
-                                    ))}
-                                  </tbody>
-                                </table>
-                              </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -441,6 +497,18 @@ export const NotificationHistory: React.FC<NotificationHistoryProps> = ({
         description="Are you sure you want to cancel this scheduled notification? It will be deleted and will not be sent to any devices."
         confirmLabel="Yes, Cancel Notification"
         confirmingLabel="Cancelling..."
+      />
+
+      <PayloadPreviewModal
+        isOpen={previewModalOpen}
+        onClose={() => {
+          setPreviewModalOpen(false);
+          setPreviewNotificationId(null);
+        }}
+        appId={appId}
+        notificationId={previewNotificationId}
+        rawPayloadJson={previewRawPayload}
+        appName={selectedApp?.name}
       />
     </div>
   );

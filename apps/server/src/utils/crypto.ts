@@ -57,3 +57,58 @@ export function decryptPayload(
     throw new Error('Invalid or corrupted encrypted payload');
   }
 }
+
+/**
+ * Checks if a payload string is formatted as CryptoJS AES ciphertext.
+ */
+export function isPayloadEncrypted(payload: string): boolean {
+  if (!payload || typeof payload !== 'string') return false;
+  return payload.startsWith('U2FsdGVkX1');
+}
+
+/**
+ * Encrypts a notification payload object for secure storage in the database.
+ * If already encrypted, returns as-is.
+ */
+export function encryptNotificationPayload(
+  payload: any,
+  secret: string = SYSTEM_ENCRYPTION_KEY
+): string {
+  if (typeof payload === 'string') {
+    if (isPayloadEncrypted(payload)) {
+      return payload;
+    }
+    try {
+      const parsed = JSON.parse(payload);
+      return encryptPayload(parsed, secret);
+    } catch {
+      return encryptPayload({ body: payload }, secret);
+    }
+  }
+  return encryptPayload(payload, secret);
+}
+
+/**
+ * Decrypts a notification payload stored in the database.
+ * Gracefully falls back to plain JSON parsing for backward compatibility.
+ */
+export function decryptNotificationPayload(
+  payloadOrCipher: string,
+  secret: string = SYSTEM_ENCRYPTION_KEY
+): any {
+  if (!payloadOrCipher) return {};
+  if (isPayloadEncrypted(payloadOrCipher)) {
+    try {
+      const decrypted = decryptPayload(payloadOrCipher, secret);
+      return typeof decrypted === 'string' ? JSON.parse(decrypted) : decrypted;
+    } catch {
+      // Fallback below
+    }
+  }
+
+  try {
+    return JSON.parse(payloadOrCipher);
+  } catch {
+    return { title: 'Notification', body: payloadOrCipher };
+  }
+}

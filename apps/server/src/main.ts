@@ -7,6 +7,7 @@ import cors from 'cors';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { UserService } from './modules/user/user.service';
 import { InternalNotificationService } from './modules/system/internal-notification.service';
+import { PushService } from './modules/push/push.service';
 import { join } from 'path';
 import { existsSync } from 'fs';
 
@@ -179,6 +180,9 @@ async function bootstrap() {
 
     const internalNotificationService = app.get(InternalNotificationService);
     await internalNotificationService.getOrCreateInternalApp();
+
+    const pushService = app.get(PushService);
+    await pushService.ensureNotificationsEncrypted();
   } catch (err: any) {
     console.error('⚠️ Database seeding failed:', err.message);
   }
