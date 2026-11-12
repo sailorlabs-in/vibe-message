@@ -77,7 +77,7 @@ const AppContent: React.FC = () => {
     <BrowserRouter>
       <ScrollToTop />
       <AnimatedBackground />
-      <div className="min-h-screen transition-colors duration-300 pt-[100px] relative z-0 overflow-x-clip w-full max-w-full">
+      <div className="min-h-screen transition-colors duration-300 pt-[100px] relative z-0 w-full max-w-full">
         <Header />
         <Routes>
           {/* Public routes */}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import {
   RiTimeLine,
   RiAddLine,
@@ -40,6 +41,9 @@ export const CronJobs: React.FC = () => {
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [runningJobId, setRunningJobId] = useState<number | null>(null);
 
+  const shouldReduceMotion = useReducedMotion();
+  const easeOut = [0.23, 1, 0.32, 1] as const;
+
   const fetchJobs = useCallback(async () => {
     try {
       setLoading(true);
@@ -77,7 +81,6 @@ export const CronJobs: React.FC = () => {
     try {
       await cronJobService.runCronJobNow(job.id);
       toast.success(`Queued execution for "${job.title}"`);
-      // Refresh list after brief moment to capture updated last_run
       setTimeout(fetchJobs, 2500);
     } catch (err: any) {
       toast.error('Failed to trigger execution');
@@ -140,30 +143,35 @@ export const CronJobs: React.FC = () => {
   const getMethodBadgeClass = (method: HttpMethod) => {
     switch (method) {
       case 'GET':
-        return 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20';
+        return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
       case 'POST':
-        return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+        return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
       case 'PUT':
-        return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
+        return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
       case 'PATCH':
-        return 'bg-purple-500/10 text-purple-500 border-purple-500/20';
+        return 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20';
       case 'DELETE':
-        return 'bg-rose-500/10 text-rose-500 border-rose-500/20';
+        return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20';
       default:
         return 'bg-theme-bg-muted text-theme-text-secondary border-theme-border';
     }
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+      <motion.div
+        initial={{ opacity: 0, y: shouldReduceMotion ? 0 : -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: easeOut }}
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8"
+      >
         <div>
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-theme-primary-500/10 text-theme-primary-500">
-              <RiTimeLine size={24} />
+            <div className="w-10 h-10 rounded-xl bg-theme-primary-500/10 text-theme-primary-600 dark:text-theme-primary-400 border border-theme-primary-500/20 flex items-center justify-center shadow-xs">
+              <RiTimeLine size={22} />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-theme-text-primary tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-display font-extrabold text-theme-text-primary tracking-tight">
               Cron Jobs
             </h1>
           </div>
@@ -200,10 +208,10 @@ export const CronJobs: React.FC = () => {
               setIsCreateModalOpen(true);
             }}
             disabled={isLimitReached}
-            className={`inline-flex items-center gap-2 px-5 py-2.5 font-semibold text-sm rounded-xl transition-all ${
+            className={`inline-flex items-center gap-1.5 px-5 py-2.5 font-semibold text-xs sm:text-sm rounded-xl transition-all shadow-xs ${
               isLimitReached
                 ? 'bg-theme-bg-muted text-theme-text-muted cursor-not-allowed border border-theme-border opacity-70'
-                : 'bg-theme-primary-600 hover:bg-theme-primary-700 text-white shadow-lg shadow-theme-primary-500/20 hover:scale-105'
+                : 'bg-theme-primary-600 hover:bg-theme-primary-700 text-white active:scale-[0.98]'
             }`}
             title={isLimitReached ? `Quota reached (${user?.cron_job_limit} max)` : undefined}
           >
@@ -211,7 +219,7 @@ export const CronJobs: React.FC = () => {
             Create Cron Job
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Limit Reached Warning Banner */}
       {isLimitReached && (
@@ -226,55 +234,64 @@ export const CronJobs: React.FC = () => {
       )}
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <div className="p-5 rounded-2xl bg-theme-bg-secondary border border-theme-border shadow-sm">
+      <motion.div
+        initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, delay: 0.05, ease: easeOut }}
+        className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+      >
+        <div className="p-5 rounded-2xl bg-theme-bg-secondary border border-theme-border shadow-xs">
           <div className="flex items-center justify-between text-theme-text-secondary mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Total Jobs</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Total Jobs</span>
             <RiGlobalLine size={18} />
           </div>
-          <div className="text-2xl font-bold text-theme-text-primary">
+          <div className="text-2xl sm:text-3xl font-display font-extrabold text-theme-text-primary tabular-nums">
             {stats.total}
             {!isSelfHosted && user?.cron_job_limit !== null && user?.cron_job_limit !== undefined && (
-              <span className="text-sm font-normal text-theme-text-secondary ml-1.5">
+              <span className="text-sm font-normal text-theme-text-muted ml-1.5">
                 / {user.cron_job_limit}
               </span>
             )}
           </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-theme-bg-secondary border border-theme-border shadow-sm">
+        <div className="p-5 rounded-2xl bg-theme-bg-secondary border border-theme-border shadow-xs">
           <div className="flex items-center justify-between text-theme-text-secondary mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Active</span>
-            <RiCheckboxCircleLine size={18} className="text-theme-success" />
+            <span className="text-xs font-bold uppercase tracking-wider">Active</span>
+            <RiCheckboxCircleLine size={18} className="text-emerald-500" />
           </div>
-          <div className="text-2xl font-bold text-theme-success">{stats.active}</div>
+          <div className="text-2xl sm:text-3xl font-display font-extrabold text-emerald-600 dark:text-emerald-400 tabular-nums">
+            {stats.active}
+          </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-theme-bg-secondary border border-theme-border shadow-sm">
+        <div className="p-5 rounded-2xl bg-theme-bg-secondary border border-theme-border shadow-xs">
           <div className="flex items-center justify-between text-theme-text-secondary mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Paused</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Paused</span>
             <RiPauseCircleLine size={18} className="text-theme-text-muted" />
           </div>
-          <div className="text-2xl font-bold text-theme-text-secondary">{stats.paused}</div>
+          <div className="text-2xl sm:text-3xl font-display font-extrabold text-theme-text-secondary tabular-nums">
+            {stats.paused}
+          </div>
         </div>
 
-        <div className="p-5 rounded-2xl bg-theme-bg-secondary border border-theme-border shadow-sm">
+        <div className="p-5 rounded-2xl bg-theme-bg-secondary border border-theme-border shadow-xs">
           <div className="flex items-center justify-between text-theme-text-secondary mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">Failing</span>
-            <RiAlertLine size={18} className={stats.failing > 0 ? 'text-theme-error' : 'text-theme-text-muted'} />
+            <span className="text-xs font-bold uppercase tracking-wider">Failing</span>
+            <RiAlertLine size={18} className={stats.failing > 0 ? 'text-rose-500' : 'text-theme-text-muted'} />
           </div>
-          <div className={`text-2xl font-bold ${stats.failing > 0 ? 'text-theme-error' : 'text-theme-text-primary'}`}>
+          <div className={`text-2xl sm:text-3xl font-display font-extrabold tabular-nums ${stats.failing > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-theme-text-primary'}`}>
             {stats.failing}
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Search & Filters */}
-      <div className="bg-theme-bg-secondary border border-theme-border rounded-2xl p-4 mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+      <div className="bg-theme-bg-secondary border border-theme-border rounded-2xl p-4 mb-6 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center shadow-xs">
         <div className="relative flex-1">
           <RiSearchLine
             size={18}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-theme-text-secondary"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-theme-text-muted"
           />
           <input
             type="text"
@@ -314,7 +331,7 @@ export const CronJobs: React.FC = () => {
 
       {/* Cron Jobs List */}
       {loading ? (
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
@@ -323,11 +340,11 @@ export const CronJobs: React.FC = () => {
           ))}
         </div>
       ) : (filteredJobs?.length ?? 0) === 0 ? (
-        <div className="card text-center py-16">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-slate-500/10 flex items-center justify-center text-slate-400">
-            <RiTimeLine size={32} />
+        <div className="bg-theme-bg-secondary border border-theme-border rounded-2xl text-center py-16 px-4 shadow-xs">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-theme-bg-primary border border-theme-border flex items-center justify-center text-theme-text-muted shadow-2xs">
+            <RiTimeLine size={28} />
           </div>
-          <h3 className="text-lg font-bold text-theme-text-primary mb-1">
+          <h3 className="text-lg font-display font-bold text-theme-text-primary mb-1">
             {(jobs?.length ?? 0) === 0 ? 'No Cron Jobs Created Yet' : 'No matching cron jobs found'}
           </h3>
           <p className="text-sm text-theme-text-secondary max-w-sm mx-auto mb-6">
@@ -341,7 +358,7 @@ export const CronJobs: React.FC = () => {
                 setEditingJob(null);
                 setIsCreateModalOpen(true);
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-theme-primary-600 hover:bg-theme-primary-700 text-white font-semibold text-xs rounded-xl shadow-md transition-all"
+              className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-theme-primary-600 hover:bg-theme-primary-700 text-white font-semibold text-xs rounded-xl shadow-xs transition-all active:scale-[0.98]"
             >
               <RiAddLine size={16} />
               Create First Cron Job
@@ -353,12 +370,15 @@ export const CronJobs: React.FC = () => {
           {filteredJobs.map((job) => {
             const isFailing = job.is_enabled && job.last_status === 'FAILURE';
             return (
-              <div
+              <motion.div
                 key={job.id}
-                className={`p-5 rounded-2xl bg-theme-bg-secondary border transition-all duration-200 hover:shadow-md ${
+                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, ease: easeOut }}
+                className={`p-5 rounded-2xl bg-theme-bg-secondary border transition-all duration-200 shadow-xs hover:shadow-sm ${
                   isFailing
-                    ? 'border-theme-error/40 hover:border-theme-error/60'
-                    : 'border-theme-border hover:border-theme-primary-500/40'
+                    ? 'border-rose-500/40 hover:border-rose-500/60'
+                    : 'border-theme-border hover:border-theme-border-strong'
                 }`}
               >
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -371,13 +391,13 @@ export const CronJobs: React.FC = () => {
                           !job.is_enabled
                             ? 'bg-theme-text-muted'
                             : isFailing
-                            ? 'bg-theme-error animate-pulse'
-                            : 'bg-theme-success animate-pulse'
+                            ? 'bg-rose-500 animate-pulse'
+                            : 'bg-emerald-500 animate-pulse'
                         }`}
                         title={!job.is_enabled ? 'Paused' : isFailing ? 'Failing' : 'Active'}
                       />
 
-                      <h3 className="text-base font-bold text-theme-text-primary truncate">
+                      <h3 className="text-base font-display font-bold text-theme-text-primary truncate">
                         {job.title}
                       </h3>
 
@@ -412,12 +432,12 @@ export const CronJobs: React.FC = () => {
                         <>
                           <span className="flex items-center gap-1">
                             {job.last_status === 'SUCCESS' ? (
-                              <span className="inline-flex items-center gap-1 font-mono font-semibold text-theme-success">
+                              <span className="inline-flex items-center gap-1 font-mono font-semibold text-emerald-600 dark:text-emerald-400">
                                 <RiCheckboxCircleLine size={14} />
                                 {job.last_status_code || 200} OK
                               </span>
                             ) : (
-                              <span className="inline-flex items-center gap-1 font-mono font-semibold text-theme-error">
+                              <span className="inline-flex items-center gap-1 font-mono font-semibold text-rose-600 dark:text-rose-400">
                                 <RiCloseCircleLine size={14} />
                                 {job.last_status_code && job.last_status_code > 0
                                   ? `${job.last_status_code} ERR`
@@ -441,7 +461,7 @@ export const CronJobs: React.FC = () => {
                       )}
 
                       {job.consecutive_failures > 0 && (
-                        <span className="text-xs font-semibold text-theme-error bg-theme-error/10 px-2 py-0.5 rounded">
+                        <span className="text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-2 py-0.5 rounded">
                           {job.consecutive_failures} failures in a row
                         </span>
                       )}
@@ -455,7 +475,7 @@ export const CronJobs: React.FC = () => {
                       onClick={() => handleToggle(job)}
                       className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
                         job.is_enabled
-                          ? 'bg-theme-success/10 border-theme-success/30 text-theme-success hover:bg-theme-success/20'
+                          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20'
                           : 'bg-theme-bg-muted border-theme-border text-theme-text-secondary hover:bg-theme-bg-muted/80'
                       }`}
                       title={job.is_enabled ? 'Click to Pause' : 'Click to Activate'}
@@ -467,7 +487,7 @@ export const CronJobs: React.FC = () => {
                     <button
                       onClick={() => handleRunNow(job)}
                       disabled={runningJobId === job.id}
-                      className="px-3 py-1.5 rounded-xl border border-theme-border bg-theme-bg-primary hover:border-theme-primary-500/50 text-theme-primary-400 hover:text-theme-primary-300 text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                      className="px-3 py-1.5 rounded-xl border border-theme-border bg-theme-bg-primary hover:border-theme-primary-500/50 text-theme-primary-600 dark:text-theme-primary-400 hover:text-theme-primary-500 text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50"
                       title="Trigger immediate execution"
                     >
                       <RiPlayFill
@@ -501,14 +521,14 @@ export const CronJobs: React.FC = () => {
                     {/* Delete Button */}
                     <button
                       onClick={() => setDeletingJob(job)}
-                      className="p-2 rounded-xl border border-theme-border text-theme-error hover:bg-theme-error/10 transition-colors"
+                      className="p-2 rounded-xl border border-theme-border text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 transition-colors"
                       title="Delete cron job"
                     >
                       <RiDeleteBinLine size={16} />
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

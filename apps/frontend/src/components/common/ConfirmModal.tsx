@@ -1,6 +1,6 @@
 import React, { useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { RiAlertLine } from '@remixicon/react';
 
 interface ConfirmModalProps {
@@ -43,6 +43,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     return () => document.removeEventListener('keydown', handleKey);
   }, [isOpen, loading, onClose]);
 
+  const shouldReduceMotion = useReducedMotion();
   const accentColor = variant === 'danger' ? 'red' : 'amber';
 
   const modal = (
@@ -54,16 +55,21 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => !loading && onClose()}
           />
 
           {/* Panel */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 16 }}
+            initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.95, y: shouldReduceMotion ? 0 : 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 16 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            exit={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.95, y: shouldReduceMotion ? 0 : 16 }}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0.15 }
+                : { type: 'spring', stiffness: 350, damping: 28 }
+            }
             className={`relative w-full max-w-md bg-theme-bg-primary rounded-2xl sm:rounded-3xl shadow-2xl border p-5 sm:p-7 md:p-8 overflow-hidden ${
               accentColor === 'red' ? 'border-red-500/20' : 'border-amber-500/20'
             }`}

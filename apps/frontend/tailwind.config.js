@@ -16,9 +16,16 @@ export default {
   darkMode: 'class', // Enable class-based dark mode
   theme: {
     extend: {
+      boxShadow: {
+        '2xs': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'glow-primary': '0 0 30px -5px rgb(var(--primary-500-rgb) / 0.35)',
+        'glow-sm': '0 0 15px -3px rgb(var(--primary-500-rgb) / 0.25)',
+      },
       fontFamily: {
-        sans: ['"DM Sans"', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
         display: ['"Space Grotesk"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       borderColor: ({ theme }) => ({
         ...theme('colors'),

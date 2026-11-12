@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { RiMailSendLine, RiArrowLeftLine, RiLoader4Line, RiCheckboxCircleFill } from '@remixicon/react';
+import { motion, useReducedMotion } from 'motion/react';
+import {
+  RiMailSendLine,
+  RiArrowLeftLine,
+  RiLoader4Line,
+  RiCheckboxCircleFill,
+} from '@remixicon/react';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { logoutUser } from '../../store/slices/authSlice';
 import ApiRequest from '../../services/ApiRequest';
@@ -11,6 +16,7 @@ export const Pending: React.FC = () => {
   const { user } = useAppSelector((state) => state.auth);
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   const handleResend = async () => {
     if (!user?.email) return;
@@ -27,109 +33,79 @@ export const Pending: React.FC = () => {
     }
   };
 
+  const easeOut = [0.23, 1, 0.32, 1] as const;
+
   return (
-    <div className="min-h-[calc(100vh-120px)] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative">
-      <div className="max-w-3xl w-full bg-white/60 dark:bg-slate-900/60 backdrop-blur-3xl rounded-[3rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] border border-slate-200 dark:border-slate-700/50 overflow-hidden relative z-10 p-10 md:p-16 text-center">
-        {/* Animated Background Blobs */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-          <motion.div
-            animate={{
-              x: [0, 50, 0],
-              y: [0, -50, 0],
-              rotate: [0, 90, 0],
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-            className="absolute top-0 left-0 w-80 h-80 bg-amber-500/10 rounded-full blur-[80px]"
-          />
-          <motion.div
-            animate={{
-              x: [0, -50, 0],
-              y: [0, 50, 0],
-              rotate: [0, -90, 0],
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
-            className="absolute bottom-0 right-0 w-64 h-64 bg-theme-primary-500/10 rounded-full blur-[60px]"
-          />
-        </div>
-
+    <div className="min-h-[calc(100vh-140px)] flex items-center justify-center p-4 sm:p-6 lg:p-8 relative">
+      <motion.div
+        initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.45, ease: easeOut }}
+        className="max-w-xl w-full bg-theme-bg-secondary rounded-2xl sm:rounded-3xl shadow-xl border border-theme-border p-8 sm:p-12 text-center relative z-10"
+      >
         <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1, ease: easeOut }}
         >
-          {/* Pulsing Icon */}
-          <div className="relative mx-auto w-28 h-28 mb-10">
-            <div className="absolute inset-0 bg-amber-500/30 animate-ping rounded-full blur-xl"></div>
-            <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-2xl animate-pulse"></div>
-            <div className="relative flex items-center justify-center w-full h-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-full shadow-xl border-2 border-amber-500/50 text-amber-500">
-              <RiMailSendLine size={56} />
-            </div>
-          </div>
-
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="text-4xl md:text-5xl font-black tracking-tight text-theme-text-primary drop-shadow-sm mb-6"
-          >
-            Verify Your Email
-          </motion.h2>
-
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-lg md:text-xl text-theme-text-secondary font-medium leading-relaxed mb-8 max-w-lg mx-auto"
-          >
-            We've sent a verification link to <strong className="text-theme-text-primary">{user?.email}</strong>. Please check your inbox and click the link to activate your account.
-          </motion.p>
-
+          {/* Status Icon */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="flex flex-col items-center gap-4 mb-10 max-w-sm mx-auto"
+            initial={{ scale: shouldReduceMotion ? 1 : 0.8 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', stiffness: 280, damping: 20 }}
+            className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6 text-amber-500"
           >
-            <button
+            <RiMailSendLine size={32} />
+          </motion.div>
+
+          <h2 className="text-2xl sm:text-3xl font-display font-extrabold tracking-tight text-theme-text-primary mb-3">
+            Verify Your Email
+          </h2>
+
+          <p className="text-sm sm:text-base text-theme-text-secondary leading-relaxed mb-8 max-w-md mx-auto">
+            We've sent a verification link to{' '}
+            <strong className="text-theme-text-primary font-semibold">{user?.email}</strong>. Please
+            check your inbox and click the link to activate your account.
+          </p>
+
+          <div className="flex flex-col items-center gap-3 mb-8 max-w-xs mx-auto">
+            <motion.button
+              whileHover={shouldReduceMotion ? undefined : { scale: 1.01 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleResend}
               disabled={resending || resent}
-              className="w-full py-4 px-6 bg-gradient-to-r from-theme-primary-500 to-theme-primary-600 hover:from-theme-primary-600 hover:to-theme-primary-700 text-white rounded-2xl font-bold transition-all disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2 shadow-lg shadow-theme-primary-500/30"
+              className="w-full py-3 px-5 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-xl font-bold text-sm transition-all shadow-sm hover:shadow-md hover:shadow-theme-primary-500/20 disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2"
             >
               {resending ? (
                 <>
-                  <RiLoader4Line size={20} className="animate-spin" />
-                  Resending Link...
+                  <RiLoader4Line size={18} className="animate-spin" />
+                  <span>Resending Link...</span>
                 </>
               ) : resent ? (
                 <>
-                  <RiCheckboxCircleFill size={20} className="text-white" />
-                  Resent Successfully!
+                  <RiCheckboxCircleFill size={18} className="text-white" />
+                  <span>Resent Successfully!</span>
                 </>
               ) : (
                 <>
-                  <RiMailSendLine size={20} />
-                  Resend Verification Email
+                  <RiMailSendLine size={18} />
+                  <span>Resend Verification Email</span>
                 </>
               )}
-            </button>
-          </motion.div>
+            </motion.button>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mt-12"
-          >
+          <div className="pt-6 border-t border-theme-border">
             <button
               onClick={() => dispatch(logoutUser())}
-              className="inline-flex items-center gap-2 text-theme-text-muted hover:text-theme-primary-500 font-bold transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold text-theme-text-muted hover:text-theme-text-primary transition-colors cursor-pointer"
             >
-              <RiArrowLeftLine size={20} />
-              Return to Login
+              <RiArrowLeftLine size={16} />
+              <span>Return to Login</span>
             </button>
-          </motion.div>
+          </div>
         </motion.div>
-      </div>
+      </motion.div>
     </div>
   );
 };
