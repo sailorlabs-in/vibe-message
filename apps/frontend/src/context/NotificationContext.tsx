@@ -90,7 +90,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
 
     initializingRef.current = true;
-    console.log('🔄 Initializing notifications...');
+    console.log('[NotificationContext] Initializing notifications...');
 
     let appId = import.meta.env.VITE_ADMIN_APP_ID || 'app_I4vqEF2J7T3AG4n3';
     let publicKey =
@@ -125,7 +125,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         clientRef.current = client;
         */
 
-        // --- 📝 EXTERNAL SDK USAGE EXAMPLE ---
+        // --- EXTERNAL SDK USAGE EXAMPLE ---
         // If you were integrating this SDK in a separate 3rd-party React frontend,
         // you would completely omit the `baseUrl`. The SDK defaults to production automatically:
 
@@ -151,7 +151,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
                 <div className="flex-1 w-0 p-4">
                   <div className="flex items-start">
                     <div className="flex-shrink-0 pt-0.5">
-                      <div className="h-10 w-10 rounded-full bg-theme-primary-500/10 flex items-center justify-center border border-indigo-100 dark:border-indigo-900">
+                      <div className="h-10 w-10 rounded-full bg-theme-primary-500/10 flex items-center justify-center border border-theme-primary-500/20">
                         <RiNotificationLine size={24} className="text-theme-primary-500" />
                       </div>
                     </div>
@@ -216,7 +216,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
           localStorage.setItem(NOTIFICATION_STORAGE_KEY, 'true');
         }
 
-        console.log('✅ Notifications enabled for admin panel');
+        console.log('[NotificationContext] Notifications enabled for admin panel');
         toast.success('Notifications enabled!');
       } catch (error: any) {
         console.error('Failed to initialize notification client:', error);
@@ -255,7 +255,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     if (!clientRef.current || !user) return;
 
     try {
-      console.log('🔄 Unregistering device...');
+      console.log('[NotificationContext] Unregistering device...');
       await clientRef.current.unregisterDevice(user.email);
 
       setIsRegistered(false);
@@ -266,7 +266,7 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
         localStorage.removeItem(NOTIFICATION_STORAGE_KEY);
       }
 
-      console.log('✅ Device unregistered successfully');
+      console.log('[NotificationContext] Device unregistered successfully');
     } catch (error: any) {
       console.error('Failed to unregister device:', error);
     }

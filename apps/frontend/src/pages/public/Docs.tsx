@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { systemService } from '../../services/systemService';
 import {
   RiMagicLine,
@@ -9,6 +9,7 @@ import {
   RiArrowUpLine,
   RiFlashlightLine,
   RiShieldKeyholeLine,
+  RiShieldCheckLine,
   RiRefreshLine,
   RiTeamLine,
   RiPaletteLine,
@@ -20,12 +21,15 @@ import {
   RiSmartphoneLine,
   RiCodeLine,
   RiFlaskLine,
+  RiFileCopyLine,
 } from '@remixicon/react';
 
-type TabType = 'overview' | 'quickstart' | 'sdk' | 'backend' | 'react' | 'nextjs';
+type TabType = 'overview' | 'quickstart' | 'sdk' | 'backend' | 'react' | 'nextjs' | 'selfhost';
 
 export const Docs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const shouldReduceMotion = useReducedMotion();
+  const easeOut = [0.23, 1, 0.32, 1] as const;
 
   useEffect(() => {
     systemService
@@ -45,6 +49,7 @@ export const Docs: React.FC = () => {
     { id: 'backend', label: 'Backend Integration', icon: <RiSettings3Line size={18} /> },
     { id: 'react', label: 'React Frontend', icon: <RiReactjsLine size={18} /> },
     { id: 'nextjs', label: 'Next.js Frontend', icon: <RiArrowUpLine size={18} /> },
+    { id: 'selfhost', label: 'Self-Hosting', icon: <RiServerLine size={18} /> },
   ];
 
   return (
@@ -53,53 +58,67 @@ export const Docs: React.FC = () => {
 
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
-          className="text-center mb-16"
-          initial={{ opacity: 0, y: 30 }}
+          className="text-center mb-14"
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h1 className="text-5xl md:text-7xl font-display font-extrabold mb-8 tracking-tight leading-tight">
-            Vibe Message{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-theme-primary-500 via-theme-accent-500 to-theme-primary-500 bg-[length:200%_auto] animate-gradient">
-              Docs
-            </span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-theme-bg-secondary border border-theme-border text-xs font-mono font-semibold text-theme-text-muted mb-6 shadow-2xs">
+            <span>DEVELOPER DOCUMENTATION</span>
+          </div>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-extrabold mb-5 tracking-tight text-theme-text-primary">
+            Vibe Message <span className="text-theme-primary-500">Docs</span>
           </h1>
-          <p className="text-lg md:text-xl text-theme-text-secondary max-w-2xl mx-auto leading-relaxed">
-            The modern, lightweight, and incredibly powerful push notification platform for the web.
-            Drop-in Firebase Cloud Messaging alternative.
+          <p className="text-base sm:text-lg text-theme-text-secondary max-w-2xl mx-auto leading-relaxed">
+            Open-standard Web Push infrastructure for the developer community. Free hosted tier
+            for learning, prototypes, and hobby apps, with complete Docker self-hosting for production scale.
           </p>
         </motion.div>
 
         {/* Tab Navigation - Pill Style */}
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center px-6 py-3 font-semibold rounded-full transition-all duration-300 shadow-sm ${
-                activeTab === tab.id
-                  ? 'bg-theme-primary-500 dark:bg-theme-primary-600 border border-theme-primary-500 text-white scale-105'
-                  : 'bg-theme-bg-primary border border-theme-border text-theme-text-secondary hover:text-theme-text-primary hover:border-theme-primary-500'
-              }`}
-            >
-              <span className={`mr-2 ${activeTab === tab.id ? 'opacity-100' : 'opacity-70'}`}>
-                {tab.icon}
-              </span>
-              {tab.label}
-            </button>
-          ))}
+        <div className="flex items-center overflow-x-auto no-scrollbar gap-1.5 mb-10 p-1.5 rounded-2xl bg-theme-bg-secondary border border-theme-border max-w-full sm:max-w-fit mx-auto shadow-2xs justify-start sm:justify-center px-2 sm:px-1.5">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative flex items-center shrink-0 whitespace-nowrap px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl transition-colors duration-200 ${
+                  isActive
+                    ? 'text-white'
+                    : 'text-theme-text-secondary hover:text-theme-text-primary'
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="docs-active-tab"
+                    className="absolute inset-0 bg-theme-primary-500 rounded-xl shadow-xs"
+                    transition={
+                      shouldReduceMotion
+                        ? { duration: 0 }
+                        : { type: 'spring', stiffness: 420, damping: 32 }
+                    }
+                  />
+                )}
+                <span className="relative z-10 mr-2 flex items-center">
+                  {tab.icon}
+                </span>
+                <span className="relative z-10">{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Content Area */}
-        <div className="bg-black/5 dark:bg-white/5 backdrop-blur-sm rounded-3xl border border-theme-border p-8 md:p-12 transition-all duration-500 min-h-[500px]">
+        <div className="bg-theme-bg-secondary rounded-2xl sm:rounded-3xl border border-theme-border p-6 sm:p-10 lg:p-12 shadow-sm transition-all duration-300 min-h-[500px]">
           <AnimatePresence mode="wait">
             {activeTab === 'overview' && (
               <motion.div
                 key="overview"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4 }}
+                exit={{ opacity: 0, y: shouldReduceMotion ? 0 : -12 }}
+                transition={{ duration: 0.22, ease: easeOut }}
               >
                 <h2 className="text-4xl font-display font-extrabold mb-6 text-theme-text-primary">
                   Why Vibe Message?
@@ -123,7 +142,7 @@ export const Docs: React.FC = () => {
                     </div>
                     <p className="text-theme-text-secondary leading-relaxed mb-6 relative z-10">
                       Our free hosted service is an ecosystem built primarily to support the
-                      developer community. It is designed and optimized for:
+                      developer community at zero cost. It is designed and optimized for:
                     </p>
                     <ul className="grid sm:grid-cols-2 gap-4 relative z-10">
                       {[
@@ -144,25 +163,32 @@ export const Docs: React.FC = () => {
                         </li>
                       ))}
                     </ul>
+                    <div className="mt-6 pt-4 border-t border-theme-border text-xs text-theme-text-muted flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        <span>Single Community Node · Fair-Use Policy</span>
+                      </span>
+                      <span className="text-theme-primary-500 font-semibold">100% Free Forever</span>
+                    </div>
                   </div>
 
                   <div className="bg-rose-50/70 dark:bg-rose-950/20 border border-rose-200/80 dark:border-rose-900/40 rounded-3xl p-8 relative flex flex-col justify-between shadow-xs transition-colors duration-300">
                     <div>
                       <div className="inline-flex items-center px-3 py-1 bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 rounded-full text-xs font-bold uppercase tracking-wider mb-6">
                         <RiErrorWarningLine size={14} className="mr-1.5" />
-                        Strictly Restricted
+                        Commercial &amp; High-Volume
                       </div>
                       <h4 className="text-2xl font-display font-bold text-theme-text-primary mb-4">
-                        Commercial Production
+                        Production Workloads
                       </h4>
                       <p className="text-base text-theme-text-secondary leading-relaxed mb-6">
-                        Large-scale and unmetered commercial usage is strictly restricted on the
-                        public tier. Accounts generating excessive structural load outside fair-use
-                        will be permanently banned to protect network stability.
+                        Large-scale and unmetered commercial usage is restricted on the free public tier
+                        to ensure stability for all community users. For production reliability and
+                        unlimited throughput, self-hosting is the recommended path.
                       </p>
                     </div>
 
-                    <div className="mt-8 pt-6 border-t border-rose-200/60 dark:border-rose-900/30 bg-white/80 dark:bg-black/25 backdrop-blur-sm p-4 rounded-2xl border border-rose-200/60 dark:border-rose-800/30">
+                    <div className="mt-6 pt-5 border-t border-rose-200/60 dark:border-rose-900/30 bg-white/80 dark:bg-black/25 backdrop-blur-sm p-4 rounded-2xl border border-rose-200/60 dark:border-rose-800/30 space-y-3">
                       <p className="text-sm text-theme-text-secondary flex items-start leading-relaxed">
                         <RiServerLine
                           size={18}
@@ -170,15 +196,22 @@ export const Docs: React.FC = () => {
                         />
                         <span>
                           <strong className="text-theme-text-primary font-bold">
-                            Self-Hosted Deployments:
+                            Self-Host Unmetered:
                           </strong>{' '}
-                          Use pre-configured Docker compose setups. Obtain your{' '}
+                          Deploy via pre-configured Docker Compose. Request an{' '}
                           <strong className="text-theme-primary-600 dark:text-theme-primary-400 font-semibold">
                             Enterprise License Key
                           </strong>{' '}
-                          in settings to run on your own servers unmetered.
+                          in your profile settings to run on your own servers with zero limits.
                         </span>
                       </p>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('selfhost')}
+                        className="text-xs font-mono font-bold text-theme-primary-500 hover:text-theme-primary-600 flex items-center gap-1.5 transition-colors"
+                      >
+                        <span>View Docker Self-Hosting Guide →</span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -241,10 +274,10 @@ export const Docs: React.FC = () => {
             {activeTab === 'quickstart' && (
               <motion.div
                 key="quickstart"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4 }}
+                exit={{ opacity: 0, y: shouldReduceMotion ? 0 : -12 }}
+                transition={{ duration: 0.22, ease: easeOut }}
               >
                 <div className="text-center max-w-3xl mx-auto mb-16">
                   <h2 className="text-4xl font-display font-extrabold mb-6 text-theme-text-primary">
@@ -322,11 +355,14 @@ export const Docs: React.FC = () => {
                       </code>{' '}
                       to authenticate the client browser and register the device with the platform.
                     </p>
-                    <div className="bg-[#1e1e1e] border border-[#2d2d2d] rounded-xl p-5 mt-auto shadow-inner relative overflow-hidden group-hover:border-theme-primary-500/50 transition-colors">
+                    <div
+                      className="bg-[#1e1e1e] border border-[#2d2d2d] rounded-xl p-5 mt-auto shadow-inner relative overflow-hidden group-hover:border-theme-primary-500/50 transition-colors"
+                      style={{ colorScheme: 'dark' }}
+                    >
                       <div className="absolute top-0 right-0 p-2 opacity-20 group-hover:opacity-40 transition-opacity">
                         <RiCodeLine size={32} className="text-white" />
                       </div>
-                      <pre className="text-sm font-mono text-gray-300 overflow-x-auto relative z-10">
+                      <pre className="text-sm font-mono text-gray-300 whitespace-pre-wrap break-words [overflow-wrap:anywhere] overflow-x-hidden relative z-10 m-0">
                         <span className="text-theme-accent-400">await</span> vibe.registerDevice(
                         {'{'}
                         <br />
@@ -353,8 +389,11 @@ export const Docs: React.FC = () => {
                       Use <code className="text-sm font-mono text-red-500">secretKey</code> securely
                       on your server to push messages instantly to the registered devices.
                     </p>
-                    <div className="bg-[#1e1e1e] border border-[#2d2d2d] rounded-xl p-5 mt-auto shadow-inner relative overflow-hidden group-hover:border-red-500/30 transition-colors">
-                      <pre className="text-sm font-mono text-gray-300 overflow-x-auto relative z-10">
+                    <div
+                      className="bg-[#1e1e1e] border border-[#2d2d2d] rounded-xl p-5 mt-auto shadow-inner relative overflow-hidden group-hover:border-red-500/30 transition-colors"
+                      style={{ colorScheme: 'dark' }}
+                    >
+                      <pre className="text-sm font-mono text-gray-300 whitespace-pre-wrap break-words [overflow-wrap:anywhere] overflow-x-hidden relative z-10 m-0">
                         <span className="text-theme-primary-400">await</span> vibe.notification(
                         {'{'}
                         <br />
@@ -373,10 +412,10 @@ export const Docs: React.FC = () => {
             {activeTab === 'sdk' && (
               <motion.div
                 key="sdk"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4 }}
+                exit={{ opacity: 0, y: shouldReduceMotion ? 0 : -12 }}
+                transition={{ duration: 0.22, ease: easeOut }}
                 className="max-w-5xl mx-auto space-y-12"
               >
                 <div className="text-center max-w-3xl mx-auto mb-12">
@@ -684,10 +723,10 @@ await server.notification({
             {activeTab === 'backend' && (
               <motion.div
                 key="backend"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4 }}
+                exit={{ opacity: 0, y: shouldReduceMotion ? 0 : -12 }}
+                transition={{ duration: 0.22, ease: easeOut }}
                 className="max-w-4xl mx-auto"
               >
                 <div className="mb-10 text-center sm:text-left">
@@ -768,10 +807,10 @@ await vibe.silentNotification({
             {activeTab === 'react' && (
               <motion.div
                 key="react"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4 }}
+                exit={{ opacity: 0, y: shouldReduceMotion ? 0 : -12 }}
+                transition={{ duration: 0.22, ease: easeOut }}
                 className="max-w-4xl mx-auto"
               >
                 <div className="mb-10 text-center sm:text-left">
@@ -899,10 +938,10 @@ function AuthButtons() {
             {activeTab === 'nextjs' && (
               <motion.div
                 key="nextjs"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.4 }}
+                exit={{ opacity: 0, y: shouldReduceMotion ? 0 : -12 }}
+                transition={{ duration: 0.22, ease: easeOut }}
                 className="max-w-4xl mx-auto"
               >
                 <div className="mb-10 text-center sm:text-left">
@@ -1003,7 +1042,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     code={`"use client";
 import { useContext } from 'react';
 import { NotificationContext } from './NotificationProvider';
-import { RiMagicLine, RiKeyLine, RiSettings3Line, RiReactjsLine, RiArrowUpLine, RiFlashlightLine, RiShieldKeyholeLine, RiRefreshLine, RiTeamLine, RiPaletteLine, RiBarChartBoxLine, RiInformationLine, RiCheckLine, RiErrorWarningLine, RiArchiveLine, RiServerLine, RiSmartphoneLine, RiCodeLine, RiFlaskLine } from "@remixicon/react";
 
 
 export default function AuthForms() {
@@ -1037,6 +1075,126 @@ export default function AuthForms() {
                 </div>
               </motion.div>
             )}
+
+            {activeTab === 'selfhost' && (
+              <motion.div
+                key="selfhost"
+                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: shouldReduceMotion ? 0 : -12 }}
+                transition={{ duration: 0.22, ease: easeOut }}
+                className="max-w-4xl mx-auto space-y-10"
+              >
+                <div className="mb-10 text-center sm:text-left">
+                  <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-theme-bg-primary border border-theme-border text-xs font-mono font-semibold text-theme-text-muted mb-4 shadow-2xs">
+                    <span>UNMETERED PRODUCTION INFRASTRUCTURE</span>
+                  </div>
+                  <h2 className="text-3xl sm:text-4xl font-display font-extrabold mb-4 text-theme-text-primary">
+                    Self-Hosting Guide (Docker)
+                  </h2>
+                  <p className="text-lg text-theme-text-secondary leading-relaxed">
+                    Deploy Vibe Message on infrastructure you control. Self-hosting removes all public rate
+                    limits, provides unmetered throughput, and keeps your subscriber database 100% private.
+                  </p>
+                </div>
+
+                {/* Prerequisites Callout */}
+                <div className="p-6 rounded-2xl bg-theme-bg-primary border border-theme-border shadow-xs">
+                  <h3 className="text-base font-display font-bold text-theme-text-primary mb-3 flex items-center gap-2">
+                    <RiShieldCheckLine size={20} className="text-theme-primary-500" />
+                    <span>Prerequisites</span>
+                  </h3>
+                  <ul className="space-y-2 text-sm text-theme-text-secondary">
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-theme-primary-500" />
+                      <span><strong>Docker &amp; Docker Compose</strong> installed on your server (Linux, macOS, or Windows).</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-theme-primary-500" />
+                      <span><strong>Enterprise License Key</strong> (e.g. <code className="font-mono text-xs bg-theme-bg-secondary px-1 py-0.5 rounded">vibe_ent_...</code>) requested from your profile settings on the cloud platform.</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-theme-primary-500" />
+                      <span><strong>VAPID Keys</strong> (generate via dashboard or <code className="font-mono text-xs bg-theme-bg-secondary px-1 py-0.5 rounded">npx web-push generate-vapid-keys</code>).</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="space-y-12">
+                  <StepBlock
+                    step="1"
+                    title="Configure Environment (.env)"
+                    description="Create a .env file in the same directory as docker-compose.yml and set your server credentials and license key."
+                    code={`# Vibe Message Server Port
+PORT=5000
+
+# Enterprise Verification (Required)
+ENTERPRISE_KEY=your_vibe_ent_license_key_here
+VIBE_MAIN_SERVER_URL=https://vibe-message.sailorlabs.in/api
+
+# Security
+JWT_SECRET=use-a-strong-random-jwt-secret-string
+
+# VAPID Configuration
+VAPID_PUBLIC_KEY=your_vapid_public_key
+VAPID_PRIVATE_KEY=your_vapid_private_key
+VAPID_SUBJECT=mailto:admin@yourdomain.com
+
+# Initial Super Admin (Created on first boot)
+SUPER_ADMIN_EMAIL=admin@yourdomain.com
+SUPER_ADMIN_PASSWORD=SelectAStrongAdminPassword123!
+SUPER_ADMIN_NAME=Super Admin`}
+                    language="bash"
+                  />
+
+                  <StepBlock
+                    step="2"
+                    title="Launch the Stack"
+                    description="Run Docker Compose to download, build, and start the Vibe Message container alongside Postgres and Redis."
+                    code={`docker compose up -d`}
+                    language="bash"
+                  />
+
+                  <StepBlock
+                    step="3"
+                    title="Using External Postgres & Redis (Optional)"
+                    description="If you already have managed Postgres and Redis instances on your cloud provider (e.g. AWS RDS, DigitalOcean, Supabase), set the external connection strings in .env and start only the backend service:"
+                    code={`# In .env:
+DATABASE_URL=postgresql://user:pass@host:5432/dbname
+REDIS_HOST=your_redis_host
+REDIS_PORT=6379
+
+# Launch only the server container:
+docker compose up -d vibe-message-server`}
+                    language="bash"
+                  />
+
+                  <StepBlock
+                    step="4"
+                    title="Connect SDK to Your Self-Hosted Server"
+                    description="In your frontend and backend code, simply set baseUrl to your self-hosted server URL instead of the default community cloud:"
+                    code={`// 1. Frontend Client SDK
+import { initNotificationClient } from 'vibe-message';
+
+const client = initNotificationClient({
+  appId: 'your-app-id',
+  publicKey: 'your-public-key',
+  baseUrl: 'https://push.yourdomain.com/api' // Point to your self-hosted server
+});
+
+// 2. Node.js Backend Server SDK
+import { initServerClient } from 'vibe-message';
+
+const server = initServerClient({
+  appId: 'your-app-id',
+  secretKey: 'your-secret-key',
+  baseUrl: 'https://push.yourdomain.com/api' // Point to your self-hosted server
+});`}
+                    language="typescript"
+                  />
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </div>
@@ -1055,19 +1213,15 @@ const FeatureCard = ({
   title: string;
   description: string;
 }) => (
-  <motion.div
-    className="p-8 rounded-3xl border border-theme-border bg-theme-bg-secondary hover:border-theme-primary-500 transition-colors duration-300 group cursor-default shadow-sm hover:shadow-md"
-    initial={{ opacity: 0, scale: 0.95 }}
-    whileInView={{ opacity: 1, scale: 1 }}
-    viewport={{ once: true }}
-    transition={{ duration: 0.4 }}
+  <div
+    className="p-7 rounded-2xl border border-theme-border bg-theme-bg-secondary hover:border-theme-primary-500/40 transition-all duration-300 group cursor-default shadow-xs hover:shadow-sm"
   >
-    <div className="w-14 h-14 rounded-2xl bg-theme-primary-500/10 text-3xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform text-theme-primary-600 dark:text-theme-primary-400">
+    <div className="w-12 h-12 rounded-xl bg-theme-primary-500/10 border border-theme-primary-500/20 text-2xl flex items-center justify-center mb-5 group-hover:scale-105 transition-transform text-theme-primary-600 dark:text-theme-primary-400">
       {icon}
     </div>
-    <h3 className="text-xl font-display font-bold text-theme-text-primary mb-3">{title}</h3>
+    <h3 className="text-lg font-display font-bold text-theme-text-primary mb-2.5 tracking-tight">{title}</h3>
     <p className="text-theme-text-secondary leading-relaxed text-sm">{description}</p>
-  </motion.div>
+  </div>
 );
 
 const highlightCode = (code: string): string => {
@@ -1098,7 +1252,7 @@ const highlightCode = (code: string): string => {
       '<span class="text-[#c678dd]">$1</span>'
     )
     .replace(
-      /\b(npm|npx|install|init|React|useEffect|useContext|useRef|createContext|console|NotificationContext|NotificationProvider|vibe|Notification|initServerClient|initNotificationClient)\b/g,
+      /\b(npm|npx|install|init|React|useEffect|useContext|useRef|createContext|console|NotificationContext|NotificationProvider|vibe|Notification|initServerClient|initNotificationClient|docker|compose|up)\b/g,
       '<span class="text-[#e5c07b]">$1</span>'
     )
     .replace(/([a-zA-Z0-9_]+)(?=\()/g, (match, p1) => {
@@ -1113,31 +1267,65 @@ const highlightCode = (code: string): string => {
   return result;
 };
 
-const CodeBlock = ({ code, language }: { code: string; language: string }) => (
-  <motion.div
-    className="rounded-2xl overflow-hidden border border-theme-border bg-[#0F172A] shadow-xl mt-6"
-    initial={{ opacity: 0, scale: 0.98 }}
-    whileInView={{ opacity: 1, scale: 1 }}
-    viewport={{ once: true, margin: '-50px' }}
-    transition={{ duration: 0.4 }}
-  >
-    <div className="flex items-center justify-between px-4 py-3 border-b border-black/20 bg-[#1E293B]">
-      <div className="flex space-x-2">
-        <div className="w-3 h-3 rounded-full bg-[#ff5f56]"></div>
-        <div className="w-3 h-3 rounded-full bg-[#ffbd2e]"></div>
-        <div className="w-3 h-3 rounded-full bg-[#27c93f]"></div>
+const CodeBlock = ({ code, language }: { code: string; language: string }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore
+    }
+  };
+
+  return (
+    <div
+      className="rounded-2xl overflow-hidden border border-white/10 bg-[#0B0D13] shadow-lg mt-5"
+      style={{ colorScheme: 'dark' }}
+    >
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/5 bg-[#111420]">
+        <div className="flex space-x-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F56]/80" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#FFBD2E]/80" />
+          <div className="w-2.5 h-2.5 rounded-full bg-[#27C93F]/80" />
+        </div>
+        <div className="flex items-center gap-2.5">
+          <div className="text-[11px] font-mono text-slate-400 uppercase tracking-widest bg-white/[0.04] border border-white/[0.06] rounded px-2.5 py-0.5">
+            {language}
+          </div>
+          <button
+            onClick={handleCopy}
+            type="button"
+            className="flex items-center gap-1.5 text-[11px] font-mono text-slate-300 hover:text-white bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.08] rounded px-2.5 py-0.5 transition-colors"
+            title="Copy snippet"
+          >
+            {copied ? (
+              <>
+                <RiCheckLine size={13} className="text-emerald-400" />
+                <span className="text-emerald-400">Copied</span>
+              </>
+            ) : (
+              <>
+                <RiFileCopyLine size={13} />
+                <span>Copy</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
-      <div className="text-xs font-mono text-slate-400 uppercase tracking-widest bg-black/20 rounded px-3 py-1">
-        {language}
+      <div className="p-5 overflow-x-hidden custom-scrollbar" style={{ colorScheme: 'dark' }}>
+        <pre className="text-slate-300 text-xs sm:text-sm leading-relaxed font-mono whitespace-pre-wrap break-words [overflow-wrap:anywhere] [word-break:break-word] m-0 p-0 w-full min-w-0">
+          <code
+            dangerouslySetInnerHTML={{ __html: highlightCode(code) }}
+            className="whitespace-pre-wrap break-words [overflow-wrap:anywhere] block w-full"
+          />
+        </pre>
       </div>
     </div>
-    <div className="p-6 overflow-x-auto custom-scrollbar">
-      <pre className="text-slate-300 text-sm leading-relaxed font-mono whitespace-pre-wrap break-normal">
-        <code dangerouslySetInnerHTML={{ __html: highlightCode(code) }} />
-      </pre>
-    </div>
-  </motion.div>
-);
+  );
+};
 
 const StepBlock = ({
   step,
@@ -1152,20 +1340,20 @@ const StepBlock = ({
   code: string;
   language: string;
 }) => (
-  <div className="relative pl-0 md:pl-16 p-8 border border-theme-border rounded-3xl bg-black/5 dark:bg-white/5 mb-8">
-    <div className="hidden md:flex absolute top-8 left-0 -translate-x-1/2 w-12 h-12 rounded-full bg-theme-bg-primary border border-theme-border text-theme-primary-500 items-center justify-center font-display font-bold text-xl shadow-sm">
+  <div className="relative pl-0 md:pl-16 p-7 sm:p-8 border border-theme-border rounded-2xl sm:rounded-3xl bg-theme-bg-primary mb-8 shadow-xs">
+    <div className="hidden md:flex absolute top-8 left-0 -translate-x-1/2 w-10 h-10 rounded-xl bg-theme-bg-secondary border border-theme-border text-theme-primary-500 items-center justify-center font-display font-bold text-sm shadow-xs">
       {step}
     </div>
-    <div className="md:hidden flex items-center gap-4 mb-5">
-      <div className="w-12 h-12 shrink-0 rounded-full bg-theme-bg-primary border border-theme-border text-theme-primary-500 flex items-center justify-center font-display font-bold text-xl shadow-sm">
+    <div className="md:hidden flex items-center gap-3 mb-4">
+      <div className="w-9 h-9 shrink-0 rounded-xl bg-theme-bg-secondary border border-theme-border text-theme-primary-500 flex items-center justify-center font-display font-bold text-sm shadow-xs">
         {step}
       </div>
-      <h3 className="text-2xl font-display font-bold text-theme-text-primary m-0">{title}</h3>
+      <h3 className="text-xl font-display font-bold text-theme-text-primary m-0 tracking-tight">{title}</h3>
     </div>
     <div className="hidden md:block">
-      <h3 className="text-2xl font-display font-bold text-theme-text-primary mb-3">{title}</h3>
+      <h3 className="text-xl sm:text-2xl font-display font-bold text-theme-text-primary mb-2.5 tracking-tight">{title}</h3>
     </div>
-    <p className="text-theme-text-secondary leading-relaxed">{description}</p>
+    <p className="text-theme-text-secondary leading-relaxed text-sm sm:text-base">{description}</p>
     <CodeBlock code={code} language={language} />
   </div>
 );

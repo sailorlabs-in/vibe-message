@@ -6,6 +6,7 @@ import { User } from '../user/user.entity';
 import { Notification } from '../push/notification.entity';
 import { initServerClient } from 'vibe-message';
 import { getVapidPublicKey } from '../../utils/webPush';
+import { decryptNotificationPayload } from '../../utils/crypto';
 
 const INTERNAL_APP_NAME = 'Admin Panel Notifications';
 
@@ -173,10 +174,7 @@ export class InternalNotificationService {
     });
 
     return notifications.map((notif) => {
-      const payload =
-        typeof notif.payload_json === 'string'
-          ? JSON.parse(notif.payload_json)
-          : notif.payload_json;
+      const payload = decryptNotificationPayload(notif.payload_json);
       return {
         id: notif.id,
         ...payload,

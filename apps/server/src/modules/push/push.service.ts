@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { InjectQueue } from '@nestjs/bullmq';
@@ -10,6 +10,11 @@ import { NotificationPayload, PushSubscription } from '../../types';
 import { webpush } from '../../utils/webPush';
 import { RedisService } from '../redis/redis.service';
 import { PUSH_QUEUE_NAME, PushJobPayload } from '../queue/queue.constants';
+import {
+  encryptNotificationPayload,
+  decryptNotificationPayload,
+  isPayloadEncrypted,
+} from '../../utils/crypto';
 
 const RETRY_CONFIG = {
   maxRetries: 3,
@@ -88,7 +93,7 @@ export class PushService {
     try {
       const newNotification = this.notificationRepository.create({
         app_id: appId,
-        payload_json: JSON.stringify(notification),
+        payload_json: encryptNotificationPayload(notification),
         is_silent: notification.silent || false,
         scheduled_at: scheduledAt ? new Date(scheduledAt) : null,
         target_user_ids: targetUserIds ? JSON.stringify(targetUserIds) : null,
@@ -178,7 +183,9 @@ export class PushService {
         });
       }
 
-      const notification: NotificationPayload = JSON.parse(savedNotification.payload_json);
+      const notification: NotificationPayload = decryptNotificationPayload(
+        savedNotification.payload_json
+      );
 
       const queryBuilder = queryRunner.manager
         .createQueryBuilder(DeviceTokenEntity, 'dt')
@@ -324,9 +331,69 @@ export class PushService {
     status: 'DELIVERED' | 'FAILED',
     errorMessage?: string
   ): Promise<void> {
-    await this.notificationLogRepository.update(logId, {
+    const updateData: Partial<NotificationLogEntity> = {
       status,
       error_message: errorMessage || null,
+    };
+
+    if (status === 'DELIVERED') {
+      updateData.delivered_at = new Date();
+    }
+
+    await this.notificationLogRepository.update(logId, updateData);
+  }
+
+  async getNotificationPayloadPreview(
+    appId: number,
+    notificationId: number
+  ): Promise<{
+    id: number;
+    encrypted_payload: string;
+    payload: NotificationPayload;
+    is_encrypted: boolean;
+  }> {
+    const notification = await this.notificationRepository.findOne({
+      where: { id: notificationId, app_id: appId },
     });
+
+    if (!notification) {
+      throw new NotFoundException('Notification not found');
+    }
+
+    const rawPayload = notification.payload_json;
+    const isEncrypted = isPayloadEncrypted(rawPayload);
+    const decrypted = decryptNotificationPayload(rawPayload);
+
+    return {
+      id: notification.id,
+      encrypted_payload: rawPayload,
+      payload: decrypted,
+      is_encrypted: isEncrypted,
+    };
+  }
+
+  async ensureNotificationsEncrypted(): Promise<number> {
+    try {
+      const notifications = await this.notificationRepository.find();
+      let updatedCount = 0;
+      for (const notif of notifications) {
+        if (!isPayloadEncrypted(notif.payload_json)) {
+          const encrypted = encryptNotificationPayload(notif.payload_json);
+          await this.notificationRepository.update(notif.id, {
+            payload_json: encrypted,
+          });
+          updatedCount++;
+        }
+      }
+      if (updatedCount > 0) {
+        console.log(
+          `🔐 Confidentiality Migration: Encrypted ${updatedCount} existing plaintext notification(s) in database.`
+        );
+      }
+      return updatedCount;
+    } catch (error: any) {
+      console.error('⚠️ Failed to migrate notifications to encrypted format:', error.message);
+      return 0;
+    }
   }
 }

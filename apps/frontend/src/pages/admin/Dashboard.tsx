@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { motion } from 'motion/react';
+import { motion, useReducedMotion } from 'motion/react';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import { fetchApps } from '../../store/slices/appsSlice';
 import { DashboardSkeleton } from '../../components/common/SkeletonLoader';
@@ -19,6 +19,8 @@ export const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
   const { apps, loading } = useAppSelector((state) => state.apps);
   const { user } = useAppSelector((state) => state.auth);
+  const shouldReduceMotion = useReducedMotion();
+  const easeOut = [0.23, 1, 0.32, 1] as const;
 
   useEffect(() => {
     dispatch(fetchApps());
@@ -29,16 +31,19 @@ export const Dashboard: React.FC = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.1 },
+      transition: {
+        staggerChildren: shouldReduceMotion ? 0 : 0.08,
+        delayChildren: 0.1,
+      },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 14 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { type: 'spring' as const, stiffness: 300, damping: 24 },
+      transition: { duration: 0.35, ease: easeOut },
     },
   };
 
@@ -55,36 +60,35 @@ export const Dashboard: React.FC = () => {
   const ownedAppsCount = safeApps.filter((app) => app.user_id === user?.id).length;
 
   return (
-    <div className="min-h-[calc(100vh-120px)] relative overflow-hidden transition-colors duration-300 px-4 py-8">
+    <div className="min-h-[calc(100vh-120px)] relative overflow-hidden transition-colors duration-300 px-4 sm:px-6 lg:px-8 py-8 font-sans">
       <div className="max-w-6xl mx-auto relative z-10">
         {/* Header Section */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : -12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="mb-12 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6"
+          transition={{ duration: 0.4, ease: easeOut }}
+          className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6"
         >
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-theme-primary-500/10 text-theme-primary-500 flex items-center justify-center shadow-inner">
-                <RiDashboardLine size={24} />
+              <div className="w-10 h-10 rounded-xl bg-theme-primary-500/10 text-theme-primary-600 dark:text-theme-primary-400 border border-theme-primary-500/20 flex items-center justify-center shadow-xs">
+                <RiDashboardLine size={22} />
               </div>
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight drop-shadow-sm text-transparent bg-clip-text bg-gradient-to-r from-theme-text-primary to-theme-primary-500">
+              <h1 className="text-2xl sm:text-3xl font-display font-extrabold tracking-tight text-theme-text-primary">
                 Dashboard
               </h1>
             </div>
-            <p className="text-theme-text-secondary mt-2 text-lg font-medium">
+            <p className="text-theme-text-secondary mt-1 text-base sm:text-lg font-normal">
               Welcome back, {user?.name?.split(' ')[0] || 'there'}. Here's an overview of your
               projects.
             </p>
           </div>
           <Link
             to="/apps?create=true"
-            className="group shrink-0 px-8 py-3.5 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-2xl font-bold shadow-lg shadow-theme-primary-500/30 hover:shadow-theme-primary-500/50 transform hover:-translate-y-1 transition-all active:translate-y-0 active:shadow-md flex items-center gap-2 overflow-hidden relative"
+            className="group shrink-0 inline-flex items-center gap-2 px-6 py-3 bg-theme-primary-600 hover:bg-theme-primary-700 text-white rounded-xl font-semibold text-sm shadow-sm transition-all duration-200 active:scale-[0.98]"
           >
-            <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
-            <RiAddLine size={22} className="relative z-10" />
-            <span className="relative z-10">New App</span>
+            <RiAddLine size={18} className="transition-transform group-hover:rotate-90 duration-200" />
+            <span>New App</span>
           </Link>
         </motion.div>
 
@@ -93,78 +97,70 @@ export const Dashboard: React.FC = () => {
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="grid md:grid-cols-3 gap-6 mb-12"
+          className="grid md:grid-cols-3 gap-6 mb-10"
         >
           {/* Card 1: App Limit */}
           <motion.div
             variants={itemVariants}
-            className="backdrop-blur-3xl bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-6 transform hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group cursor-pointer"
+            className="bg-theme-bg-secondary border border-theme-border rounded-2xl shadow-xs hover:border-theme-border-strong hover:shadow-sm p-6 transition-all duration-200 flex flex-col justify-between"
           >
-            <div className="absolute -inset-1 bg-gradient-to-r from-theme-primary-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl rounded-2xl" />
-            <div className="absolute -right-10 -top-10 w-40 h-40 bg-theme-primary-500/10 rounded-full blur-3xl group-hover:scale-150 group-hover:bg-theme-primary-500/20 transition-all duration-500"></div>
-
-            <div className="relative z-10">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-theme-primary-500/10 to-transparent border border-theme-primary-500/20 text-theme-primary-500 flex items-center justify-center mb-6 shadow-sm">
-                <RiGridLine size={26} />
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-theme-primary-500/10 border border-theme-primary-500/20 text-theme-primary-600 dark:text-theme-primary-400 flex items-center justify-center mb-5 shadow-2xs">
+                <RiGridLine size={22} />
               </div>
-              <h3 className="text-theme-text-secondary font-semibold mb-2">
+              <h3 className="text-theme-text-secondary text-sm font-semibold mb-2">
                 {user?.app_limit ? 'App Limit Progress' : 'Total Built Apps'}
               </h3>
               <div className="flex flex-col">
-                <p className="text-5xl font-black text-theme-text-primary flex items-baseline gap-2 tabular-nums tracking-tighter">
+                <p className="text-4xl sm:text-5xl font-display font-extrabold text-theme-text-primary flex items-baseline gap-2 tabular-nums tracking-tight">
                   {ownedAppsCount}
                   {user?.app_limit && (
-                    <span className="text-xl font-medium text-theme-text-secondary">
+                    <span className="text-lg font-medium text-theme-text-muted">
                       / {user.app_limit}
                     </span>
                   )}
                 </p>
-                {user?.app_limit && (
-                  <div className="mt-5">
-                    <div className="h-2.5 w-full bg-theme-bg-muted rounded-full overflow-hidden shadow-inner">
-                      <div
-                        className="h-full bg-gradient-to-r from-theme-primary-400 to-theme-primary-600 rounded-full transition-all duration-1000 ease-out relative"
-                        style={{
-                          width: `${Math.min(100, (ownedAppsCount / user.app_limit) * 100)}%`,
-                        }}
-                      >
-                        <div className="absolute top-0 right-0 bottom-0 left-0 bg-[linear-gradient(45deg,rgba(255,255,255,.15)25%,transparent_25%,transparent_50%,rgba(255,255,255,.15)_50%,rgba(255,255,255,.15)_75%,transparent_75%,transparent)] bg-[length:1rem_1rem] animate-[progress_1s_linear_infinite]" />
-                      </div>
-                    </div>
-                    <p className="text-sm text-theme-text-muted mt-3 font-medium">
-                      {user.app_limit - ownedAppsCount > 0
-                        ? `${user.app_limit - ownedAppsCount} app(s) remaining for deployment`
-                        : 'App limit reached'}
-                    </p>
-                  </div>
-                )}
               </div>
             </div>
+
+            {user?.app_limit && (
+              <div className="mt-6 pt-4 border-t border-theme-border/60">
+                <div className="h-2 w-full bg-theme-bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-theme-primary-500 rounded-full transition-all duration-700 ease-out"
+                    style={{
+                      width: `${Math.min(100, (ownedAppsCount / user.app_limit) * 100)}%`,
+                    }}
+                  />
+                </div>
+                <p className="text-xs text-theme-text-muted mt-2.5 font-medium">
+                  {user.app_limit - ownedAppsCount > 0
+                    ? `${user.app_limit - ownedAppsCount} app(s) remaining for deployment`
+                    : 'App limit reached'}
+                </p>
+              </div>
+            )}
           </motion.div>
 
           {/* Card 2: Active Apps */}
           <motion.div
             variants={itemVariants}
-            className="backdrop-blur-3xl bg-white/80 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-6 transform hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group cursor-pointer"
+            className="bg-theme-bg-secondary border border-theme-border rounded-2xl shadow-xs hover:border-theme-border-strong hover:shadow-sm p-6 transition-all duration-200 flex flex-col justify-between"
           >
-            <div className="absolute -inset-1 bg-gradient-to-r from-green-300/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl rounded-2xl" />
-            <div className="absolute -right-6 -bottom-6 w-40 h-40 bg-green-300/10 rounded-full blur-3xl group-hover:scale-150 group-hover:bg-green-300/20 transition-all duration-500"></div>
-
-            <div className="relative z-10 flex flex-col h-full">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-300/10 to-transparent border border-green-300/20 text-theme-success flex items-center justify-center mb-6 shadow-sm">
-                <RiCheckboxCircleLine size={26} />
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-5 shadow-2xs">
+                <RiCheckboxCircleLine size={22} />
               </div>
-              <h3 className="text-theme-text-secondary font-semibold mb-2">Currently Active</h3>
-              <p className="text-5xl font-black text-theme-text-primary tabular-nums tracking-tighter">
+              <h3 className="text-theme-text-secondary text-sm font-semibold mb-2">Currently Active</h3>
+              <p className="text-4xl sm:text-5xl font-display font-extrabold text-theme-text-primary tabular-nums tracking-tight">
                 {activeAppsCount}
               </p>
+            </div>
 
-              <div className="mt-auto pt-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-300/10 border border-theme-success/20 rounded-full text-sm font-bold text-theme-success">
-                  <span className="w-2 h-2 rounded-full bg-theme-success animate-ping absolute opacity-75"></span>
-                  <span className="w-2 h-2 rounded-full bg-theme-success relative"></span>
-                  Running Smoothly
-                </div>
+            <div className="mt-6 pt-4 border-t border-theme-border/60">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Running Smoothly
               </div>
             </div>
           </motion.div>
@@ -172,25 +168,28 @@ export const Dashboard: React.FC = () => {
           {/* Card 3: Quick Actions Dashboard */}
           <motion.div
             variants={itemVariants}
-            className="backdrop-blur-3xl bg-theme-primary-500/5 dark:bg-theme-primary-500/10 border border-theme-primary-500/30 rounded-2xl shadow-xl dark:shadow-[0_8px_40px_rgba(0,0,0,0.4)] p-6 transform hover:-translate-y-1 transition-all duration-300 flex flex-col justify-center relative overflow-hidden group"
+            className="bg-theme-bg-secondary border border-theme-border rounded-2xl shadow-xs hover:border-theme-border-strong hover:shadow-sm p-6 transition-all duration-200 flex flex-col justify-between"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-theme-primary-500/10 via-theme-primary-500/5 to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="absolute -top-24 -left-24 w-64 h-64 bg-theme-primary-500/20 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-700"></div>
-
-            <div className="relative z-10">
-              <h3 className="text-theme-text-primary font-black text-2xl mb-3">Quick Pipeline</h3>
-              <p className="text-theme-text-secondary text-sm md:text-base mb-8 leading-relaxed">
+            <div>
+              <div className="w-12 h-12 rounded-xl bg-theme-bg-primary border border-theme-border text-theme-primary-600 dark:text-theme-primary-400 flex items-center justify-center mb-5 shadow-2xs">
+                <RiSmartphoneLine size={22} />
+              </div>
+              <h3 className="text-theme-text-primary font-display font-bold text-xl mb-2">Quick Pipeline</h3>
+              <p className="text-theme-text-secondary text-sm leading-relaxed mb-6">
                 Check metrics, edit app settings, or configure push notification workflows quickly.
               </p>
+            </div>
+
+            <div>
               <Link
                 to="/apps"
-                className="w-full px-6 py-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700/50 rounded-2xl font-bold text-theme-text-primary transition-all duration-300 shadow-md hover:shadow-xl flex items-center justify-between group/btn relative overflow-hidden"
+                className="w-full px-5 py-3 bg-theme-bg-primary hover:bg-theme-bg-muted border border-theme-border rounded-xl font-semibold text-sm text-theme-text-primary transition-all duration-200 shadow-2xs flex items-center justify-between group/btn"
               >
-                <span className="relative z-10 text-base">Manage Portfolio</span>
-                <span className="relative z-10 w-10 h-10 rounded-xl bg-theme-primary-500/10 flex items-center justify-center text-theme-primary-500 group-hover/btn:bg-theme-primary-500 group-hover/btn:text-white transition-colors duration-300">
+                <span>Manage Portfolio</span>
+                <span className="w-8 h-8 rounded-lg bg-theme-primary-500/10 text-theme-primary-600 dark:text-theme-primary-400 flex items-center justify-center group-hover/btn:bg-theme-primary-500 group-hover/btn:text-white transition-colors duration-200">
                   <RiArrowRightLine
-                    size={20}
-                    className="transform group-hover/btn:translate-x-1 transition-transform"
+                    size={16}
+                    className="transform group-hover/btn:translate-x-0.5 transition-transform"
                   />
                 </span>
               </Link>
@@ -200,112 +199,108 @@ export const Dashboard: React.FC = () => {
 
         {/* Recent Apps List */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.98, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
-          className="backdrop-blur-3xl bg-white/70 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-700/50 rounded-2xl shadow-2xl dark:shadow-[0_10px_50px_rgba(0,0,0,0.5)] overflow-hidden"
+          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.15, ease: easeOut }}
+          className="bg-theme-bg-secondary border border-theme-border rounded-2xl shadow-xs overflow-hidden"
         >
-          <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700/50 flex justify-between items-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md">
+          <div className="px-6 py-4 border-b border-theme-border flex justify-between items-center bg-theme-bg-secondary">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-theme-primary-500/10 text-theme-primary-500 flex items-center justify-center">
-                <RiSmartphoneLine size={18} />
+              <div className="w-8 h-8 rounded-lg bg-theme-primary-500/10 text-theme-primary-600 dark:text-theme-primary-400 border border-theme-primary-500/20 flex items-center justify-center">
+                <RiSmartphoneLine size={16} />
               </div>
-              <h2 className="text-2xl font-bold text-theme-text-primary">Recent Projects</h2>
+              <h2 className="text-xl font-display font-bold text-theme-text-primary">Recent Projects</h2>
             </div>
             {(apps?.length ?? 0) > 5 && (
               <Link
                 to="/apps"
-                className="hidden sm:flex text-theme-primary-500 hover:text-theme-primary-600 font-bold text-sm transition-colors items-center gap-1.5 px-4 py-2 rounded-xl hover:bg-theme-primary-500/10"
+                className="hidden sm:flex text-theme-primary-600 dark:text-theme-primary-400 hover:text-theme-primary-700 font-semibold text-xs tracking-wide transition-colors items-center gap-1 px-3 py-1.5 rounded-lg hover:bg-theme-primary-500/10"
               >
                 View All Directory
-                <RiArrowRightSLine size={18} />
+                <RiArrowRightSLine size={16} />
               </Link>
             )}
           </div>
 
           <div className="p-4 sm:p-6">
             {(apps?.length ?? 0) === 0 ? (
-              <div className="text-center py-20 px-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-theme-primary-500/5 pointer-events-none"></div>
-                <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.4, type: 'spring' }}
-                  className="w-32 h-32 mx-auto mb-8 rounded-full bg-gradient-to-br from-theme-bg-muted to-theme-primary-500/10 flex items-center justify-center p-1 shadow-inner relative"
-                >
-                  <div className="absolute inset-0 rounded-full border-2 border-theme-primary-500/20 border-dashed animate-[spin_10s_linear_infinite]"></div>
-                  <div className="w-full h-full rounded-full bg-theme-bg-primary flex items-center justify-center shadow-lg relative z-10">
-                    <RiBriefcase4Line size={48} className="text-theme-primary-500" />
-                  </div>
-                </motion.div>
-                <h3 className="text-2xl font-bold text-theme-text-primary mb-3">
+              <div className="text-center py-16 px-4">
+                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-theme-bg-primary border border-theme-border flex items-center justify-center shadow-xs">
+                  <RiBriefcase4Line size={32} className="text-theme-primary-500" />
+                </div>
+                <h3 className="text-xl font-display font-bold text-theme-text-primary mb-2">
                   No Notification Hubs Found
                 </h3>
-                <p className="text-theme-text-secondary max-w-sm mx-auto mb-8 leading-relaxed">
+                <p className="text-theme-text-secondary max-w-sm mx-auto mb-6 text-sm leading-relaxed">
                   Start your realtime notification journey by initializing your first app integration.
                 </p>
                 <Link
                   to="/apps?create=true"
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-theme-primary-500 hover:bg-theme-primary-600 text-white rounded-2xl font-bold shadow-lg shadow-theme-primary-500/30 hover:shadow-theme-primary-500/50 transform hover:-translate-y-1 transition-all active:translate-y-0"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-theme-primary-600 hover:bg-theme-primary-700 text-white rounded-xl font-semibold text-sm shadow-sm transition-all duration-200 active:scale-[0.98]"
                 >
-                  <RiAddLine size={20} />
+                  <RiAddLine size={18} />
                   <span>Create First App</span>
                 </Link>
               </div>
             ) : (
-              <div className="grid gap-3 sm:gap-4">
+              <div className="grid gap-3">
                 {apps.slice(0, 5).map((app, index) => (
                   <motion.div
                     key={app.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 + index * 0.1 }}
+                    initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1 + index * 0.05, ease: easeOut }}
                   >
                     <Link
                       to={`/apps/${app.public_app_id}`}
-                      className="group flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border items-start sm:items-center border-slate-200 dark:border-slate-700/50 rounded-2xl hover:border-theme-primary-500/50 hover:shadow-xl dark:hover:shadow-[0_8px_30px_rgba(0,0,0,0.4)] transition-all cursor-pointer relative overflow-hidden"
+                      className="group flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-theme-bg-primary hover:bg-theme-bg-muted/50 border border-theme-border rounded-xl hover:border-theme-border-strong hover:shadow-xs transition-all duration-200 cursor-pointer"
                     >
-                      {/* Hover Indicator Line */}
-                      <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-theme-primary-400 to-theme-primary-600 opacity-0 group-hover:opacity-100 transition-opacity rounded-l-2xl"></div>
-
-                      <div className="flex items-center gap-5 w-full sm:w-auto relative z-10">
+                      <div className="flex items-center gap-4 w-full sm:w-auto">
                         <div
-                          className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110 ${app.is_active ? 'bg-gradient-to-br from-green-300/20 to-transparent text-theme-success border border-theme-success/20' : 'bg-theme-bg-muted text-theme-text-muted border border-theme-border'}`}
+                          className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-2xs transition-transform group-hover:scale-105 duration-200 ${
+                            app.is_active
+                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                              : 'bg-theme-bg-muted text-theme-text-muted border border-theme-border'
+                          }`}
                         >
-                          <RiSmartphoneLine size={24} />
+                          <RiSmartphoneLine size={20} />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 mb-1.5">
-                            <h3 className="text-lg font-bold text-theme-text-primary group-hover:text-theme-primary-500 transition-colors truncate">
+                          <div className="flex items-center gap-2.5 mb-1">
+                            <h3 className="text-base font-display font-bold text-theme-text-primary group-hover:text-theme-primary-600 dark:group-hover:text-theme-primary-400 transition-colors truncate">
                               {app.name}
                             </h3>
                             <span
-                              className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider ${app.is_active ? 'bg-green-300/15 text-theme-success border border-theme-success/30 shadow-[0_0_10px_rgba(134,239,172,0.2)]' : 'bg-theme-bg-muted text-theme-text-secondary border border-theme-border'}`}
+                              className={`px-2.5 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider ${
+                                app.is_active
+                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                                  : 'bg-theme-bg-muted text-theme-text-muted border border-theme-border'
+                              }`}
                             >
                               {app.is_active ? 'Live' : 'Draft'}
                             </span>
                           </div>
-                          <p className="text-sm text-theme-text-secondary line-clamp-1 font-medium">
+                          <p className="text-xs sm:text-sm text-theme-text-secondary line-clamp-1 font-normal">
                             {app.description || 'No description provided'}
                           </p>
                         </div>
                       </div>
 
-                      <div className="mt-4 sm:mt-0 flex items-center justify-between sm:justify-end w-full sm:w-auto gap-8 shrink-0 relative z-10">
+                      <div className="mt-3 sm:mt-0 flex items-center justify-between sm:justify-end w-full sm:w-auto gap-6 shrink-0">
                         <div className="text-left sm:text-right hidden md:block">
-                          <p className="text-xs font-semibold text-theme-text-muted uppercase tracking-widest mb-1.5">
+                          <p className="text-[11px] font-semibold text-theme-text-muted uppercase tracking-wider mb-1">
                             Created On
                           </p>
-                          <p className="text-sm font-bold text-theme-text-primary glass-text">
+                          <p className="text-xs font-semibold text-theme-text-primary font-mono">
                             {new Date(app.created_at).toLocaleDateString(undefined, {
-                              month: 'long',
+                              month: 'short',
                               day: 'numeric',
                               year: 'numeric',
                             })}
                           </p>
                         </div>
-                        <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 group-hover:bg-theme-primary-500 flex items-center justify-center text-theme-text-secondary group-hover:text-white transition-all duration-300 shadow-sm group-hover:shadow-md group-hover:-translate-x-1">
-                          <RiArrowRightLine size={22} />
+                        <div className="w-10 h-10 rounded-xl bg-theme-bg-secondary border border-theme-border group-hover:border-theme-primary-500/30 group-hover:bg-theme-primary-500 group-hover:text-white flex items-center justify-center text-theme-text-muted transition-all duration-200 shadow-2xs">
+                          <RiArrowRightLine size={18} className="transform group-hover:translate-x-0.5 transition-transform" />
                         </div>
                       </div>
                     </Link>
@@ -315,13 +310,13 @@ export const Dashboard: React.FC = () => {
             )}
 
             {(apps?.length ?? 0) > 5 && (
-              <div className="mt-6 text-center sm:hidden">
+              <div className="mt-4 text-center sm:hidden">
                 <Link
                   to="/apps"
-                  className="inline-flex items-center gap-2 text-theme-primary-500 font-bold px-6 py-3 rounded-xl bg-theme-primary-500/10"
+                  className="inline-flex items-center gap-1.5 text-theme-primary-600 font-semibold text-xs px-4 py-2 rounded-lg bg-theme-primary-500/10"
                 >
                   View All Directory
-                  <RiArrowRightLine size={18} />
+                  <RiArrowRightLine size={16} />
                 </Link>
               </div>
             )}

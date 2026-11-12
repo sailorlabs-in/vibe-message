@@ -138,6 +138,21 @@ export class AppController {
   }
 
   @UseGuards(ApprovedGuard)
+  @Get(':id/notifications/:notificationId/preview-payload')
+  async getNotificationPayloadPreview(
+    @Req() req: any,
+    @Param('id') id: string,
+    @Param('notificationId') notificationId: string
+  ) {
+    const app = await this.appService.getAppById(id, req.user.userId, req.user.role);
+    const preview = await this.pushService.getNotificationPayloadPreview(
+      app.id,
+      parseInt(notificationId, 10)
+    );
+    return { success: true, data: preview };
+  }
+
+  @UseGuards(ApprovedGuard)
   @Get(':id/notifications/:notificationId/logs')
   async getNotificationLogs(
     @Req() req: any,
