@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { systemService } from '../../services/systemService';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { useAppDispatch, useAppSelector } from '../../store/store';
 import {
   fetchAllUsers,
@@ -50,6 +50,7 @@ export const Users: React.FC = () => {
   const [warningMessage, setWarningMessage] = useState('');
   const [openMenu, setOpenMenu] = useState<{ id: number; anchorEl: HTMLElement } | null>(null);
   const [isSelfHosted, setIsSelfHosted] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
     systemService
@@ -205,20 +206,34 @@ export const Users: React.FC = () => {
       </motion.div>
 
       {/* Filter Pills */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        {(['ALL', 'PENDING', 'APPROVED', 'BANNED'] as const).map((status) => (
-          <button
-            key={status}
-            onClick={() => setFilter(status)}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all duration-300 whitespace-nowrap border ${
-              filter === status
-                ? 'bg-theme-primary-500 text-white border-theme-primary-500 shadow-md shadow-theme-primary-500/20 scale-105'
-                : 'bg-theme-bg-primary text-theme-text-secondary border-theme-border hover:border-theme-primary-500/50 hover:text-theme-text-primary'
-            }`}
-          >
-            {status}
-          </button>
-        ))}
+      <div className="mb-6 flex flex-wrap gap-1.5 p-1 rounded-2xl bg-theme-bg-secondary border border-theme-border w-fit shadow-2xs">
+        {(['ALL', 'PENDING', 'APPROVED', 'BANNED'] as const).map((status) => {
+          const isActive = filter === status;
+          return (
+            <button
+              key={status}
+              onClick={() => setFilter(status)}
+              className={`relative px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors duration-150 whitespace-nowrap ${
+                isActive
+                  ? 'text-white'
+                  : 'text-theme-text-secondary hover:text-theme-text-primary'
+              }`}
+            >
+              {isActive && (
+                <motion.div
+                  layoutId="users-status-filter"
+                  className="absolute inset-0 bg-theme-primary-500 rounded-xl shadow-xs"
+                  transition={
+                    shouldReduceMotion
+                      ? { duration: 0 }
+                      : { type: 'spring', stiffness: 500, damping: 35 }
+                  }
+                />
+              )}
+              <span className="relative z-10">{status}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* Table Card */}
@@ -386,167 +401,211 @@ export const Users: React.FC = () => {
       </motion.div>
 
       {/* ── App Limit Modal ── */}
-      {modalMode === 'app-limit' && selectedUser && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-theme-bg-primary border border-theme-border rounded-3xl w-full max-w-md p-8 shadow-2xl"
-          >
-            <h2 className="text-2xl font-display font-extrabold mb-2 text-theme-text-primary">
-              Set App Limit
-            </h2>
-            <p className="text-theme-text-secondary text-sm mb-6">
-              Limiting apps for{' '}
-              <strong className="text-theme-text-primary">{selectedUser.name}</strong>
-            </p>
-            <form onSubmit={handleAppLimitSubmit} className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium mb-2 text-theme-text-primary">
-                  App Limit{' '}
-                  <span className="text-theme-text-muted font-normal">
-                    (leave blank for unlimited)
-                  </span>
-                </label>
-                <input
-                  type="number"
-                  value={appLimit}
-                  onChange={(e) => setAppLimit(e.target.value)}
-                  className="input"
-                  min="0"
-                  placeholder="e.g. 5"
-                />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button type="submit" className="btn-primary flex-1">
-                  Save Limit
-                </button>
-                <button type="button" onClick={closeModal} className="btn-secondary flex-1">
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+      <AnimatePresence>
+        {modalMode === 'app-limit' && selectedUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={closeModal}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 14 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 14 }}
+              transition={{ duration: 0.2 }}
+              className="relative bg-theme-bg-primary border border-theme-border rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl z-10"
+            >
+              <h2 className="text-2xl font-display font-extrabold mb-2 text-theme-text-primary">
+                Set App Limit
+              </h2>
+              <p className="text-theme-text-secondary text-sm mb-6">
+                Limiting apps for{' '}
+                <strong className="text-theme-text-primary">{selectedUser.name}</strong>
+              </p>
+              <form onSubmit={handleAppLimitSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+                    App Limit{' '}
+                    <span className="text-theme-text-muted font-normal">
+                      (leave blank for unlimited)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    value={appLimit}
+                    onChange={(e) => setAppLimit(e.target.value)}
+                    className="input"
+                    min="0"
+                    placeholder="e.g. 5"
+                  />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button type="submit" className="btn-primary flex-1">
+                    Save Limit
+                  </button>
+                  <button type="button" onClick={closeModal} className="btn-secondary flex-1">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ── Cron Job Limit Modal ── */}
-      {modalMode === 'cron-limit' && selectedUser && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-theme-bg-primary border border-theme-border rounded-3xl w-full max-w-md p-8 shadow-2xl"
-          >
-            <h2 className="text-2xl font-display font-extrabold mb-2 text-theme-text-primary">
-              Set Cron Job Limit
-            </h2>
-            <p className="text-theme-text-secondary text-sm mb-6">
-              Limiting maximum cron jobs for{' '}
-              <strong className="text-theme-text-primary">{selectedUser.name}</strong>
-            </p>
-            <form onSubmit={handleCronLimitSubmit} className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium mb-2 text-theme-text-primary">
-                  Cron Job Limit{' '}
-                  <span className="text-theme-text-muted font-normal">
-                    (leave blank for unlimited)
-                  </span>
-                </label>
-                <input
-                  type="number"
-                  value={cronLimit}
-                  onChange={(e) => setCronLimit(e.target.value)}
-                  className="input"
-                  min="0"
-                  placeholder="e.g. 10"
-                />
-              </div>
-              <div className="flex gap-3 pt-2">
-                <button type="submit" className="btn-primary flex-1">
-                  Save Limit
-                </button>
-                <button type="button" onClick={closeModal} className="btn-secondary flex-1">
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
+      <AnimatePresence>
+        {modalMode === 'cron-limit' && selectedUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={closeModal}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 14 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 14 }}
+              transition={{ duration: 0.2 }}
+              className="relative bg-theme-bg-primary border border-theme-border rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl z-10"
+            >
+              <h2 className="text-2xl font-display font-extrabold mb-2 text-theme-text-primary">
+                Set Cron Job Limit
+              </h2>
+              <p className="text-theme-text-secondary text-sm mb-6">
+                Limiting maximum cron jobs for{' '}
+                <strong className="text-theme-text-primary">{selectedUser.name}</strong>
+              </p>
+              <form onSubmit={handleCronLimitSubmit} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-theme-text-primary">
+                    Cron Job Limit{' '}
+                    <span className="text-theme-text-muted font-normal">
+                      (leave blank for unlimited)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    value={cronLimit}
+                    onChange={(e) => setCronLimit(e.target.value)}
+                    className="input"
+                    min="0"
+                    placeholder="e.g. 10"
+                  />
+                </div>
+                <div className="flex gap-3 pt-2">
+                  <button type="submit" className="btn-primary flex-1">
+                    Save Limit
+                  </button>
+                  <button type="button" onClick={closeModal} className="btn-secondary flex-1">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ── Warning Modal ── */}
-      {modalMode === 'warning' && selectedUser && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-theme-bg-primary border border-amber-500/30 rounded-3xl w-full max-w-md p-8 shadow-2xl"
-          >
-            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-4">
-              <RiAlertLine size={24} />
-            </div>
-            <h2 className="text-2xl font-display font-extrabold mb-2 text-theme-text-primary">
-              Send Warning
-            </h2>
-            <p className="text-theme-text-secondary text-sm mb-6">
-              To <strong className="text-theme-text-primary">{selectedUser.name}</strong>
-            </p>
-            <form onSubmit={handleWarningSubmit} className="space-y-5">
-              <textarea
-                value={warningMessage}
-                onChange={(e) => setWarningMessage(e.target.value)}
-                className="input resize-y"
-                rows={4}
-                placeholder="Type your warning message here..."
-                required
-              />
-              <div className="flex gap-3 pt-2">
-                <button type="submit" className="btn-primary flex-1">
-                  Send Warning
+      <AnimatePresence>
+        {modalMode === 'warning' && selectedUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={closeModal}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 14 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 14 }}
+              transition={{ duration: 0.2 }}
+              className="relative bg-theme-bg-primary border border-amber-500/30 rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl z-10"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-4">
+                <RiAlertLine size={24} />
+              </div>
+              <h2 className="text-2xl font-display font-extrabold mb-2 text-theme-text-primary">
+                Send Warning
+              </h2>
+              <p className="text-theme-text-secondary text-sm mb-6">
+                To <strong className="text-theme-text-primary">{selectedUser.name}</strong>
+              </p>
+              <form onSubmit={handleWarningSubmit} className="space-y-5">
+                <textarea
+                  value={warningMessage}
+                  onChange={(e) => setWarningMessage(e.target.value)}
+                  className="input resize-y"
+                  rows={4}
+                  placeholder="Type your warning message here..."
+                  required
+                />
+                <div className="flex gap-3 pt-2">
+                  <button type="submit" className="btn-primary flex-1">
+                    Send Warning
+                  </button>
+                  <button type="button" onClick={closeModal} className="btn-secondary flex-1">
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Delete User Modal ── */}
+      <AnimatePresence>
+        {modalMode === 'delete' && selectedUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={closeModal}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 14 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 14 }}
+              transition={{ duration: 0.2 }}
+              className="relative bg-theme-bg-primary border border-red-500/30 rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl z-10"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center mb-4">
+                <RiAlertLine size={24} />
+              </div>
+              <h2 className="text-2xl font-display font-extrabold mb-2 text-red-600 dark:text-red-400">
+                Delete User?
+              </h2>
+              <p className="text-theme-text-primary mb-2">
+                You are about to delete{' '}
+                <strong className="text-theme-primary-500">{selectedUser.name}</strong>.
+              </p>
+              <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 mb-6 text-sm text-red-600 dark:text-red-400 font-medium">
+                This will permanently delete the user and all their apps. This action cannot be
+                undone.
+              </div>
+              <div className="flex gap-3">
+                <button onClick={handleDeleteUser} disabled={loading} className="btn-danger flex-1">
+                  {loading ? 'Deleting...' : 'Yes, Delete User'}
                 </button>
-                <button type="button" onClick={closeModal} className="btn-secondary flex-1">
+                <button onClick={closeModal} className="btn-secondary flex-1">
                   Cancel
                 </button>
               </div>
-            </form>
-          </motion.div>
-        </div>
-      )}
-
-      {/* ── Delete User Modal ── */}
-      {modalMode === 'delete' && selectedUser && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 16 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            className="bg-theme-bg-primary border border-red-500/30 rounded-3xl w-full max-w-md p-8 shadow-2xl"
-          >
-            <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center mb-4">
-              <RiAlertLine size={24} />
-            </div>
-            <h2 className="text-2xl font-display font-extrabold mb-2 text-red-600 dark:text-red-400">
-              Delete User?
-            </h2>
-            <p className="text-theme-text-primary mb-2">
-              You are about to delete{' '}
-              <strong className="text-theme-primary-500">{selectedUser.name}</strong>.
-            </p>
-            <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4 mb-6 text-sm text-red-600 dark:text-red-400 font-medium">
-              This will permanently delete the user and all their apps. This action cannot be
-              undone.
-            </div>
-            <div className="flex gap-3">
-              <button onClick={handleDeleteUser} disabled={loading} className="btn-danger flex-1">
-                {loading ? 'Deleting...' : 'Yes, Delete User'}
-              </button>
-              <button onClick={closeModal} className="btn-secondary flex-1">
-                Cancel
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
