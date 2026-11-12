@@ -87,7 +87,7 @@ export default function Footer() {
               </li>
               <li>
                 <a
-                  href="https://github.com/Sailor-Labs/vibe-message"
+                  href="https://github.com/sailorlabs-in/vibe-message"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-theme-text-primary transition-colors inline-block"
@@ -192,7 +192,7 @@ export default function Footer() {
         {/* Telemetry Status Bar & Copyright */}
         <div className="pt-8 border-t border-theme-border flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-theme-text-muted">
           <div>
-            &copy; {new Date().getFullYear()} SailorLabs. Vibe Message open-standard infrastructure.
+            &copy; {new Date().getFullYear()} SailorLabs.in. Vibe Message open-standard infrastructure.
           </div>
           <div className="flex items-center space-x-2.5 px-3 py-1.5 rounded-full bg-theme-bg-secondary border border-theme-border shadow-2xs">
             {health.status === 'loading' && (
