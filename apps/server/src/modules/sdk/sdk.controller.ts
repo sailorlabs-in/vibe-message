@@ -1,12 +1,37 @@
 import { Controller, Get, Post, Body, Res, HttpStatus } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBody, ApiResponse, ApiProperty } from '@nestjs/swagger';
 import { Response } from 'express';
+// SDK tracking and registration controller
 import { AppService } from '../app/app.service';
 import { DeviceService } from '../device/device.service';
 import { getVapidPublicKey } from '../../utils/webPush';
 import { decryptPayload } from '../../utils/crypto';
 import { validateRegisterDevice, validateUnregisterDevice } from '../../utils/validation';
 import { PushService } from '../push/push.service';
+
+class TrackNotificationDto {
+  @ApiProperty({
+    description: 'The notification log ID received inside the push payload (notificationLogId field)',
+    example: 42,
+    type: Number,
+  })
+  logId!: number;
+
+  @ApiProperty({
+    description: 'Delivery outcome reported by the service worker',
+    enum: ['DELIVERED', 'FAILED'],
+    example: 'DELIVERED',
+  })
+  status!: 'DELIVERED' | 'FAILED';
+
+  @ApiProperty({
+    description: 'Optional error details when status is FAILED',
+    example: 'SW_SHOW_NOTIFICATION_ERROR: Permission denied',
+    required: false,
+    type: String,
+  })
+  errorMessage?: string;
+}
 
 @ApiTags('External Notifications APIs')
 @Controller('sdk')
@@ -17,6 +42,8 @@ export class SdkController {
     private readonly pushService: PushService
   ) {}
 
+  @ApiOperation({ summary: 'Get VAPID public key', description: 'Returns the VAPID public key required to subscribe to push notifications via the browser PushManager API.' })
+  @ApiResponse({ status: 200, description: 'VAPID public key returned successfully', schema: { example: { success: true, data: { publicKey: 'BOrBn7_jKh4Q...' } } } })
   @Get('vapid-public-key')
   getVapidPublicKey() {
     return { success: true, data: { publicKey: getVapidPublicKey() } };
@@ -116,9 +143,48 @@ export class SdkController {
     }
   }
 
+  @ApiOperation({
+    summary: 'Track notification delivery status',
+    description:
+      'Callback endpoint invoked by service workers or client SDKs to report delivery success (DELIVERED) or failure (FAILED) for a dispatched push notification.',
+  })
+  @ApiBody({
+    type: TrackNotificationDto,
+    description: 'Notification delivery status payload',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Notification delivery tracked successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Notification delivery tracked successfully',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Validation error (missing fields, invalid logId or invalid status)',
+    schema: {
+      example: {
+        success: false,
+        message: 'status must be DELIVERED or FAILED',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 500,
+    description: 'Internal server error',
+    schema: {
+      example: {
+        success: false,
+        message: 'Internal server error',
+      },
+    },
+  })
   @Post('track')
   async trackNotification(
-    @Body() body: { logId: number; status: 'DELIVERED' | 'FAILED'; errorMessage?: string },
+    @Body() body: TrackNotificationDto,
     @Res() res: Response
   ) {
     try {
