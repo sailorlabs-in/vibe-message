@@ -2,6 +2,10 @@ import dotenv from 'dotenv';
 import { resolve } from 'path';
 
 dotenv.config();
+if (process.env.NODE_ENV === 'test') {
+  dotenv.config({ path: resolve(__dirname, '../../.env.test'), override: true });
+  dotenv.config({ path: resolve(process.cwd(), 'apps/server/.env.test'), override: true });
+}
 dotenv.config({ path: resolve(__dirname, '../../.env') });
 dotenv.config({ path: resolve(process.cwd(), 'apps/server/.env') });
 

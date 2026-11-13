@@ -1,10 +1,12 @@
 import dotenv from 'dotenv';
 import { resolve } from 'path';
 
-// Load base .env
+// Load base .env and .env.test
 dotenv.config();
 dotenv.config({ path: resolve(__dirname, '../.env') });
 dotenv.config({ path: resolve(process.cwd(), 'apps/server/.env') });
+dotenv.config({ path: resolve(__dirname, '../.env.test'), override: true });
+dotenv.config({ path: resolve(process.cwd(), 'apps/server/.env.test'), override: true });
 
 const originalUrl =
   process.env.DATABASE_URL || 'postgresql://umang:secret123@localhost:5432/messagedb';

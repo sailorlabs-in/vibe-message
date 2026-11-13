@@ -63,7 +63,7 @@ export class HttpCronQueueProcessor extends WorkerHost {
           ...(cronJob.headers || {}),
         };
 
-        const fetchOptions: RequestInit = {
+        const fetchOptions: any = {
           method: cronJob.method,
           headers: requestHeaders,
           signal: controller.signal,

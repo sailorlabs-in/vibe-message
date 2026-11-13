@@ -71,4 +71,34 @@ describe('HealthController (Unit Tests)', () => {
     expect(res.data.checks.database.status).toBe('error');
     expect(res.data.checks.database.message).toBe('DB Connection Refused');
   });
+
+  it('should report error when redis ping fails or throws', async () => {
+    mockRedisService.ping.mockResolvedValueOnce({ ok: false, error: 'Redis timeout', latencyMs: -1 });
+
+    let res = await controller.check();
+    expect(res.data.checks.redis.status).toBe('error');
+    expect(res.data.checks.redis.message).toBe('Redis timeout');
+
+    mockRedisService.ping.mockRejectedValueOnce(new Error('Redis crash'));
+    res = await controller.check();
+    expect(res.data.checks.redis.status).toBe('error');
+    expect(res.data.checks.redis.message).toBe('Redis crash');
+  });
+
+  it('should report error when queues check throws', async () => {
+    mockPushQueue.getJobCounts.mockRejectedValueOnce(new Error('Queue unavailable'));
+
+    const res = await controller.check();
+    expect(res.data.checks.queues.status).toBe('error');
+    expect(res.data.checks.queues.message).toBe('Queue unavailable');
+  });
+
+  it('should handle cronSchedulers with null next timestamp and format uptime', async () => {
+    mockCronQueue.getJobSchedulers.mockResolvedValueOnce([
+      { name: 'job-without-next', pattern: '* * * * *', next: null },
+    ]);
+
+    const res = await controller.check();
+    expect(res.data.checks.queues.activeCronSchedules[0].next).toBeNull();
+  });
 });

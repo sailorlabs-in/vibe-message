@@ -2,20 +2,32 @@ import { Client } from 'pg';
 import dotenv from 'dotenv';
 import { resolve } from 'path';
 
-// Ensure .env is loaded
+// Ensure .env and .env.test are loaded
 dotenv.config();
 dotenv.config({ path: resolve(__dirname, '../.env') });
 dotenv.config({ path: resolve(process.cwd(), 'apps/server/.env') });
+dotenv.config({ path: resolve(__dirname, '../.env.test'), override: true });
+dotenv.config({ path: resolve(process.cwd(), 'apps/server/.env.test'), override: true });
 
 export function getDbConfig() {
   const originalUrl =
-    process.env.DATABASE_URL || 'postgresql://umang:secret123@localhost:5432/messagedb';
+    process.env.ORIGINAL_DATABASE_URL ||
+    'postgresql://umang:secret123@localhost:5432/messagedb';
+  
+  let testUrl = process.env.DATABASE_URL;
+  let testDb = 'messagedb-test';
+
+  if (testUrl) {
+    const parsedTestUrl = new URL(testUrl);
+    testDb = parsedTestUrl.pathname.replace(/^\//, '') || 'messagedb-test';
+  } else {
+    const urlObj = new URL(originalUrl);
+    urlObj.pathname = `/${testDb}`;
+    testUrl = urlObj.toString();
+  }
+
   const urlObj = new URL(originalUrl);
   const originalDb = urlObj.pathname.replace(/^\//, '') || 'messagedb';
-  const testDb = `${originalDb}-test`;
-
-  urlObj.pathname = `/${testDb}`;
-  const testUrl = urlObj.toString();
 
   // Connect to postgres default DB or original DB to issue CREATE/DROP DATABASE
   const adminUrlObj = new URL(originalUrl);
