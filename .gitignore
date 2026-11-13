@@ -142,6 +142,8 @@ dist
 *.njsproj
 *.sln
 *.sw?
+
+
+# agent skills
 .agent
 .agents
-skills-lock.json
